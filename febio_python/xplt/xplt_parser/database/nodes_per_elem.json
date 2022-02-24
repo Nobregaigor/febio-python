@@ -1,0 +1,13 @@
+{
+    "ELEM_HEX": 8,
+    "ELEM_PENTA": 6,
+    "ELEM_PENTA15": 15,
+    "ELEM_TET": 4,
+    "ELEM_QUAD": 4,
+    "ELEM_TRI": 3,
+    "ELEM_TRUSS": 2,
+    "ELEM_HEX20": 20,
+    "ELEM_TET10": 10,
+    "ELEM_TET15": 15,
+    "ELEM_HEX27": 27
+}
