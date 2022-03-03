@@ -20,7 +20,9 @@ All ideas are welcome. Open/close issues, fork the repo, implement your own func
 
 ### To install FEBio-Python using pip:
 
-(future implementation)
+```bash
+pip install febio-python
+```
 
 ### Download or clone from this repository:
 
