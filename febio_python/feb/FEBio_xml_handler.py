@@ -1,77 +1,74 @@
+from tkinter import E
 import xml.etree.ElementTree as ET
 from os.path import isfile, join
 # from .. logger import console_log as log
+from .enums import *
+from pathlib import Path
 
 
 class FEBio_xml_handler():
-    def __init__(self, path_to_feb_file):
-        self.path_to_file = path_to_feb_file
+    def __init__(self, tree, root=None, filepath=None):
+        self.path_to_file = filepath
 
         # ET tree reference for paesed xml file
-        self.tree = None
+        self.tree = tree
         # Tree root reference for paesed xml file
-        self.root = None
+        if root is not None:
+            self.root = root
+        else:
+            self.root = tree.getroot()
 
         # Order in which outer tags should be placed
-        self.props_order = ['Module', 'Control', 'Material', 'Globals',
-                            'Geometry', 'Boundary', 'Loads',  'Output', 'LoadData', 'MeshData']
-        self.existing_tags = []
-
-        self.was_initialized = False
-        self.initialize()
+        self.lead_tag_order = [item.value for item in list(FEB_LEAD_TAGS)]
 
     def __repr__(self):
-        return "FEBio_xml_parser(*{!r})".format(self.existing_tags)
+        to_print = "{}:\n".format(self.__class__.__name__)
+        for el in list(self.root):
+            to_print += "-> {}: {}\n".format(el.tag, len(el))
+
+            # print material details
+            if str(el.tag).lower() == str(FEB_LEAD_TAGS.MATERIAL.value).lower() and len(el) > 0:
+                for geo_el in list(el):
+                    if "type" in geo_el.keys():
+                        to_print += "--> {} '{}': {}\n".format(
+                            geo_el.tag, geo_el.attrib["type"], len(geo_el))
+                    else:
+                        to_print += "--> {}: {}\n".format(
+                            geo_el.tag, len(geo_el))
+
+            # print geometry details (nodes and elements)
+            if str(el.tag).lower() == str(FEB_LEAD_TAGS.GEOMETRY.value).lower() and len(el) > 0:
+                for geo_el in list(el):
+                    if geo_el.tag == "Nodes" or geo_el.tag == "Elements":
+                        if "name" in geo_el.keys():
+                            to_print += "--> {} '{}': {}\n".format(
+                                geo_el.tag, geo_el.attrib["name"], len(geo_el))
+                        else:
+                            to_print += "--> {}: {}\n".format(
+                                geo_el.tag, len(geo_el))
+        return to_print
 
     def __len__(self):
-        return len(self.existing_tags)
+        return len(self.root)
 
-    def initialize(self):
-        if not self.was_initialized:
-            # log.log_message("Initializing...")
-            # log.log_message("-Parsing.")
-            self.tree = ET.parse(self.path_to_file)
-            # log.log_message("-Rooting.")
-            self.root = self.tree.getroot()
-            # log.log_message("-Finding tags.")
-            for child in self.root:
-                tag_name = child.tag
-                if not hasattr(self, tag_name):
-                    self.set_tag_obj_ref(child)
-                    # log.log_message("--Found: {}.".format(tag_name))
-            self.was_initialized = True
+    @staticmethod
+    def parse(content) -> tuple:
+        """Parse some content into 'ET' tree and root elements.
 
-    def has_tag(self, tag):
-        if hasattr(self, tag) and getattr(self, tag) != None:
-            return True
-        else:
-            return False
+        Args:
+            content (str, pathlike, ElementTree or Element): Content to be parsed.
 
-    def set_tag_obj_ref(self, tag_elem):
-        # This function sets a ref of the tag elem to the main obj
-        # It returns true if it is a new tag, otherwise it returns false
-        tag_name = tag_elem.tag
-        if not hasattr(self, tag_name):
-            # Set new attr to obj with ref to tag
-            setattr(self, tag_name, tag_elem)
-            # Keep control of existing tags
-            self.existing_tags.append(tag_name)
-            return True
-        else:
-            return False
-
-    def parse(self, content):
-        # Parse from file:
-        # Try to parse as string
-        if type(content) == str:
-            if content.find(":\\") != -1:
-                if isfile(content):
-                    tree = ET.parse(content)
-                    root = tree.getroot()
+        Returns:
+            tuple: (tree, root)
+        """
+        if isinstance(content, str) or isinstance(content, Path):
+            if isfile(str(content)):
+                tree = ET.parse(content)
+                root = tree.getroot()
             else:
                 try:
-                    tree = None
-                    root = ET.fromstring(content)
+                    tree = ET.fromstring(content)
+                    root = tree.getroot()
                 except:
                     raise(ValueError(
                         "Content was identified as string, but could not be parsed. Please, verify."))
@@ -90,94 +87,44 @@ class FEBio_xml_handler():
 
         return tree, root
 
-    def add_tag(self, content, branch=None, insert_pos=-1):
-        # log.log_message("Adding tag...")
-        # Parse content
-        tree, root = self.parse(content)
+    @classmethod
+    def from_file(cls, filename) -> object:
+        if not isfile(filename):
+            raise ValueError("Input file does not exist.")
+        tree, root = FEBio_xml_handler.parse(filename)
+        return cls(tree, root=root, filepath=filename)
 
-        # If no branch was given, content is global
-        if branch == None:
-            tag_name = root.tag
-            if not self.has_tag(tag_name):
-                if tag_name in self.props_order:
-                    props_idx = self.props_order.index(tag_name)
-                    if props_idx == 0:
-                        insert_pos = 1
-                    elif props_idx == len(self.props_order) - 1:
-                        insert_pos = -1
-                    else:
-                        insert_pos = props_idx
-                        # for tag_to_find in reversed(self.props_order[:props_idx]):
-                        # 	log.log_message("tag_to_find: ", tag_to_find)
-                        # 	if tag_to_find in self.existing_tags:
-                        # 		log.log_message("tag_to_find index: ", self.existing_tags.index(tag_to_find))
-                        # 		curr_loc = self.existing_tags.index(tag_to_find)
-                        # 		insert_pos = curr_loc + 1 if curr_loc > 1 else 0
-                        # 		break
-            else:
-                insert_pos = -1
+    @classmethod
+    def from_parse(cls, content) -> object:
+        tree, root = FEBio_xml_handler.parse(content)
+        return cls(tree, root=root)
 
-            self.set_tag_obj_ref(root)
-            if insert_pos == -1:
-                self.root.append(root)
-            else:
-                self.root.insert(insert_pos, root)
+    @classmethod
+    def from_new(cls) -> object:
+        # tree = ET.ElementTree(ET.Element(FEB_ROOT.ROOT.value))
+        root = ET.Element(FEB_ROOT.ROOT.value)
+        for item in FEB_LEAD_TAGS:
+            _ = ET.SubElement(root, item.value)
+        tree = ET.ElementTree(root)
+        return cls(tree)
 
-        else:
-            if type(branch) == list or type(branch) == tuple:
-                a = getattr(self, branch[0])
-                b = a.find(branch[1])
-                if b != None:
-                    a = b
-            else:
-                a = getattr(self, branch)
+    def clean(self) -> None:
+        """Remore all root children that are empty."
+        """
+        for child in list(self.root):
+            if child.tag != FEB_LEAD_TAGS.MODULE:
+                if len(child) == 0:
+                    self.root.remove(child)
 
-            # exists = a.find(root.tag)
-            # log.log_message("exists: ", exists)
-            # if exists != None:
-            # 	exists.text = root.text
-            # else:
+    def write(self, filepath, clean=False) -> None:
+        # self.indent(self.root)
+        if clean:
+            self.clean()
+        ET.indent(self.tree, space="\t", level=0)
+        self.tree.write(filepath, encoding="ISO-8859-1")
 
-            if insert_pos == -1:
-                a.append(root)  # inserts as the last element
-            else:
-                a.insert(insert_pos, root)
-
-    def modify_tag(self, tag, content, branch):
-
-        if type(branch) == list or type(branch) == tuple:
-            # a = getattr(self,branch[0])
-            # b = a.find(branch[1])
-            # while b != None:
-            # 	a = getattr(br)
-            # if b != None:
-            # 	a = b
-
-            first_elem = branch[0]
-            branch.pop(0)
-            # branch.append(tag)
-
-            if hasattr(self, first_elem):
-                a = getattr(self, first_elem)
-                for sr in branch:
-                    new_a = a.find(sr)
-                    if new_a != None:
-                        a = new_a
-            # 		log.log_message("inter a:", a)
-            # log.log_message("final a:",a)
-                    # if hasattr(a,sr) == True:
-                    # 	a = getattr(a,sr)
-                    # 	log.log_message("new a:", a)
-                    # else:
-                    # 	log.log_message("*** Warning; Could not get sub_tag", tag, "from", branch[0],". It does not have such sub_tag")
-        else:
-            a = getattr(self, branch)
-
-        exists = a.find(tag)
-        if exists != None:
-            exists.text = content
-        else:
-            a.insert(0, content)
+    # ----------------------------------------------------------------
+    # old methods for extracting some geometry data (not fully tested and not optimized)
 
     def get_elemsets(self, ids_only=True):
         """
@@ -251,110 +198,207 @@ class FEBio_xml_handler():
 
         return to_return
 
-    def add_fibers(self, df_fibers):
-        # log.log_message("Adding fibers...")
-        # Create MeshData Element
-        mesh_data = ET.Element('MeshData')
-        # Create sub-elements for each element set and list first id of each sub-element
-        first_ids = []
-        elems_ref = []
-        # max_penta_elem = -1
+    # ===========================
+    # NEW METHODS:
 
-        element_sets = self.get_elemsets()
-        # print("element_sets")
-        # print(element_sets)
-
-        def check_which_elset_elid_belongs(elid):
-            for key, elsetids in element_sets.items():
-                # print("key", key)
-                if int(elid) in elsetids:
-                    return key
-            raise ValueError(
-                "Could not find elid '{}' in any elset.".format(elid))
-
-        # df_data = df_fibers
-        # print("df_fibers")
-        # print(df_fibers)
-
-        # iterate through elem sets
-        data_loc = {}
-        data_counts = {}
-        for i, var in enumerate(self.Geometry.findall("Elements")):
-            element_set_name = var.get("name")
-            element_set_type = var.get("type")
-            elems_ref.append(element_set_name)
-            first_ids.append(int(var.find("elem").get("id")))
-            a = ET.SubElement(mesh_data, "ElementData")
-            a.set("elem_set", element_set_name)
-            a.set("var", "mat_axis")
-            data_loc[element_set_name] = i
-            data_counts[element_set_name] = 0
-
-            # sum number of penta elements (FEBio cannot have two fiber axis for a hex element connected to a penta element)
-            # if element_set_type.find("penta") != -1:
-            # 	number_of_penta_children = len(var.getchildren())
-            # 	max_penta_elem = number_of_penta_children if max_penta_elem == -1 else max_penta_elem + number_of_penta_children
-
-        # Create node sub_elements
-        # l_first_ids = len(first_ids)
-        # belongs = 0
-
-        for i, row in enumerate(df_fibers.itertuples()):
-            # if l_first_ids > 1 and belongs + 1 < l_first_ids:
-            # 	if i + 2 > first_ids[belongs + 1]:
-            # 		belongs += 1
-            # 		local_id = 0
-            # local_id += 1
-            fid = row[1]
-            # print("fid", fid)
-            # print("row", row)
-            elsetid = check_which_elset_elid_belongs(fid)
-            belongs = data_loc[elsetid]
-
-            # Set fiber info
-            data_counts[elsetid] += 1  # update local id count
-            lid = data_counts[elsetid]
-            f0 = ','.join(str(val) for val in row[2:5])
-            s0 = ','.join(str(val) for val in row[5:8])
-
-            # Create sub-elements
-            elem = ET.SubElement(mesh_data[belongs], "elem")
-            elem.set("lid", str(lid))
-            a = ET.SubElement(elem, "a")
-            d = ET.SubElement(elem, "d")
-            a.text = f0
-            d.text = s0
-
-        # to_keep = []
-        for i, eldata in enumerate(mesh_data.findall("ElementData")):
-            # print("len elem:", len(eldata.findall("elem")))
-
-            if len(eldata.findall("elem")) == 0:
-                mesh_data.remove(eldata)
-                # to_keep.append(i)
-
-        self.root.insert(len(self.existing_tags), mesh_data)
-
-    def indent(self, elem, level=0):
-        i = "\n" + level*"  "
-        if len(elem):
-            if not elem.text or not elem.text.strip():
-                elem.text = i + "  "
-            for e in elem:
-                self.indent(e, level+1)
-                if not e.tail or not e.tail.strip():
-                    e.tail = i + "  "
-            if not e.tail or not e.tail.strip():
-                e.tail = i
+    def check_enum(self, value: Enum) -> tuple:
+        if isinstance(value, Enum):
+            return value.name, value.value
         else:
-            if level and (not elem.tail or not elem.tail.strip()):
-                elem.tail = i
+            return value, value
 
-    def write_feb(self, path_to_output_folder, file_name):
-        file_name = file_name + \
-            ".feb" if file_name[-4:] != ".feb" else file_name
-        # log.log_message("Indenting root...")
-        self.indent(self.root)
-        # log.log_message("Writing file...")
-        self.tree.write(join(path_to_output_folder, file_name),
-                        encoding="ISO-8859-1")
+    def get_lead_tag(self, tag: str) -> ET.Element:
+        """Return ET element corresponding to given tag. Lead tags are defined \
+            as 'root' tags contained within 'febio_spec'.
+
+        Args:
+            tag (str or enum): Name of tag.
+
+        Raises:
+            KeyError: If tag is not found in 'febio_spec'.
+
+        Returns:
+            ET.Element: Pointer to tag element.
+        """
+        tag_name, tag_val = self.check_enum(tag)
+        el = self.root.find(tag_val)
+        if el is None:
+            raise KeyError(
+                "Tag '%s' not found. Are you sure it is valid? Check FEB_LEAD_TAGS enums for details." % tag_name)
+        return el
+
+    def get_tag(self, lead_tag: str, tag: str) -> ET.Element:
+        """Return ET element corresponding to given tag contained within 'lead_tag'. \
+            Lead tags are defined as 'root' tags contained within 'febio_spec'. \
+            This method will return only the first tag found. If you wish to\
+                find multiple repeated tags, use 'get_repeated_tags'.
+
+        Args:
+            lead_tag (str or enum): Name of lead tag.
+            tag (str or enum): Name of tag.
+
+        Raises:
+            KeyError: If tag is not found in 'lead_tag'.
+
+        Returns:
+            ET.Element: Pointer to tag element.
+        """
+        el = self.get_lead_tag(lead_tag)
+        tag_name, tag_val = self.check_enum(tag)
+        el = el.find(tag_val)
+        if el is None:
+            lead_tag_name, _ = self.check_enum(lead_tag)
+            raise KeyError(
+                "Tag '{}' not found within {}.".format(tag_name, lead_tag_name))
+        return el
+
+    def get_repeated_tags(self, lead_tag: str, tag: str) -> ET.Element:
+        """Return ET element corresponding to given tag contained within 'lead_tag'. \
+            Lead tags are defined as 'root' tags contained within 'febio_spec'. \
+            This method will return only the first tag found. If you wish to\
+                find multiple repeated tags, use 'get_repeated_tags'.
+
+        Args:
+            lead_tag (str or enum): Name of lead tag.
+            tag (str or enum): Name of tag.
+
+        Raises:
+            KeyError: If tag is not found in 'lead_tag'.
+
+        Returns:
+            ET.Element: Pointer to tag element.
+        """
+        el = self.get_lead_tag(lead_tag)
+        tag_name, tag_val = self.check_enum(tag)
+        el = el.findall(tag_val)
+        if len(el) == 0:
+            lead_tag_name, _ = self.check_enum(lead_tag)
+            raise KeyError(
+                "Tag '{}' not found within {}.".format(tag_name, lead_tag_name))
+        return el
+
+    def add_lead_tag(self, lead_tag: str) -> None:
+        """Tries to add lead tag at proper position according to 'lead_tag_order'.
+
+        Args:
+            lead_tag (str): Lead tag to add. Refer to FEB_LEAD_TAGS enum for details.
+
+        Raises:
+            ValueError: If lead_tag is invalid.
+        """
+        try:
+            self.get_lead_tag(lead_tag)
+        except KeyError:
+            tag_name, tag_val = self.check_enum(lead_tag)
+            if tag_val not in self.lead_tag_order:
+                raise ValueError(
+                    "Invalid value for 'lead_tag': {}. Check FEB_LEAD_TAGS enum for details.".format(tag_name))
+            idx = self.lead_tag_order.index(tag_val)  # where to insert
+
+            if len(self.root) == 0 or idx == 0:
+                self.root.insert(0, ET.Element(tag_val))
+            elif idx == len(self.root):
+                self.root.insert(idx-1, ET.Element(tag_val))
+            elif idx < len(self.root):
+                self.root.insert(idx, ET.Element(tag_val))
+            else:
+                added = False
+                for child in list(self.root):
+                    child_idx = self.lead_tag_order.index(child.tag)
+                    if idx < child_idx:
+                        self.root.insert(-1, ET.Element(tag_val))
+                        added = True
+                        break
+                if added == False:
+                    self.root.insert(idx, ET.Element(tag_val))
+
+    # ----------------------------------------------------------------
+    # lead tag shortcuts
+
+    def module(self) -> ET.Element:
+        """Returns pointer to 'MODULE' element within 'febio_spec'."""
+        try:
+            return self.get_lead_tag(FEB_LEAD_TAGS.MODULE)
+        except KeyError:
+            self.add_lead_tag(FEB_LEAD_TAGS.MODULE)
+            return self.get_lead_tag(FEB_LEAD_TAGS.MODULE)
+
+    def control(self) -> ET.Element:
+        """Returns pointer to 'CONTROL' element within 'febio_spec'."""
+        try:
+            return self.get_lead_tag(FEB_LEAD_TAGS.CONTROL)
+        except KeyError:
+            self.add_lead_tag(FEB_LEAD_TAGS.CONTROL)
+            return self.get_lead_tag(FEB_LEAD_TAGS.CONTROL)
+
+    def material(self) -> ET.Element:
+        """Returns pointer to 'MATERIAL' element within 'febio_spec'."""
+        try:
+            return self.get_lead_tag(FEB_LEAD_TAGS.MATERIAL)
+        except KeyError:
+            self.add_lead_tag(FEB_LEAD_TAGS.MATERIAL)
+            return self.get_lead_tag(FEB_LEAD_TAGS.MATERIAL)
+
+    def globals(self) -> ET.Element:
+        """Returns pointer to 'GLOBALS' element within 'febio_spec'."""
+        try:
+            return self.get_lead_tag(FEB_LEAD_TAGS.GLOBALS)
+        except KeyError:
+            self.add_lead_tag(FEB_LEAD_TAGS.GLOBALS)
+            return self.get_lead_tag(FEB_LEAD_TAGS.GLOBALS)
+
+    def geometry(self) -> ET.Element:
+        """Returns pointer to 'GEOMETRY' element within 'febio_spec'."""
+        try:
+            return self.get_lead_tag(FEB_LEAD_TAGS.GEOMETRY)
+        except KeyError:
+            self.add_lead_tag(FEB_LEAD_TAGS.GEOMETRY)
+            return self.get_lead_tag(FEB_LEAD_TAGS.GEOMETRY)
+
+    def boundary(self) -> ET.Element:
+        """Returns pointer to 'BOUNDARY' element within 'febio_spec'."""
+        try:
+            return self.get_lead_tag(FEB_LEAD_TAGS.BOUNDARY)
+        except KeyError:
+            self.add_lead_tag(FEB_LEAD_TAGS.BOUNDARY)
+            return self.get_lead_tag(FEB_LEAD_TAGS.BOUNDARY)
+
+    def loads(self) -> ET.Element:
+        """Returns pointer to 'LOADS' element within 'febio_spec'."""
+        try:
+            return self.get_lead_tag(FEB_LEAD_TAGS.LOADS)
+        except KeyError:
+            self.add_lead_tag(FEB_LEAD_TAGS.LOADS)
+            return self.get_lead_tag(FEB_LEAD_TAGS.LOADS)
+
+    def discretesets(self) -> ET.Element:
+        """Returns pointer to 'DISCRETESET' element within 'febio_spec'."""
+        try:
+            return self.get_lead_tag(FEB_LEAD_TAGS.DISCRETESET)
+        except KeyError:
+            self.add_lead_tag(FEB_LEAD_TAGS.DISCRETESET)
+            return self.get_lead_tag(FEB_LEAD_TAGS.DISCRETESET)
+
+    def loaddata(self) -> ET.Element:
+        """Returns pointer to 'LOADDATA' element within 'febio_spec'."""
+        try:
+            return self.get_lead_tag(FEB_LEAD_TAGS.LOADDATA)
+        except KeyError:
+            self.add_lead_tag(FEB_LEAD_TAGS.LOADDATA)
+            return self.get_lead_tag(FEB_LEAD_TAGS.LOADDATA)
+
+    def output(self) -> ET.Element:
+        """Returns pointer to 'OUTPUT' element within 'febio_spec'."""
+        try:
+            return self.get_lead_tag(FEB_LEAD_TAGS.OUTPUT)
+        except KeyError:
+            self.add_lead_tag(FEB_LEAD_TAGS.OUTPUT)
+            return self.get_lead_tag(FEB_LEAD_TAGS.OUTPUT)
+
+    def meshdata(self) -> ET.Element:
+        """Returns pointer to 'MESHDATA' element within 'febio_spec'."""
+        try:
+            return self.get_lead_tag(FEB_LEAD_TAGS.MESHDATA)
+        except KeyError:
+            self.add_lead_tag(FEB_LEAD_TAGS.MESHDATA)
+            return self.get_lead_tag(FEB_LEAD_TAGS.MESHDATA)

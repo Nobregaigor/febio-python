@@ -2,11 +2,12 @@ import warnings
 import numpy as np
 import xml.etree.ElementTree as ET
 from .FEBio_xml_handler import FEBio_xml_handler
+from .enums import *
 
 
 class FEBio_feb(FEBio_xml_handler):
-    def __init__(self, path_to_feb_file):
-        super().__init__(path_to_feb_file)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     # ===========================
     # retrieve data from feb file
@@ -15,11 +16,7 @@ class FEBio_feb(FEBio_xml_handler):
         """
           Returns nodes from .feb file as a numpy array of specified dtype.
         """
-        if not self.has_tag("Geometry"):
-            print("Could not find Geometry tag in .feb file.")
-            return np.empty([])
-
-        node_root = self.Geometry.find("Nodes")
+        node_root = self.geometry().find("Nodes")
         nodes_list = node_root.findall("node")
         nodes = np.zeros([len(nodes_list), 3])
         for i, ninfo in enumerate(nodes_list):
@@ -30,11 +27,8 @@ class FEBio_feb(FEBio_xml_handler):
         """
           Returns elems from .feb file as a numpy array of specified dtype.
         """
-        if not self.has_tag("Geometry"):
-            print("Could not find Geometry tag in .feb file.")
-            return np.empty([])
 
-        elems_root = self.Geometry.find("Elements")
+        elems_root = self.geometry().find("Elements")
         elems_list = elems_root.findall("elem")
         elems = []
         for ninfo in elems_list:
@@ -45,12 +39,9 @@ class FEBio_feb(FEBio_xml_handler):
         """
           Returns a dictionary with nodesets as {name: [nodes]}
         """
-        if not self.has_tag("Geometry"):
-            print("Could not find Geometry tag in .feb file.")
-            return np.empty([])
 
         nodesets = dict()
-        nodesets_list = self.Geometry.findall("NodeSet")
+        nodesets_list = self.geometry().findall("NodeSet")
         for item in nodesets_list:
             nodesets[item.attrib["name"]] = np.array(
                 [node.attrib["id"] for node in item.findall("node")],
@@ -60,15 +51,56 @@ class FEBio_feb(FEBio_xml_handler):
     # ============================
     # Add content to feb file
 
-    def add_nodesets(self, nodesets):
+    def add_nodes(self, nodes: list, initial_el_id: int = 1) -> None:
+        """
+          Adds nodes to Geometry
+        """
+
+        for (node_elem) in nodes:
+            if "nodes" not in node_elem:
+                raise ValueError("Nodes not found for one of the nodes.")
+
+            el_root = ET.Element("Nodes")
+            if "name" in node_elem:
+                el_root.set("name", node_elem["name"])
+
+            for i, node_xyz in enumerate(node_elem["nodes"]):
+                if len(node_xyz) != 3:  # check for correct node information.
+                    raise ValueError(
+                        "Node '{}' does not have the correct number of coordinates. It should contain [x,y,z] values.")
+                subel = ET.SubElement(el_root, "node")
+                subel.set("id", str(i + initial_el_id))
+                subel.text = ",".join(map(str, node_xyz))
+            initial_el_id = i + 1
+
+            self.geometry().extend([el_root])
+
+    def add_elements(self, elements: list, initial_el_id: int = 1) -> None:
+        """
+          Adds elements to Geometry
+        """
+
+        for elem_data in elements:
+            el_root = ET.Element("Elements")
+            el_root.set("name", elem_data["name"])
+            el_root.set("type", elem_data["type"])
+            if "mat" in elem_data:
+                el_root.set("mat", elem_data["mat"])
+
+            for i, elem in enumerate(elem_data["elems"]):
+                subel = ET.SubElement(el_root, "elem")
+                subel.set("id", str(i + initial_el_id))
+                subel.text = ",".join(map(str, elem))
+            initial_el_id = i + 1
+
+            self.geometry().extend([el_root])
+
+    def add_nodesets(self, nodesets: list) -> None:
         """
           Adds nodesets to Geometry tree element.
           'nodesets' should be a dictionary with keys representing nodeset name
           and values representing nodes of such nodeset.
         """
-        if not self.has_tag("Geometry"):
-            print("Could not find Geometry tag in .feb file.")
-            return None
 
         for (name, nodes) in nodesets.items():
             nodeset = ET.Element("NodeSet")
@@ -77,26 +109,30 @@ class FEBio_feb(FEBio_xml_handler):
                 subel = ET.SubElement(nodeset, "node")
                 subel.set("id", str(node_id))
 
-            self.Geometry.extend([nodeset])
+            self.geometry().extend([nodeset])
 
-    def add_boundaries(self, bcs):
+    def add_surfaces(self, nodesets: list, initial_el_id: int = 1) -> None:
         """
-          Adds boundary conditions to Boundary tree element.
+          Adds surfaces to Geometry tree element.
         """
-        if not self.has_tag("Boundary"):
-            print("Could not find Boundary tag in .feb file.")
-            return None
 
-        for (bc_type, bc, nodeset) in bcs:
-            boundary = ET.Element(bc_type)
-            boundary.set("bc", bc)
-            boundary.set("node_set", nodeset)
-            self.Boundary.extend([boundary])
+        for (name, nodes) in nodesets.items():
+            nodeset = ET.Element("Surface")
+            nodeset.set("name", name)
+            for i, node_ids in enumerate(nodes):
+                n_ids = len(node_ids)
+                try:
+                    subel_type = SURFACE_EL_TYPE(n_ids).name
+                except:
+                    raise NotImplementedError(
+                        "We only SURFACE_EL_TYPE enum values. Check enums for details.")
+                subel = ET.SubElement(nodeset, subel_type)
+                subel.set("id", str(i+initial_el_id))
+                subel.text = ",".join(map(str, node_ids))
 
-    def add_discretesets(self, discretesets):
-        if not self.has_tag("Geometry"):
-            print("Could not find Geometry tag in .feb file.")
-            return None
+            self.geometry().extend([nodeset])
+
+    def add_discretesets(self, discretesets: list) -> None:
 
         for (name, delems) in discretesets.items():
             newset = ET.Element("DiscreteSet")
@@ -108,42 +144,41 @@ class FEBio_feb(FEBio_xml_handler):
                 else:
                     subel.text = ",".join(map(str, nodes_ids))
 
-            self.Geometry.extend([newset])
+            self.geometry().extend([newset])
 
-    def add_boundaries(self, bcs):
+    def add_boundary_conditions(self, bcs: list) -> None:
         """
           Adds boundary conditions to Boundary tree element.
         """
-        if not self.has_tag("Boundary"):
-            print("Could not find Boundary tag in .feb file.")
-            return None
 
         for (bc_type, bc, nodeset) in bcs:
             boundary = ET.Element(bc_type)
             boundary.set("bc", bc)
             boundary.set("node_set", nodeset)
-            self.Boundary.extend([boundary])
+            self.boundary().extend([boundary])
 
-    def add_elements(self, elements, initial_el_id=1, eltype="quad4"):
+    # --- this function is ugly -> need to be improved (but works for now)
+    def add_meshdata(self, mesh_data: list, initial_el_id: int = 1) -> None:
         """
-          Adds elements to Geometry
+          Adds meshdata to file
         """
-        if not self.has_tag("Geometry"):
-            print("Could not find Geometry tag in .feb file.")
-            return None
 
-        for (name, elemens) in elements.items():
-            el_root = ET.Element("Elements")
-            el_root.set("name", name)
-            el_root.set("type", eltype)
+        for elem_data in mesh_data:
+            el_root = ET.Element("ElementData")
+            el_root.set("elem_set", elem_data["elem_set"])
+            el_root.set("var", elem_data["var"])
 
-            for i, elem in enumerate(elemens):
+            elems = elem_data["elems"]
+            el_keys = list(elems.keys())
+            n_elems = len(elems[el_keys[0]])
+            for i in range(n_elems):
                 subel = ET.SubElement(el_root, "elem")
-                subel.set("id", str(i + initial_el_id))
-                subel.text = ",".join(map(str, elem))
-            initial_el_id = i + 1
+                subel.set("lid", str(i + initial_el_id))
+                for k in el_keys:
+                    subel_2 = ET.SubElement(subel, k)
+                    subel_2.text = ",".join(map(str, elems[k][i]))
 
-            self.Geometry.extend([el_root])
+            self.meshdata().extend([el_root])
 
     # ===========================
     # Modify content from feb file
@@ -156,12 +191,9 @@ class FEBio_feb(FEBio_xml_handler):
                      represent the same geometry data (nodesets, elementsets, 
                      etc)
         """
-        if not self.has_tag("Geometry"):
-            print("Could not find Geometry tag in .feb file.")
-            return None
 
         # get nodes tree from existing nodes data in feb
-        root = self.Geometry.find("Nodes")
+        root = self.geometry().find("Nodes")
         nodes_tree = root.findall("node")
 
         # raise warning if length of new nodes do not match existing nodes
@@ -179,7 +211,7 @@ class FEBio_feb(FEBio_xml_handler):
             subel.text = ",".join(map(str, node_xyz))
 
     # ============================
-    # Other
+    # Other (not fully tested)
 
     def create_linear_spring_discresetset(self, ref_node_id, nodes):
         return [(node_id, ref_node_id) for node_id in nodes]
@@ -198,4 +230,4 @@ class FEBio_feb(FEBio_xml_handler):
                 else:
                     subel.text = ",".join(map(str, nodes_ids))
 
-            self.Geometry.extend([newset])
+            self.geometry().extend([newset])
