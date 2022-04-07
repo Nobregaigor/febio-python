@@ -371,13 +371,13 @@ class FEBio_xml_handler():
             self.add_lead_tag(FEB_LEAD_TAGS.LOADS)
             return self.get_lead_tag(FEB_LEAD_TAGS.LOADS)
 
-    def discretesets(self) -> ET.Element:
-        """Returns pointer to 'DISCRETESET' element within 'febio_spec'."""
+    def discrete(self) -> ET.Element:
+        """Returns pointer to 'DISCRETE' element within 'febio_spec'."""
         try:
-            return self.get_lead_tag(FEB_LEAD_TAGS.DISCRETESET)
+            return self.get_lead_tag(FEB_LEAD_TAGS.DISCRETE)
         except KeyError:
-            self.add_lead_tag(FEB_LEAD_TAGS.DISCRETESET)
-            return self.get_lead_tag(FEB_LEAD_TAGS.DISCRETESET)
+            self.add_lead_tag(FEB_LEAD_TAGS.DISCRETE)
+            return self.get_lead_tag(FEB_LEAD_TAGS.DISCRETE)
 
     def loaddata(self) -> ET.Element:
         """Returns pointer to 'LOADDATA' element within 'febio_spec'."""

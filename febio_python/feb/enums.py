@@ -13,7 +13,7 @@ class FEB_LEAD_TAGS(Enum):
     GEOMETRY = "Geometry"
     BOUNDARY = "Boundary"
     LOADS = "Loads"
-    DISCRETESET = "Discreteset"
+    DISCRETE = "Discrete"
     LOADDATA = "LoadData"
     OUTPUT = "Output"
     MESHDATA = "MeshData"
