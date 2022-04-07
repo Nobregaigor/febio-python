@@ -4,11 +4,11 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="febio-python", 
-    version="0.0.1",
+    name="febio-python",
+    version="0.1.1",
     author="Igor N",
     description="Collection of python modules to work with FEBio.",
-    # url="",
+    url="https://github.com/Nobregaigor/febio-python",
     packages=setuptools.find_namespace_packages(include=["febio_python.*"]),
     license='MIT',
     classifiers=[
@@ -17,7 +17,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
-    entry_points = {
+    entry_points={
         'console_scripts': ['febio-python=febio_python.cli.main:main'],
     },
     # include_package_data=True
