@@ -4,6 +4,7 @@ from os.path import isfile, join
 # from .. logger import console_log as log
 from .enums import *
 from pathlib import Path
+import numpy as np
 
 
 class FEBio_xml_handler():
@@ -242,6 +243,9 @@ class FEBio_xml_handler():
 
         Returns:
             ET.Element: Pointer to tag element.
+
+        Example:
+            feb.get_tag(FEB_LEAD_TAGS.GEOMETRY, "Nodes")
         """
         el = self.get_lead_tag(lead_tag)
         tag_name, tag_val = self.check_enum(tag)
@@ -255,8 +259,6 @@ class FEBio_xml_handler():
     def get_repeated_tags(self, lead_tag: str, tag: str) -> ET.Element:
         """Return ET element corresponding to given tag contained within 'lead_tag'. \
             Lead tags are defined as 'root' tags contained within 'febio_spec'. \
-            This method will return only the first tag found. If you wish to\
-                find multiple repeated tags, use 'get_repeated_tags'.
 
         Args:
             lead_tag (str or enum): Name of lead tag.
@@ -267,6 +269,10 @@ class FEBio_xml_handler():
 
         Returns:
             ET.Element: Pointer to tag element.
+
+        Example:
+            feb.get_repeated_tags(FEB_LEAD_TAGS.GEOMETRY, "NodeSet")
+
         """
         el = self.get_lead_tag(lead_tag)
         tag_name, tag_val = self.check_enum(tag)
@@ -311,6 +317,64 @@ class FEBio_xml_handler():
                         break
                 if added == False:
                     self.root.insert(idx, ET.Element(tag_val))
+
+    def get_content_from_repeated_tags(self, lead_tag: str, tag: str, dtype=np.float32) -> dict:
+        """
+            Returns a dictionary with keys corresponding to tag names (if no name is found, \
+            it will replace with corresponding index), and values from each tag text as a np.ndarray. \
+            Lead tags are defined as 'root' tags contained within 'febio_spec'. \
+            Tag is defined as the sub-tag of a lead tag.
+
+        Args:
+            lead_tag (str or enum): Name of lead tag.
+            tag (str or enum): Name of tag.
+
+        Returns:
+            Dict with tag name as keys and values as np.ndarray from tag content.
+
+        Example:
+            feb.get_content_from_repeated_tags(FEB_LEAD_TAGS.GEOMETRY, "Surface")
+        """
+
+        data = dict()
+        for i, item in enumerate(self.get_repeated_tags(lead_tag, tag)):
+            if "name" in item.attrib:
+                name = item.attrib["name"]
+            else:
+                name = i
+            data[name] = np.array(
+                [np.fromstring(sub_el.text, sep=",") for sub_el in list(item)],
+                dtype=dtype)
+        return data
+
+    def get_ids_from_repeated_tags(self, lead_tag: str, tag: str, dtype=np.float32) -> dict:
+        """
+            Returns a dictionary with keys corresponding to tag names (if no name is found, \
+            it will replace with corresponding index), and values from each tag text as a np.ndarray. \
+            Lead tags are defined as 'root' tags contained within 'febio_spec'. \
+            Tag is defined as the sub-tag of a lead tag.
+
+        Args:
+            lead_tag (str or enum): Name of lead tag.
+            tag (str or enum): Name of tag.
+
+        Returns:
+            Dict with tag name as keys and values as np.ndarray from tag ids.
+
+        Example:
+            feb.get_ids_from_repeated_tags(FEB_LEAD_TAGS.GEOMETRY, "NodeSet")
+        """
+
+        data = dict()
+        for i, item in enumerate(self.get_repeated_tags(lead_tag, tag)):
+            if "name" in item.attrib:
+                name = item.attrib["name"]
+            else:
+                name = i
+            data[name] = np.array(
+                [sub_el.attrib["id"] for sub_el in list(item)],
+                dtype=dtype)
+        return data
 
     # ----------------------------------------------------------------
     # lead tag shortcuts

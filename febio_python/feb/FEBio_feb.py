@@ -10,43 +10,81 @@ class FEBio_feb(FEBio_xml_handler):
         super().__init__(*args, **kwargs)
 
     # ===========================
-    # retrieve data from feb file
+    # retrieve data from geometry content
 
-    def get_nodes_array(self, dtype=np.float32):
-        """
-          Returns nodes from .feb file as a numpy array of specified dtype.
-        """
-        node_root = self.geometry().find("Nodes")
-        nodes_list = node_root.findall("node")
-        nodes = np.zeros([len(nodes_list), 3])
-        for i, ninfo in enumerate(nodes_list):
-            nodes[i, :] = np.fromstring(ninfo.text, sep=",")
-        return nodes.astype(dtype)
+    # ---
+    # wrappers for 'get_content_from_repeated_tags'
 
-    def get_elems_array(self):
+    def get_nodes(self, dtype: np.dtype = np.float32) -> dict:
         """
-          Returns elems from .feb file as a numpy array of specified dtype.
-        """
+          Returns nodes content from .feb file as a dict with keys representing nodes names\
+          and values representing [x,y,z] as a numpy array of specified dtype.\
+          It 'name' is not found in nodes, it save as the corresponding index.
 
-        elems_root = self.geometry().find("Elements")
-        elems_list = elems_root.findall("elem")
-        elems = []
-        for ninfo in elems_list:
-            elems.append(np.fromstring(ninfo.text, sep=",", dtype=np.int32))
-        return np.asarray(elems, dtype=np.object)
+          Args:
+            dtype (np.dtype): Numpy dtype.
 
-    def get_nodesets(self):
-        """
-          Returns a dictionary with nodesets as {name: [nodes]}
-        """
+            Returns:
+                dict: {tag_name: [x,y,z]}
 
-        nodesets = dict()
-        nodesets_list = self.geometry().findall("NodeSet")
-        for item in nodesets_list:
-            nodesets[item.attrib["name"]] = np.array(
-                [node.attrib["id"] for node in item.findall("node")],
-                dtype=np.int32)
-        return nodesets
+            Example:
+                feb.get_nodes()
+        """
+        return self.get_content_from_repeated_tags(FEB_LEAD_TAGS.GEOMETRY, "Nodes", dtype=dtype)
+
+    def get_elements(self, dtype: np.dtype = np.int64) -> dict:
+        """
+          Returns elements content from .feb file as a dict with keys representing elements names\
+          and values representing node ids as a numpy array of specified dtype.\
+          It 'name' is not found in elements, it save as the corresponding index.
+
+          Args:
+            dtype (np.dtype): Numpy dtype.
+
+            Returns:
+                dict: {tag_name: [node_ids]}
+
+            Example:
+                feb.get_elements()
+        """
+        return self.get_content_from_repeated_tags(FEB_LEAD_TAGS.GEOMETRY, "Elements", dtype=dtype)
+
+    def get_surfaces(self, dtype: np.dtype = np.int64) -> dict:
+        """
+          Returns surface content from .feb file as a dict with keys representing surface names\
+          and values representing node ids as a numpy array of specified dtype.\
+          It 'name' is not found in surface, it save as the corresponding index.
+
+          Args:
+            dtype (np.dtype): Numpy dtype.
+
+            Returns:
+                dict: {tag_name: [node_ids]}
+
+            Example:
+                feb.get_surfaces()
+        """
+        return self.get_content_from_repeated_tags(FEB_LEAD_TAGS.GEOMETRY, "Surface", dtype=dtype)
+
+    # ---
+    # wrappers for 'get_ids_from_repeated_tags'
+
+    def get_nodesets(self, dtype=np.int64):
+        """
+          Returns a dict with keys representing node set names and values \
+          representing corresponding node ids as a numpy array of specified dtype.\
+          It 'name' is not found in nodes, it save as the corresponding index.
+
+          Args:
+            dtype (np.dtype): Numpy dtype.
+
+            Returns:
+                dict: {tag_name: [node_ids]}
+
+            Example:
+                feb.get_nodesets()
+        """
+        return self.get_ids_from_repeated_tags(FEB_LEAD_TAGS.GEOMETRY, "NodeSet", dtype=dtype)
 
     # ============================
     # Add content to feb file
@@ -56,9 +94,11 @@ class FEBio_feb(FEBio_xml_handler):
           Adds nodes to Geometry
         """
 
+        last_initial_id = initial_el_id
         for (node_elem) in nodes:
             if "nodes" not in node_elem:
-                raise ValueError("Nodes not found for one of the nodes.")
+                raise ValueError(
+                    "Nodes not found for one of the node_elem. Each node_elem should have a 'nodes' attribute.")
 
             el_root = ET.Element("Nodes")
             if "name" in node_elem:
@@ -69,9 +109,10 @@ class FEBio_feb(FEBio_xml_handler):
                     raise ValueError(
                         "Node '{}' does not have the correct number of coordinates. It should contain [x,y,z] values.")
                 subel = ET.SubElement(el_root, "node")
-                subel.set("id", str(i + initial_el_id))
+                subel.set("id", str(i + last_initial_id))
                 subel.text = ",".join(map(str, node_xyz))
-            initial_el_id = i + 1
+
+            last_initial_id = last_initial_id + i + 1
 
             self.geometry().extend([el_root])
 
@@ -80,6 +121,7 @@ class FEBio_feb(FEBio_xml_handler):
           Adds elements to Geometry
         """
 
+        last_initial_id = initial_el_id
         for elem_data in elements:
             el_root = ET.Element("Elements")
             el_root.set("name", elem_data["name"])
@@ -89,9 +131,9 @@ class FEBio_feb(FEBio_xml_handler):
 
             for i, elem in enumerate(elem_data["elems"]):
                 subel = ET.SubElement(el_root, "elem")
-                subel.set("id", str(i + initial_el_id))
+                subel.set("id", str(i + last_initial_id))
                 subel.text = ",".join(map(str, elem))
-            initial_el_id = i + 1
+            last_initial_id = last_initial_id + i + 1
 
             self.geometry().extend([el_root])
 
@@ -116,6 +158,7 @@ class FEBio_feb(FEBio_xml_handler):
           Adds surfaces to Geometry tree element.
         """
 
+        last_initial_id = initial_el_id
         for (name, nodes) in nodesets.items():
             nodeset = ET.Element("Surface")
             nodeset.set("name", name)
@@ -127,9 +170,9 @@ class FEBio_feb(FEBio_xml_handler):
                     raise NotImplementedError(
                         "We only SURFACE_EL_TYPE enum values. Check enums for details.")
                 subel = ET.SubElement(nodeset, subel_type)
-                subel.set("id", str(i+initial_el_id))
+                subel.set("id", str(i+last_initial_id))
                 subel.text = ",".join(map(str, node_ids))
-
+            last_initial_id = last_initial_id + i + 1
             self.geometry().extend([nodeset])
 
     def add_discretesets(self, discretesets: list) -> None:
@@ -183,9 +226,10 @@ class FEBio_feb(FEBio_xml_handler):
     # ===========================
     # Modify content from feb file
 
-    def replace_nodes(self, nodes, name="Object"):
+    def replace_nodes(self, nodes: list, initial_el_id: int = 1):
         """
-          Replaces nodes elements from .feb_file with new set of nodes.
+          Replaces nodes elements from .feb_file with new set of nodes.\
+          Check 'add_nodes' for more details.\
           * warning: it does not modify any other part of the feb file,
                      thus, keep in mind the new set of nodes should still
                      represent the same geometry data (nodesets, elementsets, 
@@ -205,10 +249,13 @@ class FEBio_feb(FEBio_xml_handler):
         root.clear()
 
         # add new nodes
-        for i, node_xyz in enumerate(nodes):
-            subel = ET.SubElement(root, "node")
-            subel.set("id", str(i + 1))
-            subel.text = ",".join(map(str, node_xyz))
+        self.add_nodes(nodes, initial_el_id)
+
+        # add new nodes
+        # for i, node_xyz in enumerate(nodes):
+        #     subel = ET.SubElement(root, "node")
+        #     subel.set("id", str(i + 1))
+        #     subel.text = ",".join(map(str, node_xyz))
 
     # ============================
     # Other (not fully tested)
