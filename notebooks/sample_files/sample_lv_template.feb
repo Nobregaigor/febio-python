@@ -1,0 +1,152 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<febio_spec version="2.5">
+  <Module type="solid" />
+  <Control>
+    <time_steps>1100</time_steps>
+    <step_size>0.001</step_size>
+    <max_refs>15</max_refs>
+    <max_ups>10</max_ups>
+    <diverge_reform>1</diverge_reform>
+    <reform_each_time_step>1</reform_each_time_step>
+    <dtol>0.001</dtol>
+    <etol>0.01</etol>
+    <rtol>0</rtol>
+    <lstol>0.9</lstol>
+    <min_residual>1e-20</min_residual>
+    <qnmethod>0</qnmethod>
+    <time_stepper>
+      <dtmin>0.0001</dtmin>
+      <dtmax lc="3">0.01</dtmax>
+      <max_retries>6</max_retries>
+      <opt_iter>10</opt_iter>
+    </time_stepper>
+    <plot_level>PLOT_MUST_POINTS</plot_level>
+    <analysis type="dynamic" />
+    <beta>2</beta>
+    <gamma>4</gamma>
+    <print_level>PRINT_PROGRESS</print_level>
+    <output_level>OUTPUT_MUST_POINTS</output_level>
+  </Control>
+  <Material>
+    <material id="1" name="Cardiac muscle" type="Holzapfel_Ogden_PAQ">
+      <density>1e-6</density>
+      <a>   0.496  </a>
+      <b>   7.209  </b>
+      <af>  15.193 </af>
+      <bf>  20.417 </bf>
+      <as>  3.283  </as>
+      <bs>  11.176 </bs>
+      <afs> 0.662  </afs>
+      <bfs> 9.466 </bfs>
+      <k>2e3</k>
+      <gamma lc="2">0.24</gamma>
+      <laugon>1</laugon>
+      <atol>0.01</atol>
+    </material>
+    <material id="2" name="fixture" type="rigid body">
+      <density>1</density>
+      <center_of_mass>2.056352138519287,4.541329860687256,93.46136474609375</center_of_mass>
+    </material>
+  </Material>
+  <Globals>
+    <Constants>
+      <T>0</T>
+      <R>0</R>
+      <Fc>0</Fc>
+    </Constants>
+  </Globals>
+  <Boundary>
+    <rigid_body mat="2">
+      <fixed bc="x" />
+      <fixed bc="y" />
+      <fixed bc="z" />
+      <fixed bc="Rx" />
+      <fixed bc="Ry" />
+      <fixed bc="Rz" />
+    </rigid_body>
+  </Boundary>
+  <Loads>
+    <surface_load surface="ENDO" type="pressure">
+      <pressure lc="1">1</pressure>
+      <linear>0</linear>
+      <symmetric_stiffness>0</symmetric_stiffness>
+    </surface_load>
+  </Loads>
+  <Discrete>
+    <discrete_material id="1" name="springs" type="linear spring">
+      <E>100</E>
+    </discrete_material>
+    <discrete discrete_set="base_rim_springs" dmat="1" />
+  </Discrete>
+  <LoadData>
+    <loadcurve id="1" type="linear">
+      <point>0.0, 0.00001</point>
+      <point>0.1, 0.00001</point>
+      <point>1.1, 20.0</point>
+    </loadcurve>
+    <loadcurve id="2" type="linear">
+      <point>0.0,0.0</point>
+      <point>0.1,1.0</point>
+      <point>1.1,1.0</point>
+    </loadcurve>
+    <loadcurve id="3" type="linear">
+      <point>0.000, 0.1</point>
+      <point>0.025, 0.1</point>
+      <point>0.050, 0.1</point>
+      <point>0.075, 0.1</point>
+      <point>0.100, 0.1</point>
+      <point>0.125, 0.1</point>
+      <point>0.150, 0.1</point>
+      <point>0.175, 0.1</point>
+      <point>0.200, 0.1</point>
+      <point>0.225, 0.1</point>
+      <point>0.250, 0.1</point>
+      <point>0.275, 0.1</point>
+      <point>0.300, 0.1</point>
+      <point>0.325, 0.1</point>
+      <point>0.350, 0.1</point>
+      <point>0.375, 0.1</point>
+      <point>0.400, 0.1</point>
+      <point>0.425, 0.1</point>
+      <point>0.450, 0.1</point>
+      <point>0.475, 0.1</point>
+      <point>0.500, 0.1</point>
+      <point>0.525, 0.1</point>
+      <point>0.550, 0.1</point>
+      <point>0.575, 0.1</point>
+      <point>0.600, 0.1</point>
+      <point>0.625, 0.1</point>
+      <point>0.650, 0.1</point>
+      <point>0.675, 0.1</point>
+      <point>0.700, 0.1</point>
+      <point>0.725, 0.1</point>
+      <point>0.750, 0.1</point>
+      <point>0.775, 0.1</point>
+      <point>0.800, 0.1</point>
+      <point>0.825, 0.1</point>
+      <point>0.850, 0.1</point>
+      <point>0.875, 0.1</point>
+      <point>0.900, 0.1</point>
+      <point>0.925, 0.1</point>
+      <point>0.950, 0.1</point>
+      <point>0.975, 0.1</point>
+      <point>1.000, 0.1</point>
+      <point>1.025, 0.1</point>
+      <point>1.05, 0.1</point>
+      <point>1.075, 0.1</point>
+      <point>1.100, 0.1</point>
+    </loadcurve>
+  </LoadData>
+  <Output>
+    <plotfile type="febio">
+      <compression>1</compression>
+      <var type="displacement" />
+      <var type="stress" />
+      <var type="strain energy density" />
+      <var type="fiber vector" />
+      <var type="Lagrange strain" />
+    </plotfile>
+  </Output>
+  <MeshData>
+  </MeshData>
+</febio_spec>
