@@ -125,7 +125,12 @@ class FEBio_feb(FEBio_xml_handler):
         for elem_data in elements:
             el_root = ET.Element("Elements")
             el_root.set("name", elem_data["name"])
-            el_root.set("type", elem_data["type"])
+            if "type" not in elem_data:
+                eltype = self.get_element_type(len(elem_data["elems"][0]))
+            else:
+                eltype = elem_data["type"]
+            el_root.set("type", eltype)
+
             if "mat" in elem_data:
                 el_root.set("mat", elem_data["mat"])
 

@@ -6,6 +6,7 @@ from .enums import *
 from pathlib import Path
 import numpy as np
 
+from febio_python.utils.enum_utils import *
 
 class FEBio_xml_handler():
     def __init__(self, tree, root=None, filepath=None):
@@ -21,6 +22,11 @@ class FEBio_xml_handler():
 
         # Order in which outer tags should be placed
         self.lead_tag_order = [item.value for item in list(FEB_LEAD_TAGS)]
+
+        self.LEAD_TAGS = FEB_LEAD_TAGS
+        self.ELEM_TYPES = ELEM_TYPES
+        self.N_PTS_IN_ELEMENT = N_PTS_IN_ELEMENT
+        self.SURFACE_EL_TYPE = SURFACE_EL_TYPE
 
     def __repr__(self):
         to_print = "{}:\n".format(self.__class__.__name__)
@@ -466,3 +472,26 @@ class FEBio_xml_handler():
         except KeyError:
             self.add_lead_tag(FEB_LEAD_TAGS.MESHDATA)
             return self.get_lead_tag(FEB_LEAD_TAGS.MESHDATA)
+
+
+    def get_element_type(self, n_nodes_per_cell) -> str:
+        """ Returns FEBio element type representation """
+        try:
+            assert_value(self.N_PTS_IN_ELEMENT, n_nodes_per_cell)
+            eltype = self.N_PTS_IN_ELEMENT(n_nodes_per_cell).name
+            assert_member(self.ELEM_TYPES, eltype)
+            return self.ELEM_TYPES[eltype].value
+        except AssertionError:
+            raise AssertionError(
+                "Unable to identify element type. Are you sure "
+                "that element type is a valid FEBio element? "
+                "If so, check implemented types avaiable at "
+                "{} and corresponding number of nodes per cell "
+                "at {}. Maybe you can improve our library with "
+                "additional members. Current implementations are:"
+                "\n'ELEM_TYPES':{}\n'N_PTS_IN_ELEMENT':{}"
+                "".format(self.ELEM_TYPES, self.N_PTS_IN_ELEMENT,
+                    enum_to_dict(self.ELEM_TYPES),
+                    enum_to_dict(self.N_PTS_IN_ELEMENT)
+                )
+            )

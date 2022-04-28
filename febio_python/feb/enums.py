@@ -24,10 +24,18 @@ class FEB_LEAD_TAGS(Enum):
 
 
 class ELEM_TYPES(Enum):
-    TETRA = "tet4"
-    HEXA = "hex8"
+    TRIANGLE = "tri3"
+    TETRAHEDRON = "tet4"
+    HEXAHEDRON = "hex8"
+    QUADRATIC_HEXAHEDRON = "hex20"
 
+class N_PTS_IN_ELEMENT(IntEnum):
+    TRIANGLE = 3
+    TETRAHEDRON = 4
+    HEXAHEDRON = 8
+    QUADRATIC_HEXAHEDRON = 20
 
 class SURFACE_EL_TYPE(IntEnum):
     tri3 = 3
     quad4 = 4
+
