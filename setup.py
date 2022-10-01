@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="febio-python",
-    version="0.1.4",
+    version="0.1.5",
     author="Igor N",
     description="Collection of python modules to work with FEBio.",
     url="https://github.com/Nobregaigor/febio-python",

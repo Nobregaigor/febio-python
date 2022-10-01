@@ -205,6 +205,32 @@ class FEBio_feb(FEBio_xml_handler):
             boundary.set("node_set", nodeset)
             self.boundary().extend([boundary])
 
+    def add_surface_loads(self, surface_loads:list) -> None:
+        """Adds surface load to Loads tag
+
+        Args:
+            surface_loads (list): _description_
+        """
+        loads_root = self.loads()
+        loads_to_add = []
+        for new_load in surface_loads:
+            load_element = ET.Element("surface_load")
+            load_element.set("type", str(new_load["type"]))
+            load_element.set("surface", str(new_load["surface"]))
+            
+            subel = ET.SubElement(load_element, str(new_load["type"]))
+            subel.set("lc", str(new_load["lc"]))
+            subel.text = new_load["multiplier"]
+            
+            subel = ET.SubElement(load_element, "linear")
+            subel.text = "0"
+            subel = ET.SubElement(load_element, "symmetric_stiffness")
+            subel.text = "1"
+            
+            loads_to_add.append(load_element)
+            
+        loads_root.extend(loads_to_add)
+
     # --- this function is ugly -> need to be improved (but works for now)
     def add_meshdata(self, mesh_data: list, initial_el_id: int = 1) -> None:
         """
