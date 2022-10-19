@@ -118,7 +118,7 @@ class FEBio_feb(FEBio_xml_handler):
 
     def add_elements(self, elements: list, initial_el_id: int = 1) -> None:
         """
-          Adds elements to Geometry
+            Adds elements to Geometry
         """
 
         last_initial_id = initial_el_id
@@ -222,8 +222,12 @@ class FEBio_feb(FEBio_xml_handler):
             subel.set("lc", str(new_load["lc"]))
             subel.text = new_load["multiplier"]
             
-            subel = ET.SubElement(load_element, "linear")
-            subel.text = "0"
+            # subel = ET.SubElement(load_element, "linear")
+            # subel.text = "0"
+            if "surface_data" in new_load:
+                subel = ET.SubElement(load_element, str("value"))
+                subel.set("surface_data", str(new_load["surface_data"]))
+                
             subel = ET.SubElement(load_element, "symmetric_stiffness")
             subel.text = "1"
             
@@ -238,20 +242,54 @@ class FEBio_feb(FEBio_xml_handler):
         """
 
         for elem_data in mesh_data:
-            el_root = ET.Element("ElementData")
-            el_root.set("elem_set", elem_data["elem_set"])
-            el_root.set("var", elem_data["var"])
+            if not "type" in elem_data: # assume it is element data
+                mesh_data_type = "ElementData"
+            elif "type" in elem_data:
+                mesh_data_type = elem_data["type"]                  
+            
+            if mesh_data_type == "ElementData":
+                el_root = ET.Element("ElementData")
+                el_root.set("elem_set", elem_data["elem_set"])
+                el_root.set("var", elem_data["var"])
 
-            elems = elem_data["elems"]
-            el_keys = list(elems.keys())
-            n_elems = len(elems[el_keys[0]])
-            for i in range(n_elems):
-                subel = ET.SubElement(el_root, "elem")
-                subel.set("lid", str(i + initial_el_id))
-                for k in el_keys:
-                    subel_2 = ET.SubElement(subel, k)
-                    subel_2.text = ",".join(map(str, elems[k][i]))
+                elems = elem_data["elems"]
+                el_keys = list(elems.keys())
+                n_elems = len(elems[el_keys[0]])
+                for i in range(n_elems):
+                    subel = ET.SubElement(el_root, "elem")
+                    subel.set("lid", str(i + initial_el_id))
+                    for k in el_keys:
+                        subel_2 = ET.SubElement(subel, k)
+                        subel_2.text = ",".join(map(str, elems[k][i]))
+                        
+            elif mesh_data_type == "SurfaceData":
+                el_root = ET.Element("SurfaceData")
+                el_root.set("surface", elem_data["surface"])
+                el_root.set("name", elem_data["name"])
 
+                elems = elem_data["faces"]
+                
+                if isinstance(elems, (dict)):
+                    el_keys = list(elems.keys())
+                    n_elems = len(elems[el_keys[0]])
+                    for i in range(n_elems):
+                        subel = ET.SubElement(el_root, "face")
+                        subel.set("lid", str(i + initial_el_id))
+                        for k in el_keys:
+                            subel_2 = ET.SubElement(subel, k)
+                            subel_2.text = ",".join(map(str, elems[k][i]))
+                elif isinstance(elems, (list, np.ndarray)):
+                    n_elems = len(elems)
+                    for i in range(n_elems):
+                        c_el = elems[i]
+                        subel = ET.SubElement(el_root, "face")
+                        subel.set("lid", str(i + initial_el_id))
+                        subel.text = ",".join(map(str, elems[i]))
+                        
+                    
+            else:
+                raise ValueError("We currently only support ElementData and SurfaceData.")
+            
             self.meshdata().extend([el_root])
 
     # ===========================

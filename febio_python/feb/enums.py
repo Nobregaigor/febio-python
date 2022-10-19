@@ -22,7 +22,6 @@ class FEB_LEAD_TAGS(Enum):
     def has_value(cls, value):
         return value in cls._value2member_map_
 
-
 class ELEM_TYPES(Enum):
     TRIANGLE = "tri3"
     TETRAHEDRON = "tet4"
