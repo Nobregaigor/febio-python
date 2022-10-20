@@ -61,7 +61,7 @@ def read_state(bf, TAGS, states_dict, decompress=False, verbose=0):
                 time = read_bytes(bf, nb=a, format="f")
                 state_time.append(time)
                 console_log("state_time: {}".format(time), 3, verbose=verbose)
-                print("-------------------------------------------> TIME:", time)
+                # print("-------------------------------------------> TIME:", time)
                 # move pointer to next STATE_DATA
                 search_block(bf, TAGS, 'STATE_DATA', verbose=verbose)
                 
