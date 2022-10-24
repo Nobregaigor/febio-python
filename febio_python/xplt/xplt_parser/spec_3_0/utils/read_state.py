@@ -147,7 +147,7 @@ def read_state(bf, TAGS, states_dict, decompress=False, verbose=0):
     data_by_name = {}
     nn, ne, ns = 0, 0, 0
     for (r, key) in zip(states_ref, states_dict["names"]):
-        print(key, r, nn, ne, ns)
+        # print(key, r, nn, ne, ns)
         if r == 0:
             data_by_name[key] = state_node_data[nn]
             nn+=1
