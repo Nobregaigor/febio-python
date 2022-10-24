@@ -91,7 +91,7 @@ def read_xplt_2_5(xplit_filepath, nstate=-1, verbose=0):
     bf.close()
     
     return {
-            R_KEYS.SPEC_VERSION.value: 3.0,                     # spec version
+            R_KEYS.SPEC_VERSION.value: 2.5,                     # spec version
         
             # quick references
             R_KEYS.N_NODES.value: nodes_coords.shape[0],        # number of nodes
