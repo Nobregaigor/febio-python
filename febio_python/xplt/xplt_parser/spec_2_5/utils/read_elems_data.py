@@ -42,10 +42,6 @@ def read_elems_data(bf, TAGS, item_names, item_types, n_node_data, item_def_doms
         elem_data = nparray(read_bytes(bf, nb=data_size, format="f"*n_data*data_dim), 
                         dtype=float).reshape((n_data, data_dim))
         
-        # elem_data = npzeros([n_data, data_dim])
-        # for i in range(0, n_data):
-        #   for j in range(0, data_dim):
-        #     elem_data[i, j] = read_bytes(bf, format="f")
         dom_data.append(elem_data)
 
     item_def_doms.append(def_doms)

@@ -5,8 +5,8 @@ class R_KEYS(Enum):
     
     N_NODES = "N_NODES"     # -> number of nodes
     
-    N_DOMS = "N_DOMS"       # -> number of element domains
-    N_ELEMS = "N_ELEMS"     # -> number of elements
+    N_DOMS = "N_DOMAINS"       # -> number of element domains
+    N_ELEMS = "N_ELEMENTS"     # -> number of elements
     
     NODES = "NODES"         # nodes (coords)    
     ELEMENTS = "ELEMENTS"   # elements

@@ -54,8 +54,9 @@ def read_xplt_2_5(xplit_filepath, nstate=-1, verbose=0):
 
     # -- Explore Dictionary --
     states_dict = read_dictionary(bf, TAGS, verbose=verbose)
-    # console_log("Data: {}".format(item_names), 1, verbose)
-
+    console_log("Data names: {}".format(states_dict["names"]), 1, verbose)
+    console_log("Data types: {}".format(states_dict["types"]), 1, verbose)
+    
     # -- Explore MATERIALS --
     mat_data = read_materials(bf, TAGS, verbose=verbose)
     # console_log("Materials: {}".format(mat_names), 1, verbose)
@@ -67,10 +68,10 @@ def read_xplt_2_5(xplit_filepath, nstate=-1, verbose=0):
 
     # -- Explore DOMAIN --
     dom_data = read_domain(bf, TAGS, ELEM_TYPES, NODES_PER_ELEM, verbose=verbose)
-    # console_log("Number of elems: {}".format(dom_n_elems), 1, verbose)
+    console_log("Number of elems: {}".format(dom_data["n_elems"]), 1, verbose)
     # console_log("Element types: {}".format(dom_elem_types), 1, verbose)
     # console_log("Element materials: {}".format(dom_mat_ids), 1, verbose)
-
+    
     # -- Explore SURFACE_SECTION --
     surface_data = read_surface_section(bf, TAGS, filesize=filesize, verbose=verbose)
     # console_log("Surface names: {}".format(surface_names), 1, verbose)
