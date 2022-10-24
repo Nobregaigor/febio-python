@@ -12,37 +12,6 @@ from .utils import *
 
 from ..common.database import TAGS, ELEM_TYPES, NODES_PER_ELEM, R_KEYS
 
-# ==  MACROS == #
-PATH_DATABASE = pathlib.Path(path.dirname(__file__)).parent/"common"/"database"
-
-# FILEPATH_TAGSDATA = PATH_DATABASE/"tags.json"
-# FILEPATH_ELEMTYPES = PATH_DATABASE/"element_types.json"
-# FILEPATH_NDSPERELEM = PATH_DATABASE/"nodes_per_elem.json"
-
-# read database
-# TAGS = read_json(FILEPATH_TAGSDATA)
-# ELEMS_TYPES = read_json(FILEPATH_ELEMTYPES)
-# NODES_PER_ELEM = read_json(FILEPATH_NDSPERELEM)
-
-# INV_TAGS = dict(zip(TAGS.values(), TAGS.keys()))
-
-
-# def get_filesize(bf):
-#     bf.seek(0, 2)
-#     filesize = bf.tell()
-#     bf.seek(0, 0)
-
-#     if filesize == 0:
-#         raise(ValueError("Input xplit file size is zero. Check file."))
-#     return filesize
-
-
-def check_fileformat(bf, verbose):
-    if(TAGS['FEBIO'] == read_bytes(bf)):
-        console_log('Correct FEBio format', 2, verbose)
-    else:
-        raise(ValueError("Input XPLIT file does not have the correct format."))
-
 
 def check_fileversion(bf, verbose):
     version = read_bytes(bf)
@@ -63,7 +32,7 @@ def read_xplt_3_0(xplit_filepath, nstate=-1, verbose=0):
     filesize = get_file_size(bf)
 
     # check if file format meets requirement
-    check_fileformat(bf, verbose)
+    check_fileformat(bf, TAGS, verbose=verbose)
 
     console_log("\n___Begin read header___\n", 1, verbose)
 

@@ -1,8 +1,8 @@
-from ...common.utils import search_block, check_block, read_bytes, console_log
-# from numpy import zeros as npzeros
-from collections import deque
-
 def read_materials(bf, TAGS, verbose=0):
+  from ...common.utils import search_block, check_block, read_bytes, console_log
+  # from numpy import zeros as npzeros
+  from collections import deque
+  
   search_block(bf, TAGS, 'MATERIALS', verbose=verbose)
   mat_names = deque()
   mat_ids = deque()

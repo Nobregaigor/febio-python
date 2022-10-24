@@ -1,12 +1,20 @@
-from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log
-from numpy import zeros as npzeros
-from collections import deque
-from numpy import array as nparray
+
 
 def read_nodeset_section(bf, TAGS, verbose=0):
+    from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log
+    from numpy import zeros as npzeros
+    from collections import deque
+    from numpy import array as nparray
+
     nodeset_ids   = deque()
     nodeset_names = deque()
     nodeset_nodes = deque()
+    
+    nodeset_data = {
+            "nodesets": nparray([]),
+            "by_name": nparray([]),
+            "by_id": nparray([]),
+        }
 
     # nodesets are optional. 
     # So we need to check if there are nodesets in our file
@@ -43,26 +51,26 @@ def read_nodeset_section(bf, TAGS, verbose=0):
             nodes = nparray(read_bytes(bf, nb=a, format="I"*n_nodes), dtype="int")
             nodeset_nodes.append(nodes)
     
-    # transform data to nparrays
-    nodeset_ids = nparray(nodeset_ids, dtype="int32")
-    nodeset_names = nparray(nodeset_names)
-    nodeset_nodes = nparray(nodeset_nodes, dtype="object")
-    
-    nodesets_by_name = {}
-    if len(nodeset_nodes) == len(nodeset_names):
-        for nodeset, name in zip(nodeset_nodes,nodeset_names):
-            nodesets_by_name[name] = nodeset
-    
-    nodesets_by_id = {}
-    if len(nodeset_nodes) == len(nodeset_ids):
-        for nodeset, key in zip(nodeset_nodes,nodeset_ids):
-            nodesets_by_id[key] = nodeset
+        # transform data to nparrays
+        nodeset_ids = nparray(nodeset_ids, dtype="int32")
+        nodeset_names = nparray(nodeset_names)
+        nodeset_nodes = nparray(nodeset_nodes, dtype="object")
         
-    nodeset_data = {
-        "nodesets": nodeset_nodes,
-        "by_name": nodesets_by_name,
-        "by_id": nodesets_by_id,   
-    }
+        nodesets_by_name = {}
+        if len(nodeset_nodes) == len(nodeset_names):
+            for nodeset, name in zip(nodeset_nodes,nodeset_names):
+                nodesets_by_name[name] = nodeset
+        
+        nodesets_by_id = {}
+        if len(nodeset_nodes) == len(nodeset_ids):
+            for nodeset, key in zip(nodeset_nodes,nodeset_ids):
+                nodesets_by_id[key] = nodeset
+            
+        nodeset_data = {
+            "nodesets": nodeset_nodes,
+            "by_name": nodesets_by_name,
+            "by_id": nodesets_by_id,   
+        }
     return nodeset_data
 
 

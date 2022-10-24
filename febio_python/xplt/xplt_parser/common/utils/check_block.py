@@ -1,7 +1,7 @@
-from .read_bytes import read_bytes
-from .console_log import console_log
-
 def check_block(bf, TAGS, BLOCK_TAG, filesize=-1, verbose=0):
+    from .read_bytes import read_bytes
+    from .console_log import console_log
+
     if filesize > 0:
         if bf.tell() + 4 > filesize:
             console_log("EOF reached", 1, verbose)

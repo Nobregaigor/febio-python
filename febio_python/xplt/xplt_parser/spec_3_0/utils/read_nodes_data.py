@@ -1,9 +1,9 @@
-from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log 
-from numpy import zeros as npzeros
-from numpy import array as nparray
-from collections import deque
-
 def read_nodes_data(bf, TAGS, item_names, item_types, verbose=0):
+  from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log 
+  from numpy import zeros as npzeros
+  from numpy import array as nparray
+  from collections import deque
+
   console_log("-----reading nodes------", 2, verbose)
 
   a = search_block(bf, TAGS, 'NODE_DATA', verbose=verbose)

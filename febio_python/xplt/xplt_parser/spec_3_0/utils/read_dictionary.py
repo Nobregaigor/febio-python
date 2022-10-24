@@ -1,9 +1,7 @@
-# from .. import search_block, check_block, read_bytes, console_log
-from ...common.utils import search_block, check_block, read_bytes, console_log
-
-from collections import deque
-
 def read_dictionary(bf, TAGS, verbose=0):
+  from ...common.utils import search_block, check_block, read_bytes, console_log
+  from collections import deque
+
   # move cursor to "DICTIONARY"
   search_block(bf, TAGS, 'DICTIONARY', verbose=verbose)
 

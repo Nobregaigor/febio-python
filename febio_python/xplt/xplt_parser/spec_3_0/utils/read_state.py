@@ -1,10 +1,6 @@
-from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log, decompress_state, get_file_size
-
-# from numpy import zeros as npzeros
-from numpy import array as nparray
-
 def read_state(bf, TAGS, states_dict, decompress=False, verbose=0):
-            
+    from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log, decompress_state, get_file_size
+    from numpy import array as nparray       
     from collections import deque
   
     # decompress if needed.
@@ -91,7 +87,10 @@ def read_state(bf, TAGS, states_dict, decompress=False, verbose=0):
     # convert data to numpy arrays
     state_time = nparray(state_time, dtype="float32")
     state_node_data = nparray(state_node_data, dtype="float32")
-    state_elem_data = nparray(state_elem_data, dtype="float32")
+    try:
+        state_elem_data = nparray(state_elem_data, dtype="float32")
+    except:
+        state_elem_data = nparray(state_elem_data, dtype="object")
     state_surf_data = nparray(state_surf_data, dtype="float32")
     
     # combine data names and values

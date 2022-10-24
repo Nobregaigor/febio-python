@@ -9,3 +9,4 @@ from .console_log import console_log
 from .decompress_state import decompress_state
 from .get_file_size import get_file_size
 from .json_encoder import NumpyEncoder
+from .check_fileformat import check_fileformat

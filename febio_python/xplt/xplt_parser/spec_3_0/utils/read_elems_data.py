@@ -1,11 +1,11 @@
-from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log
-from numpy import zeros as npzeros
-from numpy import array as nparray
-from collections import deque
-import numpy as np
+
 
 def read_elems_data(bf, TAGS, item_names, item_types, n_node_data, item_def_doms, filesize, item_data=[], verbose=0):
-  # if verbose == 1:
+  from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log
+  from numpy import zeros as npzeros
+  from numpy import array as nparray
+  from collections import deque
+  import numpy as np
   
   console_log("-----reading elems------", 2, verbose)
   

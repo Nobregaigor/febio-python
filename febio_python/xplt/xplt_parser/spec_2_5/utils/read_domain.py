@@ -1,9 +1,8 @@
-from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log
-from numpy import zeros as npzeros
-from numpy import array as nparray
-from collections import deque
-
-def read_domain(bf, TAGS, ELEMS_TYPES, NODES_PER_ELEM, verbose=0):
+def read_domain(bf, TAGS, ELEM_TYPES, NODES_PER_ELEM, verbose=0):
+  from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log
+  from numpy import zeros as npzeros
+  from numpy import array as nparray
+  from collections import deque
 
   dom_elem_types = deque()
   dom_mat_ids = deque()
@@ -15,40 +14,45 @@ def read_domain(bf, TAGS, ELEMS_TYPES, NODES_PER_ELEM, verbose=0):
   while check_block(bf, TAGS, 'DOMAIN'):
 
     search_block(bf, TAGS, 'DOMAIN', verbose=verbose)
-    search_block(bf, TAGS, 'DOMAIN_HDR', verbose=verbose)
+    search_block(bf, TAGS, 'DOMAIN_HEADER', verbose=verbose)
     search_block(bf, TAGS, 'DOM_ELEM_TYPE', verbose=verbose)
-    dom_elem_type = int(read_bytes(bf))
-    dom_elem_types.append(dom_elem_type)
+    elem_type = int(read_bytes(bf))
+    dom_elem_types.append(elem_type)
+    elem_type_name = ELEM_TYPES(elem_type).name
 
     search_block(bf, TAGS, 'DOM_MAT_ID', verbose=verbose)
     dom_mat_ids.append(int(read_bytes(bf)))
 
-    search_block(bf, TAGS, 'DOM_ELEMS', verbose=verbose)
-    dom_n_elems.append(int(read_bytes(bf)))
+    search_block(bf, TAGS, 'DOM_N_ELEMS', verbose=verbose)
+    n_elems = int(read_bytes(bf))
+    dom_n_elems.append(n_elems) 
 
-    search_block(bf, TAGS, 'DOM_ELEM_LIST', verbose=verbose)
-
-    ne = num_el_nodes(dom_elem_type, ELEMS_TYPES, NODES_PER_ELEM)
-
+    # move pointer to elements list
+    a = search_block(bf, TAGS, 'DOM_ELEM_LIST', verbose=verbose)   
+    n_nodes_per_element = NODES_PER_ELEM[elem_type_name].value
     elements = deque()
-    while check_block(bf, TAGS, 'ELEMENT'):
-      a = search_block(bf, TAGS, 'ELEMENT', print_tag=0, verbose=verbose)
-      
-      element = nparray(read_bytes(bf, nb=a, format="I"*(ne+1)), dtype=int)
-      
-      # element = npzeros(ne, dtype=int)
-      # for j in range(ne + 1):
-      #   if j == 0:
-      #     read_bytes(bf)
-      #   else:
-      #     element[j -1] = read_bytes(bf)
-      
+    for _ in range(n_elems):
+      # move pointer to next element
+      a = search_block(bf, TAGS, 'ELEMENT', verbose=verbose)
+      # real element nodes
+      element = nparray(read_bytes(bf, nb=a, format="I"*(n_nodes_per_element+1)), dtype=int)
       elements.append(element)
 
-    dom_elements.append(nparray(elements, dtype=int))
+    elements = nparray(elements, dtype=int)
+    console_log("--elements shape: {}".format(elements.shape),3,verbose)
+    
+    dom_elements.append(elements)
 
   console_log("---read_domain",2,verbose)
   console_log("->domain items: [dom_elem_types, dom_mat_ids, dom_n_elems, dom_elements]", 2, verbose)
   console_log([dom_elem_types, dom_mat_ids, dom_n_elems, dom_elements], 3, verbose)
     
-  return (dom_elem_types, dom_mat_ids, dom_n_elems, dom_elements)
+  dom_data = {
+    "n_doms": len(dom_elem_types),
+    "types": nparray(dom_elem_types, dtype="int32"),
+    "ids": nparray(dom_mat_ids, dtype="int32"),
+    "n_elems": nparray(dom_n_elems, dtype="int32"),
+    "elems": nparray(dom_elements, dtype="object"), 
+  }
+  
+  return dom_data

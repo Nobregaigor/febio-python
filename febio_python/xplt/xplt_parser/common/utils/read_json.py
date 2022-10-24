@@ -1,7 +1,7 @@
-import json
-from os import path
-
 def read_json(filepath, directory=None):
+    import json
+    from os import path
+
     if directory:
         filepath = path.join(directory, filepath)
     

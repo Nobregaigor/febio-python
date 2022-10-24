@@ -1,9 +1,9 @@
-from ...common.utils import search_block, check_block, read_bytes, console_log
-# from numpy import zeros as npzeros
-from numpy import array as nparray
-import struct
-
 def read_nodes_coords(bf, TAGS, verbose=0):
+  from ...common.utils import search_block, check_block, read_bytes, console_log
+  # from numpy import zeros as npzeros
+  from numpy import array as nparray
+  import struct
+
   search_block(bf, TAGS, 'NODE_SECTION', verbose=verbose)
   
   # move pointer to nodeset header
