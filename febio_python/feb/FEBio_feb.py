@@ -225,8 +225,9 @@ class FEBio_feb(FEBio_xml_handler):
             # subel = ET.SubElement(load_element, "linear")
             # subel.text = "0"
             if "surface_data" in new_load:
-                subel = ET.SubElement(load_element, str("value"))
-                subel.set("surface_data", str(new_load["surface_data"]))
+                # subel = ET.SubElement(load_element, str("value"))
+                # subel.set("surface_data", str(new_load["surface_data"]))
+                subel.set("map", str(new_load["surface_data"]))
                 
             subel = ET.SubElement(load_element, "symmetric_stiffness")
             subel.text = "1"
