@@ -9,7 +9,7 @@ class FEBio_feb(FEBio_xml_handler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    # ===========================
+    # ======================================
     # retrieve data from geometry content
 
     # ---
@@ -64,8 +64,29 @@ class FEBio_feb(FEBio_xml_handler):
             Example:
                 feb.get_surfaces()
         """
-        return self.get_content_from_repeated_tags(FEB_LEAD_TAGS.GEOMETRY, "Surface", dtype=dtype)
+        try:
+            return self.get_content_from_repeated_tags(FEB_LEAD_TAGS.GEOMETRY, "Surface", dtype=dtype)
+        except:
+            return {}
 
+    def get_element_data(self, dtype: np.dtype = np.float32) -> dict:
+        try:
+            return self.get_content_from_repeated_tags(self.LEAD_TAGS.MESHDATA, "ElementData", dtype=dtype)
+        except KeyError:
+            return {}
+    
+    def get_surface_data(self, dtype: np.dtype = np.float32) -> dict:
+        try:
+            return self.get_content_from_repeated_tags(self.LEAD_TAGS.MESHDATA, "SurfaceData", dtype=dtype)
+        except KeyError:
+            return {}
+    
+    def get_loadcurves(self, dtype: np.dtype = np.float32) -> dict:
+        try:
+            return self.get_content_from_repeated_tags(self.LEAD_TAGS.LOADDATA, "loadcurve", dtype=dtype)
+        except:
+            return {}
+        
     # ---
     # wrappers for 'get_ids_from_repeated_tags'
 
@@ -84,8 +105,68 @@ class FEBio_feb(FEBio_xml_handler):
             Example:
                 feb.get_nodesets()
         """
-        return self.get_ids_from_repeated_tags(FEB_LEAD_TAGS.GEOMETRY, "NodeSet", dtype=dtype)
+        try:
+            return self.get_ids_from_repeated_tags(FEB_LEAD_TAGS.GEOMETRY, "NodeSet", dtype=dtype)
+        except:
+            return {}
 
+    # ---
+    # other wrappers
+    def get_materials(self) -> dict:
+        all_mat_data = {}
+        for i, item in enumerate(self.material().findall("material")):
+            mat_data = item.attrib
+            parameters = {}
+            for j, el in enumerate(item.iter()):
+                if j == 0:
+                    continue
+                try:
+                    p_val = float(el.text)
+                except:
+                    p_val = el.text
+                parameters[el.tag] = p_val
+            mat_data["parameters"] = parameters
+            mat_key = mat_data["name"] if "name" in mat_data else mat_data["id"]
+            all_mat_data[mat_key] = mat_data
+        return all_mat_data
+    
+    def get_pressure_loads(self) -> dict:
+        press_loads = {}
+        for i, load in enumerate(self.loads().findall("surface_load")):
+            press = load.find("pressure")
+            if press is not None:
+                load_info = load.attrib
+                press_info = press.attrib
+                try:
+                    press_mult = float(press.text)
+                except:
+                    press_mult = press.text
+                press_info["multiplier"] = press_mult
+                press_loads[load_info["surface"]] = press_info
+        return press_loads
+    
+    # ======================================
+    # export data as dict
+    
+    def to_dict(self):
+        data = {}
+        # get mesh data
+        data["NODES"] = self.get_nodes()
+        data["ELEMENTS"] = self.get_elements()
+        # get mesh elements (nodesets and surfaces)
+        data["NODESETS"] = self.get_nodesets()
+        data["SURFACES"] = self.get_surfaces()
+        # get additional mesh data
+        data["ELEMENT_DATA"] = self.get_element_data()
+        data["SURFACE_DATA"] = self.get_surface_data()
+        # get material values
+        data["MATERIALS"] = self.get_materials()
+        # get loads (for now we only support pressure loads)
+        data["PRESSURE_LOADS"] = self.get_pressure_loads()
+        # get load curves from data
+        data["LOAD_CURVES"] = self.get_loadcurves()
+        return data
+        
     # ============================
     # Add content to feb file
 
@@ -220,14 +301,25 @@ class FEBio_feb(FEBio_xml_handler):
             
             subel = ET.SubElement(load_element, str(new_load["type"]))
             subel.set("lc", str(new_load["lc"]))
-            subel.text = new_load["multiplier"]
+            if "multiplier" in new_load:
+                subel.text = new_load["multiplier"]
             
             # subel = ET.SubElement(load_element, "linear")
             # subel.text = "0"
             if "surface_data" in new_load:
                 # subel = ET.SubElement(load_element, str("value"))
                 # subel.set("surface_data", str(new_load["surface_data"]))
-                subel.set("map", str(new_load["surface_data"]))
+                
+                if "multiplier" in new_load:
+                    subel.set("type", "math")
+                    subel.text = "{}*{}".format(new_load["multiplier"], str(new_load["surface_data"]))
+                else:
+                    subel.set("type", "map")
+                    subel.text = str(new_load["surface_data"])
+                
+                # subel.set("map", str(new_load["surface_data"]))
+                
+                
                 
             subel = ET.SubElement(load_element, "symmetric_stiffness")
             subel.text = "1"
