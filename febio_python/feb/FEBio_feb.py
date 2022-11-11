@@ -145,6 +145,15 @@ class FEBio_feb(FEBio_xml_handler):
                 press_loads[load_info["surface"]] = press_info
         return press_loads
     
+    def get_boundary_conditions(self) -> dict:
+        if self.boundary() is None:
+            return dict()
+        else:
+            bc_data = dict()
+            for elem in self.boundary():
+                bc_data[elem.tag] = elem.attrib
+        return bc_data
+    
     # ======================================
     # export data as dict
     
@@ -165,6 +174,8 @@ class FEBio_feb(FEBio_xml_handler):
         data["PRESSURE_LOADS"] = self.get_pressure_loads()
         # get load curves from data
         data["LOAD_CURVES"] = self.get_loadcurves()
+        # get boundary conditions from data
+        data["BOUNDARY_CONDITIONS"] = self.get_boundary_conditions()
         return data
         
     # ============================
