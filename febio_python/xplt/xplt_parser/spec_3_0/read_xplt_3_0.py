@@ -12,15 +12,16 @@ from .utils import *
 
 from ..common.database import TAGS, ELEM_TYPES, NODES_PER_ELEM, R_KEYS
 
-
+    
 def check_fileversion(bf, verbose):
     version = read_bytes(bf)
-    if(version == TAGS['VERSION_3_0']):
+    if (version == TAGS['VERSION_3_0'].value):
         console_log('Current version is: %d' % version, 2, verbose)
     elif (version == 49):
         console_log('Current spec version is: 3.0 -> %d | WARNING: Docs say version should be 8, but it is 49.' % version, 2, verbose)
     else:
-        raise(ValueError("Incorrect XPLIT file version: {}".format(version)))
+        raise(ValueError("Incorrect XPLIT file version: {} | expected {} or 49"
+                         .format(version, TAGS['VERSION_3_0'].value)))
 
 
 def read_xplt_3_0(xplit_filepath, nstate=-1, verbose=0):

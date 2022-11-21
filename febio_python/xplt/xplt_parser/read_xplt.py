@@ -60,7 +60,7 @@ def check_fileversion(bf, verbose):
         return 3.0
     else:
         raise(ValueError(
-            "Incorrect XPLIT file version: {}, expected version: {} or {}"
+            "Incorrect XPLIT file version: {}, expected version: {} or [{} or 49]"
             .format(version, int(TAGS['VERSION_2_5'], base=16), int(TAGS['VERSION_3_0'], base=16))))
 
 

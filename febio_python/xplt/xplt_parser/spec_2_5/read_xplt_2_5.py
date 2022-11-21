@@ -15,7 +15,7 @@ from ..common.database import TAGS, ELEM_TYPES, NODES_PER_ELEM, R_KEYS
 
 def check_fileversion(bf, verbose):
     version = read_bytes(bf)
-    if(version == TAGS['VERSION_2_5']):
+    if(version == TAGS['VERSION_2_5'].value):
         console_log('Current version is: %d' % version, 2, verbose)
     else:
         raise(ValueError("Incorrect XPLIT file version: {}".format(version)))
