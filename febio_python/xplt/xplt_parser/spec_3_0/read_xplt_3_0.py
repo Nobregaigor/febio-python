@@ -20,7 +20,7 @@ def check_fileversion(bf, verbose):
     elif (version == 49):
         console_log('Current spec version is: 3.0 -> %d | WARNING: Docs say version should be 8, but it is 49.' % version, 2, verbose)
     else:
-        raise(ValueError("Incorrect XPLIT file version: {} | expected {} or 49"
+        raise(ValueError("Incorrect XPLIT file version: {} | expected {} (from docs) or 49 ('0x00031')"
                          .format(version, TAGS['VERSION_3_0'].value)))
 
 
