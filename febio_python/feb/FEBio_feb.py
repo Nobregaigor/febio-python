@@ -399,6 +399,19 @@ class FEBio_feb(FEBio_xml_handler):
     # ===========================
     # Modify content from feb file
 
+    def replace_material_params(self, params: dict) -> None:
+        materials = self.material().findall("material")
+        for mat_ref, mat_params in params.items():
+            # search materials
+            for mat in materials:
+                # find material reference
+                if mat_ref == mat.attrib["name"] or mat_ref == mat.attrib["id"] or mat_ref == mat.attrib["type"]:
+                    # modify params
+                    for param_key, param_value in mat_params.items():
+                        mat_elem = mat.find(param_key)
+                        if mat_elem is not None:
+                            mat_elem.text = str(param_value)
+    
     def replace_nodes(self, nodes: list, initial_el_id: int = 1):
         """
           Replaces nodes elements from .feb_file with new set of nodes.\
