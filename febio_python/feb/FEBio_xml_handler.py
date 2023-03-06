@@ -128,6 +128,11 @@ class FEBio_xml_handler():
         if clean:
             self.clean()
         ET.indent(self.tree, space="\t", level=0)
+        import os
+        out_dir = os.path.dirname(os.path.abspath(filepath))
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+        
         self.tree.write(filepath, encoding="ISO-8859-1")
 
     # ----------------------------------------------------------------
