@@ -90,7 +90,7 @@ class FEBio_feb(FEBio_xml_handler):
     # ---
     # wrappers for 'get_ids_from_repeated_tags'
 
-    def get_nodesets(self, dtype=np.int64):
+    def get_nodesets(self, dtype=np.int64) -> dict:
         """
           Returns a dict with keys representing node set names and values \
           representing corresponding node ids as a numpy array of specified dtype.\
@@ -151,7 +151,10 @@ class FEBio_feb(FEBio_xml_handler):
         else:
             bc_data = dict()
             for elem in self.boundary():
-                bc_data[elem.tag] = elem.attrib
+                if elem.tag in bc_data:
+                    bc_data[elem.tag].append(elem.attrib)
+                else:
+                    bc_data[elem.tag] = [elem.attrib]
         return bc_data
     
     # ======================================
