@@ -74,19 +74,19 @@ class FEBio_feb(FEBio_xml_handler):
             return self.get_content_from_repeated_tags(self.LEAD_TAGS.MESHDATA, "ElementData", dtype=dtype)
         except KeyError:
             return {}
-    
+
     def get_surface_data(self, dtype: np.dtype = np.float32) -> dict:
         try:
             return self.get_content_from_repeated_tags(self.LEAD_TAGS.MESHDATA, "SurfaceData", dtype=dtype)
         except KeyError:
             return {}
-    
+
     def get_loadcurves(self, dtype: np.dtype = np.float32) -> dict:
         try:
             return self.get_content_from_repeated_tags(self.LEAD_TAGS.LOADDATA, "loadcurve", dtype=dtype)
         except:
             return {}
-        
+
     # ---
     # wrappers for 'get_ids_from_repeated_tags'
 
@@ -129,7 +129,7 @@ class FEBio_feb(FEBio_xml_handler):
             mat_key = mat_data["name"] if "name" in mat_data else mat_data["id"]
             all_mat_data[mat_key] = mat_data
         return all_mat_data
-    
+
     def get_pressure_loads(self) -> dict:
         press_loads = {}
         for i, load in enumerate(self.loads().findall("surface_load")):
@@ -144,7 +144,7 @@ class FEBio_feb(FEBio_xml_handler):
                 press_info["multiplier"] = press_mult
                 press_loads[load_info["surface"]] = press_info
         return press_loads
-    
+
     def get_boundary_conditions(self) -> dict:
         if self.boundary() is None:
             return dict()
@@ -156,10 +156,10 @@ class FEBio_feb(FEBio_xml_handler):
                 else:
                     bc_data[elem.tag] = [elem.attrib]
         return bc_data
-    
+
     # ======================================
     # export data as dict
-    
+
     def to_dict(self):
         data = {}
         # get mesh data
@@ -180,7 +180,7 @@ class FEBio_feb(FEBio_xml_handler):
         # get boundary conditions from data
         data["BOUNDARY_CONDITIONS"] = self.get_boundary_conditions()
         return data
-        
+
     # ============================
     # Add content to feb file
 
@@ -300,7 +300,7 @@ class FEBio_feb(FEBio_xml_handler):
             boundary.set("node_set", nodeset)
             self.boundary().extend([boundary])
 
-    def add_surface_loads(self, surface_loads:list) -> None:
+    def add_surface_loads(self, surface_loads: list) -> None:
         """Adds surface load to Loads tag
 
         Args:
@@ -312,34 +312,33 @@ class FEBio_feb(FEBio_xml_handler):
             load_element = ET.Element("surface_load")
             load_element.set("type", str(new_load["type"]))
             load_element.set("surface", str(new_load["surface"]))
-            
+
             subel = ET.SubElement(load_element, str(new_load["type"]))
             subel.set("lc", str(new_load["lc"]))
             if "multiplier" in new_load:
                 subel.text = new_load["multiplier"]
-            
+
             # subel = ET.SubElement(load_element, "linear")
             # subel.text = "0"
             if "surface_data" in new_load:
                 # subel = ET.SubElement(load_element, str("value"))
                 # subel.set("surface_data", str(new_load["surface_data"]))
-                
+
                 if "multiplier" in new_load:
                     subel.set("type", "math")
-                    subel.text = "{}*{}".format(new_load["multiplier"], str(new_load["surface_data"]))
+                    subel.text = "{}*{}".format(
+                        new_load["multiplier"], str(new_load["surface_data"]))
                 else:
                     subel.set("type", "map")
                     subel.text = str(new_load["surface_data"])
-                
+
                 # subel.set("map", str(new_load["surface_data"]))
-                
-                
-                
+
             subel = ET.SubElement(load_element, "symmetric_stiffness")
             subel.text = "1"
-            
+
             loads_to_add.append(load_element)
-            
+
         loads_root.extend(loads_to_add)
 
     # --- this function is ugly -> need to be improved (but works for now)
@@ -349,11 +348,11 @@ class FEBio_feb(FEBio_xml_handler):
         """
 
         for elem_data in mesh_data:
-            if not "type" in elem_data: # assume it is element data
+            if not "type" in elem_data:  # assume it is element data
                 mesh_data_type = "ElementData"
             elif "type" in elem_data:
-                mesh_data_type = elem_data["type"]                  
-            
+                mesh_data_type = elem_data["type"]
+
             if mesh_data_type == "ElementData":
                 el_root = ET.Element("ElementData")
                 el_root.set("elem_set", elem_data["elem_set"])
@@ -368,14 +367,14 @@ class FEBio_feb(FEBio_xml_handler):
                     for k in el_keys:
                         subel_2 = ET.SubElement(subel, k)
                         subel_2.text = ",".join(map(str, elems[k][i]))
-                        
+
             elif mesh_data_type == "SurfaceData":
                 el_root = ET.Element("SurfaceData")
                 el_root.set("surface", elem_data["surface"])
                 el_root.set("name", elem_data["name"])
 
                 elems = elem_data["faces"]
-                
+
                 if isinstance(elems, (dict)):
                     el_keys = list(elems.keys())
                     n_elems = len(elems[el_keys[0]])
@@ -392,11 +391,11 @@ class FEBio_feb(FEBio_xml_handler):
                         subel = ET.SubElement(el_root, "face")
                         subel.set("lid", str(i + initial_el_id))
                         subel.text = ",".join(map(str, elems[i]))
-                        
-                    
+
             else:
-                raise ValueError("We currently only support ElementData and SurfaceData.")
-            
+                raise ValueError(
+                    "We currently only support ElementData and SurfaceData.")
+
             self.meshdata().extend([el_root])
 
     # ===========================
@@ -414,7 +413,7 @@ class FEBio_feb(FEBio_xml_handler):
                         mat_elem = mat.find(param_key)
                         if mat_elem is not None:
                             mat_elem.text = str(param_value)
-    
+
     def replace_nodes(self, nodes: list, initial_el_id: int = 1):
         """
           Replaces nodes elements from .feb_file with new set of nodes.\
