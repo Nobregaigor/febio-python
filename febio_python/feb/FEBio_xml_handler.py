@@ -135,6 +135,11 @@ class FEBio_xml_handler():
         
         self.tree.write(filepath, encoding="ISO-8859-1")
 
+    def clone(self) -> object:
+        """Return a copy of itself."""
+        from copy import deepcopy
+        return deepcopy(self)
+
     # ----------------------------------------------------------------
     # old methods for extracting some geometry data (not fully tested and not optimized)
 

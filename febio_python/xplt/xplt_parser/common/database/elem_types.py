@@ -1,5 +1,6 @@
 from enum import IntEnum
 
+
 class ELEM_TYPES(IntEnum):
     HEX = 0
     PENTA = 1
@@ -12,10 +13,8 @@ class ELEM_TYPES(IntEnum):
     TET10 = 7
     TET15 = 8
     HEX27 = 9
-    
-    
+    QUAD8 = 11
+
     @classmethod
     def in_values(cls, key):
         return key in cls._value2member_map_
-
-    

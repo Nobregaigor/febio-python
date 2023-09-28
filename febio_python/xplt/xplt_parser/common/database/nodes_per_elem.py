@@ -1,5 +1,6 @@
 from enum import IntEnum
 
+
 class NODES_PER_ELEM(IntEnum):
     HEX = 8
     PENTA = 6
@@ -12,6 +13,7 @@ class NODES_PER_ELEM(IntEnum):
     TET10 = 10
     TET15 = 15
     HEX27 = 27
+    QUAD8 = 8
 
     @classmethod
     def in_values(cls, key):

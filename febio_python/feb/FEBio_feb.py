@@ -145,6 +145,35 @@ class FEBio_feb(FEBio_xml_handler):
                 press_loads[load_info["surface"]] = press_info
         return press_loads
 
+    # def get_traction_loads(self) -> dict:
+    #     press_loads = {}
+    #     for i, load in enumerate(self.loads().findall("traction_load")):
+    #         press = load.find("pressure")
+    #         if press is not None:
+    #             load_info = load.attrib
+    #             press_info = press.attrib
+    #             try:
+    #                 press_mult = float(press.text)
+    #             except:
+    #                 press_mult = press.text
+    #             press_info["multiplier"] = press_mult
+    #             press_loads[load_info["surface"]] = press_info
+    #     return press_loads
+
+    def get_nodal_loads(self) -> list:
+        nodal_loads = list()
+        for i, load in enumerate(self.loads().findall("nodal_load")):
+            scale_data = load.find("scale")
+            nodal_loads.append(
+                {
+                    "bc": load.attrib["bc"],
+                    "node_set": load.attrib["node_set"],
+                    "scale": scale_data.text,
+                    "load_curve": scale_data.attrib["lc"]
+                }
+            )
+        return nodal_loads
+
     def get_boundary_conditions(self) -> dict:
         if self.boundary() is None:
             return dict()
@@ -188,13 +217,11 @@ class FEBio_feb(FEBio_xml_handler):
         """
           Adds nodes to Geometry
         """
-
         last_initial_id = initial_el_id
         for (node_elem) in nodes:
             if "nodes" not in node_elem:
                 raise ValueError(
                     "Nodes not found for one of the node_elem. Each node_elem should have a 'nodes' attribute.")
-
             el_root = ET.Element("Nodes")
             if "name" in node_elem:
                 el_root.set("name", node_elem["name"])
@@ -209,7 +236,12 @@ class FEBio_feb(FEBio_xml_handler):
 
             last_initial_id = last_initial_id + i + 1
 
-            self.geometry().extend([el_root])
+            # Determine the insertion point based on existing "Nodes"
+            insert_point = 0  # Default to beginning
+            for idx, element in enumerate(self.geometry()):
+                if element.tag == "Nodes":
+                    insert_point = idx + 1  # Update to insert after the last "Nodes"
+            self.geometry().insert(insert_point, el_root)
 
     def add_elements(self, elements: list, initial_el_id: int = 1) -> None:
         """
@@ -300,6 +332,9 @@ class FEBio_feb(FEBio_xml_handler):
             boundary.set("node_set", nodeset)
             self.boundary().extend([boundary])
 
+    # - - - - - - - - - - - - -
+    # Loads
+
     def add_surface_loads(self, surface_loads: list) -> None:
         """Adds surface load to Loads tag
 
@@ -340,6 +375,48 @@ class FEBio_feb(FEBio_xml_handler):
             loads_to_add.append(load_element)
 
         loads_root.extend(loads_to_add)
+
+    def add_nodal_loads(self, nodal_loads: list) -> None:
+
+        for load_idx, new_load in enumerate(nodal_loads):
+            assert isinstance(new_load, dict), (
+                f"Items in nodal_loads must be a dictionary. "
+                f"Got {type(new_load)} instead."
+                f"Item: {load_idx}."
+            )
+            assert "bc" in new_load, (
+                "Items in nodal_loads must contain a 'bc' key. "
+                "'bc' identifies the boundary condition to be applied. "
+                "In this case, it is used to indicate the load direction."
+                f"Item: {load_idx}."
+            )
+            assert "node_set" in new_load, (
+                "Items in nodal_loads must contain a 'node_set' key. "
+                f"Item: {load_idx}."
+            )
+            assert "scale" in new_load, (
+                "Items in nodal_loads must contain a 'scale' key. "
+                f"Item: {load_idx}."
+            )
+            # Optional items
+            if "load_curve" not in new_load:
+                new_load["load_curve"] = "1"
+
+            load_element = ET.Element("nodal_load")
+            load_element.set("bc", new_load["bc"])
+            load_element.set("node_set", new_load["node_set"])
+            subel = ET.SubElement(load_element, "scale")
+            subel.set("lc", new_load["load_curve"])
+            subel.text = str(new_load["scale"])
+
+            self.loads().extend([load_element])
+
+    def clear_loads(self):
+        loads = self.loads()
+        loads[:] = []
+
+    # - - - - - - - - - - - - -
+    # Add mesh data to feb file
 
     # --- this function is ugly -> need to be improved (but works for now)
     def add_meshdata(self, mesh_data: list, initial_el_id: int = 1) -> None:
@@ -398,6 +475,55 @@ class FEBio_feb(FEBio_xml_handler):
 
             self.meshdata().extend([el_root])
 
+    # Add NodeData to MeshData in feb file
+    def add_mesh_node_data(self, node_data: list) -> None:
+
+        for item_idx, item in enumerate(node_data):
+            assert isinstance(item, dict), (
+                f"Items in node_data must be a dictionary. "
+                f"Got {type(item)} instead for item {item_idx}."
+            )
+            assert "name" in item, (
+                "Items in node_data must contain a 'name' key. "
+                f"Item: {item_idx}."
+            )
+            assert "node_set" in item, (
+                "Items in node_data must contain a 'node_set' key."
+                f"Item: {item_idx}."
+            )
+            assert "data" in item, (
+                "Items in node_data must contain a 'data' key."
+                f"Item: {item_idx}."
+            )
+            # check data types
+            assert isinstance(item["name"], str), (
+                "Item's 'name' should be a string."
+                f"Got {type(item['name'])} instead."
+                f"Item: {item_idx}."
+            )
+            assert isinstance(item["node_set"], str), (
+                "Item's 'node_set' should be a string."
+                f"Got {type(item['node_set'])} instead."
+                f"Item: {item_idx}."
+            )
+            assert isinstance(item["data"], (list, np.ndarray)), (
+                "Item's 'should' be a list or numpy array."
+                f"Got {type(item['data'])} instead."
+                f"Item: {item_idx}."
+            )
+            el_root = ET.Element("NodeData")
+            el_root.set("name", item["name"])
+            el_root.set("node_set", item["node_set"])
+            for i, node_data in enumerate(item["data"]):
+                subel = ET.SubElement(el_root, "node")
+                subel.set("lid", str(i + 1))
+                if isinstance(node_data, (list, np.ndarray)):
+                    subel.text = ",".join(map(str, list(node_data)))
+                else:
+                    subel.text = str(node_data)
+
+            self.meshdata().extend([el_root])
+
     # ===========================
     # Modify content from feb file
 
@@ -424,26 +550,73 @@ class FEBio_feb(FEBio_xml_handler):
                      etc)
         """
 
-        # get nodes tree from existing nodes data in feb
-        root = self.geometry().find("Nodes")
-        nodes_tree = root.findall("node")
+        # # get nodes tree from existing nodes data in feb
+        # root = self.geometry().find("Nodes")
+        # nodes_tree = root.findall("node")
 
-        # raise warning if length of new nodes do not match existing nodes
-        if len(nodes_tree) != len(nodes):
-            warnings.warn("Replacing nodes data with new amound of nodes.\
-                    This can lead to malfunction in feb file exectuion")
+        # # raise warning if length of new nodes do not match existing nodes
+        # if len(nodes_tree) != len(nodes):
+        #     warnings.warn("Replacing nodes data with new amound of nodes.\
+        #             This can lead to malfunction in feb file exectuion")
 
-        # clear nodes content
-        root.clear()
+        # # clear nodes content
+        # root.clear()
+
+        for new_node_data in nodes:
+            data_name = new_node_data["name"]
+            data_values = new_node_data["nodes"]
+
+            node_trees = self.geometry().findall("Nodes")
+            for tree in node_trees:
+                tree_name = node_trees[0].attrib["name"]
+                if data_name == tree_name:
+                    existing_nodes = tree.findall("node")
+                    if len(existing_nodes) != len(data_values):
+                        print(
+                            "Warning: replacing nodes with different amount of nodes."
+                            f"\nExisting nodes: {len(existing_nodes)}, new nodes: {len(data_values)}"
+                            f"\nNode name: {data_name}."
+                            "\nThis can lead to malfunction in feb file exectuion")
+                    self.geometry().remove(tree)
 
         # add new nodes
         self.add_nodes(nodes, initial_el_id)
 
-        # add new nodes
-        # for i, node_xyz in enumerate(nodes):
-        #     subel = ET.SubElement(root, "node")
-        #     subel.set("id", str(i + 1))
-        #     subel.text = ",".join(map(str, node_xyz))
+    def replace_load_scale(self, loads: list):
+
+        for data in loads:
+            load_tag = data["tag"]
+
+            reference_name = None
+            reference_attr = None
+            # get reference name
+            if "bc" in data:
+                reference_name = data["bc"]
+                reference_attr = "bc"
+            elif "node_set" in data:
+                reference_name = data["node_set"]
+                reference_attr = "node_set"
+            elif "surface" in data:
+                reference_name = data["surface"]
+                reference_attr = "surface"
+            elif "elem_set" in data:
+                reference_name = data["elem_set"]
+                reference_attr = "elem_set"
+            elif "name" in data:
+                reference_name = data["name"]
+                reference_attr = "name"
+
+            load_scale = data["scale"]
+
+            for entry in self.loads().findall(load_tag):
+                if reference_attr is not None:
+                    if entry.attrib[reference_attr] == reference_name:
+                        entry_scale = entry.find("scale")
+                        entry_scale.text = str(load_scale)
+                # modify all entries
+                else:
+                    for entry_scale in entry.findall("scale"):
+                        entry_scale.text = str(load_scale)
 
     # ============================
     # Other (not fully tested)
