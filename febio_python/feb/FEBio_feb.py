@@ -186,6 +186,14 @@ class FEBio_feb(FEBio_xml_handler):
                     bc_data[elem.tag] = [elem.attrib]
         return bc_data
 
+    def get_mesh_nodal_data(self, dtype=np.float32) -> dict:
+        nodal_data = dict()
+        for data in self.meshdata().findall("NodeData"):
+            _this_data = [x.text for x in data.findall("node")]
+            nodal_data[data.attrib["node_set"]] = np.array(
+                _this_data, dtype=float)
+        return nodal_data
+
     # ======================================
     # export data as dict
 
