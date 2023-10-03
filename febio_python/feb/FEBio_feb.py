@@ -190,7 +190,11 @@ class FEBio_feb(FEBio_xml_handler):
         nodal_data = dict()
         for data in self.meshdata().findall("NodeData"):
             _this_data = [x.text for x in data.findall("node")]
-            nodal_data[data.attrib["node_set"]] = np.array(
+            ref = data.attrib["node_set"]
+            if ref not in nodal_data.keys():
+                nodal_data[ref] = dict()
+            name = data.attrib["name"]
+            nodal_data[ref][name] = np.array(
                 _this_data, dtype=float)
         return nodal_data
 
