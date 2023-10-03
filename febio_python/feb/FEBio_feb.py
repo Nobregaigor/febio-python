@@ -259,16 +259,24 @@ class FEBio_feb(FEBio_xml_handler):
         last_initial_id = initial_el_id
         for elem_data in elements:
             el_root = ET.Element("Elements")
-            el_root.set("name", elem_data["name"])
+
             if "type" not in elem_data:
                 eltype = self.get_element_type(len(elem_data["elems"][0]))
             else:
-                eltype = elem_data["type"]
-            el_root.set("type", eltype)
+                eltype = str(elem_data["type"])
 
             if "mat" in elem_data:
-                el_root.set("mat", elem_data["mat"])
+                el_mat = str(elem_data["mat"])
+            else:
+                el_mat = "1"
+            if "name" in elem_data:
+                el_name = str(elem_data["name"])
+            else:
+                el_name = "Part1"
 
+            el_root.set("type", eltype)
+            el_root.set("mat", el_mat)
+            el_root.set("name", el_name)
             for i, elem in enumerate(elem_data["elems"]):
                 subel = ET.SubElement(el_root, "elem")
                 subel.set("id", str(i + last_initial_id))
@@ -423,6 +431,10 @@ class FEBio_feb(FEBio_xml_handler):
         loads = self.loads()
         loads[:] = []
 
+    def clear_boundary_conditions(self):
+        loads = self.boundary()
+        loads[:] = []
+
     # - - - - - - - - - - - - -
     # Add mesh data to feb file
 
@@ -522,13 +534,63 @@ class FEBio_feb(FEBio_xml_handler):
             el_root = ET.Element("NodeData")
             el_root.set("name", item["name"])
             el_root.set("node_set", item["node_set"])
-            for i, node_data in enumerate(item["data"]):
+            for i, data in enumerate(item["data"]):
                 subel = ET.SubElement(el_root, "node")
                 subel.set("lid", str(i + 1))
-                if isinstance(node_data, (list, np.ndarray)):
-                    subel.text = ",".join(map(str, list(node_data)))
+                if isinstance(data, (list, np.ndarray)):
+                    subel.text = ",".join(map(str, list(data)))
                 else:
-                    subel.text = str(node_data)
+                    subel.text = str(data)
+
+            self.meshdata().extend([el_root])
+
+    def add_mesh_element_data(self, elem_data: list) -> None:
+
+        for item_idx, item in enumerate(elem_data):
+            assert isinstance(item, dict), (
+                f"Items in elem_data must be a dictionary. "
+                f"Got {type(item)} instead for item {item_idx}."
+            )
+            assert "name" in item, (
+                "Items in elem_data must contain a 'name' key. "
+                f"Item: {item_idx}."
+            )
+            assert "elem_set" in item, (
+                "Items in elem_data must contain a 'elem_set' key."
+                f"Item: {item_idx}."
+            )
+            assert "data" in item, (
+                "Items in elem_data must contain a 'data' key."
+                f"Item: {item_idx}."
+            )
+            # check data types
+            assert isinstance(item["name"], str), (
+                "Item's 'name' should be a string."
+                f"Got {type(item['name'])} instead."
+                f"Item: {item_idx}."
+            )
+            assert isinstance(item["elem_set"], str), (
+                "Item's 'elem_set' should be a string."
+                f"Got {type(item['elem_set'])} instead."
+                f"Item: {item_idx}."
+            )
+            assert isinstance(item["data"], (list, np.ndarray)), (
+                "Item's 'should' be a list or numpy array."
+                f"Got {type(item['data'])} instead."
+                f"Item: {item_idx}."
+            )
+            el_root = ET.Element("ElementData")
+            if "var" in item:
+                el_root.set("var", item["var"])
+            el_root.set("name", item["name"])
+            el_root.set("elem_set", item["elem_set"])
+            for i, data in enumerate(item["data"]):
+                subel = ET.SubElement(el_root, "elem")
+                subel.set("lid", str(i + 1))
+                if isinstance(data, (list, np.ndarray)):
+                    subel.text = ",".join(map(str, list(data)))
+                else:
+                    subel.text = str(data)
 
             self.meshdata().extend([el_root])
 
