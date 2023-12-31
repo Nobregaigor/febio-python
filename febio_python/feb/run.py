@@ -24,6 +24,8 @@ def run(files: Union[str, List[Union[str, Path]]],
                 "files must be a string or a list of strings or pathlib.Path objects. "
                 f"Got {type(item)} at index {i} instead."
             )
+        files_to_run = files
+        
     # Ensure that files is a list of Paths and they do exist
     for i, item in enumerate(files_to_run):
         files_to_run[i] = Path(item)
@@ -36,9 +38,9 @@ def run(files: Union[str, List[Union[str, Path]]],
 
     # Find the executable
     febio_path = shutil.which(executable)
-    print(febio_path)
+    
     if febio_path:
-
+        
         if len(files_to_run) == 1:
             filename = files_to_run[0]
             print(f"Starting process for: {filename}")
@@ -58,12 +60,15 @@ def run(files: Union[str, List[Union[str, Path]]],
                         [executable, str(filename)]))
 
             # Using tqdm for progress feedback
-            for i, process in enumerate(tqdm(processes, desc="Waiting for initial processes", unit="file")):
+            for i, process in enumerate(tqdm(processes, 
+                                             desc="Waiting for initial processes", 
+                                             unit="file")):
                 process.wait()
                 print(f"\nCompleted process for: {files_to_run[i]}")
 
             # If there are more files to process, repeat the above process for the remaining files
-            for i in tqdm(range(num_processes, len(files_to_run)), desc="Processing remaining files", unit="file"):
+            for i in tqdm(range(num_processes, len(files_to_run)), 
+                          desc="Processing remaining files", unit="file"):
                 # Wait for one of the previous processes to finish
                 processes[i % num_processes].wait()
                 print(
@@ -74,7 +79,9 @@ def run(files: Union[str, List[Union[str, Path]]],
 
             # Ensure all remaining processes complete
             if len(files_to_run) > num_processes:  # Add this condition
-                for i, process in enumerate(tqdm(processes, desc="Waiting for final processes", unit="file")):
+                for i, process in enumerate(tqdm(processes, 
+                                                 desc="Waiting for final processes", 
+                                                 unit="file")):
                     process.wait()
                     print(
                         f"\nCompleted process for: {files_to_run[num_processes + i]}")
