@@ -567,6 +567,14 @@ class FEBio_feb(FEBio_xml_handler):
                 "Items in elem_data must contain a 'data' key."
                 f"Item: {item_idx}."
             )
+            if "var" not in item:
+                assert "datatype" in item, (
+                    "Items in elem_data must contain a 'datatype' key "
+                    "if 'var' is not specified. FEBio requires user to "
+                    "specify the data type for non-standard variables."
+                    "e.g. 'scalar', 'vector', 'tensor' or 'mat3d'."
+                    f"Item: {item_idx}."
+                )
             # check data types
             assert isinstance(item["name"], str), (
                 "Item's 'name' should be a string."
@@ -583,11 +591,19 @@ class FEBio_feb(FEBio_xml_handler):
                 f"Got {type(item['data'])} instead."
                 f"Item: {item_idx}."
             )
+            if "var" not in item:
+                assert isinstance(item["datatype"], str), (
+                    "Item's 'datatype' should be a string."
+                    f"Got {type(item['datatype'])} instead."
+                    f"Item: {item_idx}."
+                )
             el_root = ET.Element("ElementData")
             if "var" in item:
                 el_root.set("var", item["var"])
             el_root.set("name", item["name"])
             el_root.set("elem_set", item["elem_set"])
+            if "datatype" in item:
+                el_root.set("datatype", item["datatype"])
             for i, data in enumerate(item["data"]):
                 subel = ET.SubElement(el_root, "elem")
                 subel.set("lid", str(i + 1))
