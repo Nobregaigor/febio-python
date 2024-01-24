@@ -112,22 +112,46 @@ class FEBio_feb(FEBio_xml_handler):
 
     # ---
     # other wrappers
+    # def get_materials(self) -> dict:
+    #     all_mat_data = {}
+    #     for i, item in enumerate(self.material().findall("material")):
+    #         mat_data = item.attrib
+    #         parameters = {}
+    #         for j, el in enumerate(item.iter()):
+    #             if j == 0:
+    #                 continue
+    #             try:
+    #                 p_val = float(el.text)
+    #             except:
+    #                 p_val = el.text
+    #             parameters[el.tag] = p_val
+    #         mat_data["parameters"] = parameters
+    #         mat_key = mat_data["name"] if "name" in mat_data else mat_data["id"]
+    #         all_mat_data[mat_key] = mat_data
+    #     return all_mat_data
+    
     def get_materials(self) -> dict:
         all_mat_data = {}
-        for i, item in enumerate(self.material().findall("material")):
-            mat_data = item.attrib
+        for item in self.material().findall("material"):
+            # Create a deep copy of the item attributes if necessary
+            mat_data = dict(item.attrib)
+            
+            # Extract parameters
             parameters = {}
-            for j, el in enumerate(item.iter()):
-                if j == 0:
-                    continue
+            for el in list(item)[1:]:  # Skip the first element which is the material itself
                 try:
                     p_val = float(el.text)
-                except:
+                except ValueError:
                     p_val = el.text
                 parameters[el.tag] = p_val
+
+            # Add parameters to mat_data, but be cautious about how this is used later
             mat_data["parameters"] = parameters
-            mat_key = mat_data["name"] if "name" in mat_data else mat_data["id"]
+
+            # Determine the key for the all_mat_data dictionary
+            mat_key = mat_data.get("name", mat_data.get("id"))
             all_mat_data[mat_key] = mat_data
+
         return all_mat_data
 
     def get_pressure_loads(self) -> dict:
@@ -617,14 +641,40 @@ class FEBio_feb(FEBio_xml_handler):
     # ===========================
     # Modify content from feb file
 
+    # def replace_material_params(self, params: dict) -> None:
+    #     materials = self.material().findall("material")
+    #     for mat_ref, mat_params in params.items():
+    #         # search materials
+    #         for mat in materials:
+    #             # find material reference
+    #             if mat_ref == mat.attrib["name"] or mat_ref == mat.attrib["id"] or mat_ref == mat.attrib["type"]:
+    #                 # modify params
+    #                 for param_key, param_value in mat_params.items():
+    #                     mat_elem = mat.find(param_key)
+    #                     if mat_elem is not None:
+    #                         mat_elem.text = str(param_value)
+    
+    # def replace_material_params(self, params: dict) -> None:
+    #     materials = self.material().findall("material")
+    #     for mat_ref, mat_params in params.items():
+    #         # Search materials
+    #         for mat in materials:
+    #             # Find material reference
+    #             if mat_ref == mat.get("name") or mat_ref == mat.get("id") or mat_ref == mat.get("type"):
+    #                 # Modify params
+    #                 for param_key, param_value in mat_params.items():
+    #                     mat_elem = mat.find(param_key)
+    #                     if mat_elem is not None:
+    #                         mat_elem.text = str(param_value)
+    
     def replace_material_params(self, params: dict) -> None:
         materials = self.material().findall("material")
         for mat_ref, mat_params in params.items():
-            # search materials
+            # Search materials
             for mat in materials:
-                # find material reference
-                if mat_ref == mat.attrib["name"] or mat_ref == mat.attrib["id"] or mat_ref == mat.attrib["type"]:
-                    # modify params
+                # Find material reference
+                if mat_ref == mat.get("name") or mat_ref == mat.get("id") or mat_ref == mat.get("type"):
+                    # Modify params
                     for param_key, param_value in mat_params.items():
                         mat_elem = mat.find(param_key)
                         if mat_elem is not None:
