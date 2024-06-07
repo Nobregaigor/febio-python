@@ -22,6 +22,16 @@ class FEB_LEAD_TAGS(Enum):
     def has_value(cls, value):
         return value in cls._value2member_map_
 
+class FEB_MAJOR_TAGS(Enum):
+    NODES = "Nodes"
+    NODESET = "NodeSet"
+    NODE_DATA = "NodeData" # Need to check this
+    ELEMENTS = "Elements"
+    ELEMENT_DATA = "ElementData"
+    SURFACE = "Surface"
+    SURFACE_DATA = "SurfaceData"
+    LOADCURVE = "loadcurve"
+
 
 class ELEM_TYPES(Enum):
     TRIANGLE = "tri3"
