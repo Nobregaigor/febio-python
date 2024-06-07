@@ -17,7 +17,10 @@ def convert_text_to_array(elements, dtype=np.float32):
         return np.array([np.fromstring(el.text, sep=",") for el in elements], dtype=dtype)
 
 class FebBaseObject():
-    def __init__(self, tree: ET.ElementTree | None = None, root: ET.Element | None = None, filepath: str | Path=None):
+    def __init__(self, 
+                 tree: Union[ET.ElementTree, None] = None, 
+                 root: Union[ET.Element, None] = None, 
+                 filepath: Union[str, Path] = None):
         self.path_to_file = filepath
 
         # Handle initialization of tree and root
@@ -69,7 +72,10 @@ class FebBaseObject():
     # Initialization methods
     # ====================================================================================================== #
 
-    def _handle_initialization(self, tree: ET.ElementTree | None = None, root: ET.Element | None = None, filepath: str | Path=None) -> Tuple[ET.ElementTree, ET.Element]:
+    def _handle_initialization(self, 
+                               tree: Union[ET.ElementTree, None] = None, 
+                               root: Union[ET.Element, None] = None, 
+                               filepath: Union[str, Path] = None) -> Tuple[ET.ElementTree, ET.Element]:
         # Handle the case in which a filepath is provided -> parse and get tree and root
         if filepath is not None:
             tree, root = FebBaseObject.parse(filepath)

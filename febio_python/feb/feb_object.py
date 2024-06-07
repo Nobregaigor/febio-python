@@ -17,7 +17,10 @@ from .core.meta_data import NodalData, SurfaceData, ElementData
 from .core.enums import SURFACE_EL_TYPE
 
 class Feb(FebBaseObject):
-    def __init__(self, tree: ElementTree | None = None, root: Element | None = None, filepath: str | Path = None):
+    def __init__(self, 
+                 tree: Union[ElementTree, None] = None, 
+                 root: Union[Element, None] = None, 
+                 filepath: Union[str, Path] = None):
         super().__init__(tree, root, filepath)
         
     # =========================================================================================================
