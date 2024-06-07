@@ -9,6 +9,7 @@ from typing import Union, Tuple, List
 
 
 from febio_python.utils import enum_utils as eu
+from collections import OrderedDict
 
 
 def convert_text_to_array(elements, dtype=np.float32):
@@ -290,7 +291,7 @@ class FebBaseObject():
             raise KeyError(f"Tag '{tag_name}' not found within '{eu.check_enum(lead_tag)[0]}'.")
         return tags
     
-    def get_tag_data(self, lead_tag: str, tag: str, content_type='text', dtype=np.float32) -> dict:
+    def get_tag_data(self, lead_tag: str, tag: str, content_type='text', dtype=np.float32) -> OrderedDict:
         """
         General function to extract data from repeated tags based on content type (text or attribute).
 
@@ -303,7 +304,7 @@ class FebBaseObject():
         Returns:
             dict: Data extracted from tags, with keys as tag names or indices.
         """
-        data = {}
+        data = OrderedDict()
         for i, item in enumerate(self.find_tags(lead_tag, tag)):
             name = item.attrib.get('name', i)
             if content_type == 'text':

@@ -1,14 +1,25 @@
 from collections import namedtuple
 
+# Geometry
+# ------------------------------
+Nodes = namedtuple('Nodes', ['name', 'coordinates', 'ids'])
+Elements = namedtuple('Elements', ['name', 'mat', 'type', 'connectivity', 'ids'])
+
+NodeSet = namedtuple('NodeSet', ['name', 'ids'])
+SurfaceSet = namedtuple('SurfaceSet', ['name', 'ids'])
+ElementSet = namedtuple('ElementSet', ['name', 'ids'])
+
 # Materials
 # ------------------------------
-Material = namedtuple('Material', ['id', 'name', 'parameters', 'attributes'])
+Material = namedtuple('Material', ['id', 'type', 'parameters', 'name', 'attributes'])
 
 # Loads
 # ------------------------------
 NodalLoad = namedtuple('NodalLoad', ['bc', 'node_set', 'scale', 'load_curve'])
 # Pressure load must be checked (not sure if it is correct)
 PressureLoad = namedtuple('PressureLoad', ['surface', 'attributes', 'multiplier'])
+
+LoadCurve = namedtuple('LoadCurve', ['id', 'type', 'data'])
 
 
 # Boundary conditions

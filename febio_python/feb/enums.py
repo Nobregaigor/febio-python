@@ -25,13 +25,18 @@ class FEB_LEAD_TAGS(Enum):
 class FEB_MAJOR_TAGS(Enum):
     NODES = "Nodes"
     NODESET = "NodeSet"
-    NODE_DATA = "NodeData" # Need to check this
+    NODEDATA = "NodeData" # Need to check this
     ELEMENTS = "Elements"
-    ELEMENT_DATA = "ElementData"
+    ELEMENTSET = "ElementSet" # Need to check this
+    ELEMENTDATA = "ElementData"
     SURFACE = "Surface"
+    SURFACESET = "SurfaceSet" # Need to check this
     SURFACE_DATA = "SurfaceData"
     LOADCURVE = "loadcurve"
 
+    MATERIAL = "material"
+    NODALLOAD = "nodal_load"
+    SURFACELOAD = "surface_load"
 
 class ELEM_TYPES(Enum):
     TRIANGLE = "tri3"
