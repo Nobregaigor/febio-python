@@ -15,7 +15,7 @@ print(f"Elements: {feb.get_elements()[0].connectivity.shape[0]}")
 
 print(feb.get_materials())
 
-from febio_python.feb.meta_data import Material
+from febio_python.feb.core.meta_data import Material
 new_material = Material(id=1, type="Mooney-Rivlin", parameters={'c1': 10, 'c2': 20, 'k': 10.0}, name="new_material", attributes=None)
 feb.add_materials([new_material])
 print(feb.get_materials())

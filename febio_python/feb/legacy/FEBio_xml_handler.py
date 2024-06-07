@@ -2,7 +2,7 @@ from tkinter import E
 import xml.etree.ElementTree as ET
 from os.path import isfile, join
 # from .. logger import console_log as log
-from .enums import *
+from ..core.enums import *
 from pathlib import Path
 import numpy as np
 

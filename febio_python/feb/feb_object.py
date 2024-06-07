@@ -7,14 +7,14 @@ import numpy as np
 from typing import Union, Dict, List
 from collections import OrderedDict, deque
 
-from .meta_data import Nodes, Elements
-from .meta_data import NodeSet, SurfaceSet, ElementSet
-from .meta_data import Material
-from .meta_data import NodalLoad, PressureLoad, LoadCurve
-from .meta_data import BoundaryCondition, FixCondition, FixedAxis, RigidBodyCondition
-from .meta_data import NodalData, SurfaceData, ElementData
+from .core.meta_data import Nodes, Elements
+from .core.meta_data import NodeSet, SurfaceSet, ElementSet
+from .core.meta_data import Material
+from .core.meta_data import NodalLoad, PressureLoad, LoadCurve
+from .core.meta_data import BoundaryCondition, FixCondition, FixedAxis, RigidBodyCondition
+from .core.meta_data import NodalData, SurfaceData, ElementData
 
-from .enums import SURFACE_EL_TYPE
+from .core.enums import SURFACE_EL_TYPE
 
 class Feb(FebBaseObject):
     def __init__(self, tree: ElementTree | None = None, root: Element | None = None, filepath: str | Path = None):

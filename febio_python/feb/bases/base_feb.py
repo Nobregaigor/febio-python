@@ -2,7 +2,7 @@
 import xml.etree.ElementTree as ET
 from os.path import isfile, join
 # from .. logger import console_log as log
-from ..enums import FEB_ROOT, FEB_LEAD_TAGS, FEB_MAJOR_TAGS
+from ..core.enums import FEB_ROOT, FEB_LEAD_TAGS, FEB_MAJOR_TAGS
 from pathlib import Path
 import numpy as np
 from typing import Union, Tuple, List

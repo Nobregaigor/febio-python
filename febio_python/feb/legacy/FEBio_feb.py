@@ -2,7 +2,7 @@ import warnings
 import numpy as np
 import xml.etree.ElementTree as ET
 from .FEBio_xml_handler import FEBio_xml_handler
-from .enums import *
+from ..core.enums import *
 
 
 class FEBio_feb(FEBio_xml_handler):
