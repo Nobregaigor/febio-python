@@ -1,3 +1,11 @@
+from .enums import (
+    FEB_ROOT,
+    FEB_LEAD_TAGS,
+    FEB_MAJOR_TAGS,
+    ELEM_TYPES,
+    SURFACE_EL_TYPE,
+)
+
 from .meta_data import (
     Nodes,
     Elements,

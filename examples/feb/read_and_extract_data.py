@@ -24,8 +24,9 @@ print(feb.get_materials())
 # print(feb.get_materials())
 # 
 
-# new_nodes = Nodes(name="SMGNN_BENCHMARK", coordinates=feb.get_nodes()[0].coordinates[:2] + 1, ids=None)
-# print(new_nodes)
+from febio_python.feb.core import Nodes
+new_nodes = Nodes(name="SMGNN_BENCHMARK", coordinates=feb.get_nodes()[0].coordinates[:2] + 1)
+print(new_nodes)
 
 # feb.add_nodes([new_nodes])
 

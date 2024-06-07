@@ -3,7 +3,9 @@ from collections import namedtuple
 # Geometry
 # ------------------------------
 Nodes = namedtuple('Nodes', ['name', 'coordinates', 'ids'])
+Nodes.__new__.__defaults__ = (None,)  # This sets a default for the last field only
 Elements = namedtuple('Elements', ['name', 'mat', 'type', 'connectivity', 'ids'])
+Elements.__new__.__defaults__ = (None,)  # This sets a default for the last field only
 
 NodeSet = namedtuple('NodeSet', ['name', 'ids'])
 SurfaceSet = namedtuple('SurfaceSet', ['name', 'ids'])
