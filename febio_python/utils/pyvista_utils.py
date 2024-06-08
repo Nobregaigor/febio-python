@@ -34,14 +34,14 @@ def febio_to_pyvista(data: Union[FEBioContainer, Feb]) -> pv.MultiBlock:
     multiblock = add_elementdata(container, multiblock)
     multiblock = add_surface_data(container, multiblock)
     
-    # Add materials -> cell data, field data
+    # Add materials -> cell data (parameters), field data (parameter names, type, material name)
     multiblock = add_material(container, multiblock)
     
-    # Add loads -> point data, cell data
+    # Add loads -> point data (resultant nodal load), cell data (resultant pressure load)
     multiblock = add_nodalload(container, multiblock)
     multiblock = add_pressure_load(container, multiblock)
     
-    # Add boundary conditions -> point data
+    # Add boundary conditions -> point data (fixed boundary conditions), cell data (rigid body boundary conditions
     multiblock = add_boundary_conditions(container, multiblock)
     
     return multiblock
@@ -417,21 +417,23 @@ def add_boundary_conditions(container: FEBioContainer, multiblock: pv.MultiBlock
             if grid is None:
                 raise ValueError(f"Could not find the proper grid for node set {node_set}")
             
+            bc_values = np.full((grid.n_points,), 0)
+            bc_values[related_nodeset.ids - 1] = 1
             if "x" in bc_type:
                 _fix_mode = "x"
-                if "xs" in bc_type:
-                    _fix_mode = "xs"
-                grid.point_data[f"fix:{node_set}:{_fix_mode}"] = np.full((grid.n_points, 1), 1)
+                if "sx" in bc_type:
+                    _fix_mode = "sx"
+                grid.point_data[f"fix:{_fix_mode}:{node_set}"] = bc_values
             if "y" in bc_type:
                 _fix_mode = "y"
-                if "ys" in bc_type:
-                    _fix_mode = "ys"
-                grid.point_data[f"fix:{node_set}:{_fix_mode}"] = np.full((grid.n_points, 1), 1)
+                if "sy" in bc_type:
+                    _fix_mode = "sy"
+                grid.point_data[f"fix:{_fix_mode}:{node_set}"] = bc_values
             if "z" in bc_type:
                 _fix_mode = "z"
-                if "zs" in bc_type:
-                    _fix_mode = "zs"
-                grid.point_data[f"fix:{node_set}:z"] = np.full((grid.n_points, 1), 1)
+                if "sz" in bc_type:
+                    _fix_mode = "sz"
+                grid.point_data[f"fix:{_fix_mode}:{node_set}"] = bc_values
         
         elif isinstance(bc, RigidBodyCondition):
             material = bc.material
@@ -449,18 +451,27 @@ def add_boundary_conditions(container: FEBioContainer, multiblock: pv.MultiBlock
     
     # resolve "fix" (fixed boundary conditions) -> final vector field of fixed boundary conditions
     for grid in multiblock:
-        fix_modes = [key for key in grid.point_data.keys() if "fix" in key]
-        full_data = np.full((grid.n_points, 3), 0.0)
-        for fix_mode in fix_modes:
-            data = grid.point_data[fix_mode]
-            if "x" in fix_mode:
+        fix_keys = [key for key in grid.point_data.keys() if "fix:" in key]
+        full_data = np.full((grid.n_points, 6), 0.0)
+        for key in fix_keys:
+            fix_mode = key.split(":")[1]
+            data = grid.point_data[key]
+            if fix_mode == "x":
                 full_data[:, 0] += data.flatten()
-            if "y" in fix_mode:
+            elif fix_mode == "y":
                 full_data[:, 1] += data.flatten()
-            if "z" in fix_mode:
+            elif fix_mode == "z":
                 full_data[:, 2] += data.flatten()
+            elif fix_mode == "sx":
+                full_data[:, 3] += data.flatten()
+            elif fix_mode == "sy":
+                full_data[:, 4] += data.flatten()
+            elif fix_mode == "sz":
+                full_data[:, 5] += data.flatten()
+        # transform into a binary array (0: free, 1: fixed), but for each axis
+        full_data = np.where(full_data > 0, 1, 0)
         grid.point_data["fix"] = full_data
-        for fix_mode in fix_modes:
+        for fix_mode in fix_keys:
             del grid.point_data[fix_mode]
-            
+
     return multiblock

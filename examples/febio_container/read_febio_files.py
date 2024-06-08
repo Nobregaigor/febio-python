@@ -20,6 +20,7 @@ grid = mb[0]
 print(f"point data: {grid.point_data.keys()}")
 print(f"cell data: {grid.cell_data.keys()}")
 print(f"field data: {grid.field_data.keys()}")
+print(grid["fix"].sum(0))
 # grid.plot(scalars="neo-Hookean:SMGNN_BENCHMARK_MATERIAL", show_edges=True)
 
 
