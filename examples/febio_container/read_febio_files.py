@@ -14,8 +14,14 @@ febio_container = FEBioContainer(feb=filepath)
 # print(nodesets)
 
 mb = febio_to_pyvista(febio_container)
-
+# mb.
+# for name, grid in mb.items():
+#     print(name)
+#     print(grid)
+#     grid.plot(show_edges=True, show_axes=True, cpos="xy")
+    
 grid = mb[0]
+# print(grid.name)
 
 print(f"point data: {grid.point_data.keys()}")
 print(f"cell data: {grid.cell_data.keys()}")

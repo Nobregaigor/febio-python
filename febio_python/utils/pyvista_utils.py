@@ -17,6 +17,28 @@ from febio_python.core.element_types import FebioElementTypeToVTKElementType
 from collections import OrderedDict
 
 def febio_to_pyvista(data: Union[FEBioContainer, Feb]) -> pv.MultiBlock:
+    """
+    Converts FEBio simulation data into a PyVista MultiBlock structure for advanced visualization and analysis. 
+    This function orchestrates a series of operations to transfer all pertinent data from FEBio into a structured 
+    MultiBlock format that PyVista can utilize effectively.
+
+    Steps involved in the conversion include:
+    1. Validation of Input: Converts the input data into a FEBioContainer object if not already one.
+    2. Creation of MultiBlock: Initializes a MultiBlock from the FEBio container's mesh data including nodes and elements.
+    3. Addition of Sets: Integrates nodal, element, and surface sets, mapping these to the corresponding elements and nodes within the PyVista grids.
+    4. Integration of Data: Nodal, element, and surface data are added, ensuring all mesh-related information is transferred.
+    5. Inclusion of Material Properties: Material properties defined in the FEBio model are mapped to the respective elements in PyVista.
+    6. Application of Loads: Both nodal and pressure loads specified in the FEBio model are applied to the respective nodes and elements.
+    7. Implementation of Boundary Conditions: Boundary conditions, both fixed and rigid body, are applied to the nodes as specified.
+
+    Please check the individual helper functions for more details on each step.
+
+    Parameters:
+        data (Union[FEBioContainer, Feb]): Data container from an FEBio simulation.
+
+    Returns:
+        pv.MultiBlock: A fully populated PyVista MultiBlock object representing the entire FEBio model.
+    """
     
     # Make sure we have a FEBioContainer object
     container: FEBioContainer = ensure_febio_container(data)
@@ -64,6 +86,17 @@ def ensure_febio_container(data: Union[FEBioContainer, Feb]) -> FEBioContainer:
 # =============================================================================
 
 def create_multiblock_from_febio_container(container: FEBioContainer) -> pv.MultiBlock:
+    """
+    Converts an FEBioContainer object containing mesh data into a PyVista MultiBlock object.
+    This function handles the conversion of node coordinates and element connectivity from the FEBio format (1-based indexing)
+    to the PyVista format (0-based indexing). For each node set in the container, it creates a corresponding unstructured grid in the MultiBlock.
+
+    Parameters:
+        container (FEBioContainer): The FEBio container with mesh data.
+
+    Returns:
+        pv.MultiBlock: A MultiBlock object containing the mesh data.
+    """
     nodes: List[Nodes] = container.nodes
     elements: List[Elements] = container.elements
     # create a MultiBlock object
@@ -99,7 +132,18 @@ def create_multiblock_from_febio_container(container: FEBioContainer) -> pv.Mult
 # =============================================================================
 
 def add_nodalsets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
-    # Extract the nodal sets
+    """
+    Adds nodal sets from the FEBioContainer to the PyVista MultiBlock.
+    Nodal sets define specific groups of nodes. This function maps these groups to the corresponding nodes in the PyVista grids,
+    storing the indices of the nodes in the field_data of the appropriate grid.
+
+    Parameters:
+        container (FEBioContainer): The container containing nodal sets.
+        multiblock (pv.MultiBlock): The MultiBlock to which the nodal sets will be added.
+
+    Returns:
+        pv.MultiBlock: The updated MultiBlock with nodal sets added.
+    """
     nodesets = container.nodesets
     for node_set in nodesets:
         name = node_set.name
@@ -118,7 +162,18 @@ def add_nodalsets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
     return multiblock
 
 def add_elementsets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
-    # Extract the element sets
+    """
+    Adds element sets from the FEBioContainer to the PyVista MultiBlock.
+    Element sets define specific groups of elements. This function maps these groups to the corresponding elements in the PyVista grids,
+    storing the indices of the elements in the field_data of the appropriate grid.
+
+    Parameters:
+        container (FEBioContainer): The container containing element sets.
+        multiblock (pv.MultiBlock): The MultiBlock to which the element sets will be added.
+
+    Returns:
+        pv.MultiBlock: The updated MultiBlock with element sets added.
+    """
     elementsets = container.elementsets
     for elem_set in elementsets:
         name = elem_set.name
@@ -158,6 +213,18 @@ def add_surfacesets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.
     return multiblock
 
 def add_nodaldata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
+    """
+    Adds nodal data from the FEBioContainer to the PyVista MultiBlock.
+    This function finds the corresponding nodeset and updates the 'point_data' of the respective grid in the MultiBlock.
+    NaNs are used to fill the gaps in the data arrays to ensure consistent dimensions across the grid.
+
+    Parameters:
+        container (FEBioContainer): The container containing nodal data.
+        multiblock (pv.MultiBlock): The MultiBlock where nodal data will be added.
+
+    Returns:
+        pv.MultiBlock: The updated MultiBlock with nodal data added.
+    """
     nodesets = container.nodesets
     nodal_data = container.nodal_data
     # Add nodal data
@@ -208,6 +275,24 @@ def add_nodaldata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
     return multiblock
 
 def add_elementdata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
+    """
+    Adds element data from the FEBioContainer to the PyVista MultiBlock.
+    This function maps these properties to their corresponding elements in the PyVista grids.
+    Element data is stored in the 'cell_data' of the appropriate grid.
+    NaNs are used to fill the gaps in the data arrays to ensure consistent dimensions across the grid.
+
+    Parameters:
+        container (FEBioContainer): The container containing element data.
+        multiblock (pv.MultiBlock): The MultiBlock where element data will be added.
+
+    Returns:
+        pv.MultiBlock: The updated MultiBlock with element data added.
+        
+    Notes:
+        This function assumes that the element data provided in the FEBioContainer is appropriately formatted and that element
+        sets match the indices used in the data. If element sets are not properly aligned or if data is missing, NaNs are used
+        to fill the gaps in the data arrays ensuring consistent dimensions across the grid.
+    """
     element_data = container.element_data
     # Add element data
     for el_data in element_data:
@@ -237,10 +322,40 @@ def add_surface_data(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv
 # =============================================================================
 
 def add_material(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
+    """
+    Adds material properties from the FEBioContainer to the PyVista MultiBlock. Material properties such as Young's modulus,
+    Poisson's ratio, or any other parameters defined in FEBio are associated with specific elements based on their material IDs.
+
+    - `Material Parameters`: These are transferred to PyVista as arrays in `cell_data` under "mat_parameters:{mat_id}",
+      where each row corresponds to an element and each column to a material parameter. The order of parameters is consistent
+      across `cell_data` and `field_data`.
+    - `Material Type and Name`: These are stored in `field_data` under "mat_type:{mat_id}" and "mat_name:{mat_id}", respectively,
+      providing a reference to the type and name of the material used.
+    - `Parameters Order`: The names of the parameters (e.g., 'Young's modulus', 'Poisson's ratio') are stored in `field_data`
+      under "mat_parameters:{mat_id}" to maintain an understanding of the data structure in `cell_data`.
+
+    Parameters:
+        container (FEBioContainer): The container containing material data.
+        multiblock (pv.MultiBlock): The MultiBlock where material properties will be added.
+
+    Returns:
+        pv.MultiBlock: The updated MultiBlock with material properties added.
+
+    Example:
+        If a material in FEBio with mat_id=1 has a Young's modulus of 210 GPa and a Poisson's ratio of 0.3, after
+        running this function, the parameters can be accessed in PyVista as follows:
+        - Access material parameters:
+          multiblock['ElementBlockName'].cell_data['mat_parameters:1']  # Array of shape [n_elements, 2]
+          where the first column is Young's modulus and the second is Poisson's ratio.
+        - Access material type and name:
+          multiblock['ElementBlockName'].field_data['mat_type:1']  # Returns ['Elastic']
+          multiblock['ElementBlockName'].field_data['mat_name:1']  # Returns ['GenericElasticMaterial']
+        - Access the order of parameters:
+          multiblock['ElementBlockName'].field_data['mat_parameters:1']  # Returns ['Young's modulus', 'Poisson's ratio']
+    """
     elements: List[Elements] = container.elements
     # Extract the materials
     materials = container.materials
-    mat_grid_params_list = []
     for mat in materials:
         mat_name = mat.name
         mat_type = mat.type
@@ -304,6 +419,28 @@ def add_material(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mul
 # =============================================================================
 
 def add_nodalload(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
+    """
+    Adds nodal force loads from the FEBioContainer to the PyVista MultiBlock. This function interprets force loads applied to specific
+    nodes as described in the FEBio model. It processes these loads, assigning them to the correct nodes based on the node sets
+    specified in the loads, and stores a resultant vector for each node in point_data under the key "nodal_load". The resultant
+    load vector for each node is calculated by summing all applicable force vectors along the x, y, and z axes.
+
+    Parameters:
+        container (FEBioContainer): The container containing nodal force load data.
+        multiblock (pv.MultiBlock): The MultiBlock where nodal loads will be added.
+
+    Returns:
+        pv.MultiBlock: The updated MultiBlock with nodal force loads aggregated and added.
+
+    Example:
+        Consider nodal loads specified in FEBio for certain nodes in various directions:
+        - 100 N in the X direction for nodes in 'NodeSet1'
+        - 150 N in the Y direction for nodes in 'NodeSet2'
+        After processing by this function, these loads are combined where they overlap and result in a summed force vector for each node.
+        The resultant force vectors can be accessed in PyVista as:
+        multiblock['MeshBlockName'].point_data['nodal_load']  # Array of shape [n_points, 3]
+        Each row in the array represents the total force vector for each node, with columns corresponding to forces in the X, Y, and Z directions.
+    """
     nodesets = container.nodesets
     # Extract the nodal loads
     nodal_loads = container.nodal_loads
@@ -387,7 +524,39 @@ def add_pressure_load(container: FEBioContainer, multiblock: pv.MultiBlock) -> p
 # =============================================================================
 
 def add_boundary_conditions(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
-    
+    """
+    Adds boundary conditions from the FEBioContainer to the PyVista MultiBlock. This function handles two main types of boundary 
+    conditions: fixed conditions (FixCondition) and rigid body conditions (RigidBodyCondition):
+
+    - `Fixed Conditions`: These apply constraints on node displacements ('x', 'y', 'z') or shell rotations ('sx', 'sy', 'sz') for 
+      specific node sets. They are recorded as binary arrays in `point_data`, where each element represents whether a node is fixed 
+      along a certain axis:
+        - 'fix': Binary array of shape [n_points, 3], indicating fixed displacements in X, Y, and Z directions.
+        - 'fix_shell': Binary array of shape [n_points, 3], indicating fixed rotations in X, Y, and Z directions.
+      Both arrays consolidate all applicable constraints per node, summing constraints where multiple conditions affect the same node.
+
+    - `Rigid Body Conditions`: These restrict the movement or rotation of all nodes associated with a specific material, denoted by:
+        - 'rigid_body': Binary array of shape [n_points, 3], indicating fixed positions in X, Y, and Z directions for nodes associated with a material.
+        - 'rigid_body_rot': Binary array of shape [n_points, 3], indicating fixed rotations in X, Y, and Z directions for nodes associated with a material.
+      These conditions are labeled with specific material IDs, enhancing traceability and management in complex models.
+
+    Parameters:
+        container (FEBioContainer): The container containing boundary conditions.
+        multiblock (pv.MultiBlock): The MultiBlock where boundary conditions will be added.
+
+    Returns:
+        pv.MultiBlock: The updated MultiBlock with boundary conditions processed and added.
+
+    Example:
+        After processing, to access the constraints:
+        - Displacement constraints for a specific mesh block:
+          multiblock['MeshBlockName'].point_data['fix']  # Outputs a binary array where 1 indicates a fixed displacement.
+        - Shell rotation constraints for the same block:
+          multiblock['MeshBlockName'].point_data['fix_shell']  # Outputs a binary array where 1 indicates a fixed shell rotation.
+        - For rigid body constraints related to a specific material ID:
+          multiblock['MeshBlockName'].point_data['rigid_body']  # Fixed position constraints.
+          multiblock['MeshBlockName'].point_data['rigid_body_rot']  # Fixed rotational constraints.
+    """
     nodesets = container.nodesets
     elements: List[Elements] = container.elements
     # Extract the boundary conditions
@@ -443,7 +612,7 @@ def add_boundary_conditions(container: FEBioContainer, multiblock: pv.MultiBlock
             for elem in elements:
                 if str(elem.mat) == str(material):
                     grid = multiblock[elem.name]
-                    grid.point_data[f"rigid_body:{material}:{fixed_axes}"] = np.full((grid.n_points, 1), 1)
+                    grid.point_data[f"rigid_body:{fixed_axes}:{material}"] = np.full((grid.n_points, 1), 1)
                     added_mat = True
                     break
             if not added_mat:
@@ -470,8 +639,57 @@ def add_boundary_conditions(container: FEBioContainer, multiblock: pv.MultiBlock
                 full_data[:, 5] += data.flatten()
         # transform into a binary array (0: free, 1: fixed), but for each axis
         full_data = np.where(full_data > 0, 1, 0)
-        grid.point_data["fix"] = full_data
+        fix_disp = full_data[:, :3]
+        if sum(fix_disp.flatten()) > 0:
+            grid.point_data["fix"] = fix_disp
+        fix_shell = full_data[:, 3:]
+        if sum(fix_shell.flatten()) > 0:
+            grid.point_data["fix_shell"] = fix_shell
+        # delete the fix keys
         for fix_mode in fix_keys:
             del grid.point_data[fix_mode]
+
+    # resolve "rigid_body" (rigid body boundary conditions) -> final vector field of rigid body boundary conditions
+    for i, grid in enumerate(multiblock):
+        rigid_body_keys = [key for key in grid.point_data.keys() if "rigid_body:" in key]
+        full_data = np.full((grid.n_points, 6), 0.0)
+        for key in rigid_body_keys:
+            fixed_axis = key.split(":")[1]
+            fixed_material_id = key.split(":")[2]
+            # Find the material
+            for mat in container.materials:
+                if str(mat.id) == fixed_material_id:
+                    material = mat.name
+                    break
+            # check if the material is same as grid
+            if multiblock.get_block_name(i) != mat.name:
+                continue
+            
+            if fixed_axis == "x":
+                full_data[:, 0] += 1
+            elif fixed_axis == "y":
+                full_data[:, 1] += 1
+            elif fixed_axis == "z":
+                full_data[:, 2] += 1
+            elif fixed_axis == "Rx":
+                full_data[:, 3] += 1
+            elif fixed_axis == "Ry":
+                full_data[:, 4] += 1
+            elif fixed_axis == "Rz":
+                full_data[:, 5] += 1
+            
+                                    
+        # transform into a binary array (0: free, 1: fixed), but for each axis
+        full_data = np.where(full_data > 0, 1, 0)
+        fix_disp = full_data[:, :3]
+        if sum(fix_disp.flatten()) > 0:
+            grid.point_data["rigid_body"] = fix_disp
+        fix_rot = full_data[:, 3:]
+        if sum(fix_rot.flatten()) > 0:
+            grid.point_data["rigid_body_rot"] = fix_rot
+            
+        # delete the rigid body keys
+        for rigid_body in rigid_body_keys:
+            del grid.point_data[rigid_body]
 
     return multiblock
