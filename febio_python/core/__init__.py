@@ -18,7 +18,7 @@ from .meta_data import (
     LoadCurve,
     BoundaryCondition,
     FixCondition,
-    FixedAxis,
+    # FixedAxis,
     RigidBodyCondition,
     NodalData,
     SurfaceData,

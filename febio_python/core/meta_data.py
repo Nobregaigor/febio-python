@@ -28,13 +28,13 @@ LoadCurve = namedtuple('LoadCurve', ['id', 'type', 'data'])
 # ------------------------------
 BoundaryCondition = namedtuple('BoundaryCondition', ['type', 'attributes']) # generic boundary condition
 FixCondition = namedtuple('FixCondition', ['bc', 'node_set'])
-FixedAxis = namedtuple('FixedAxis', ['bc'])
+# FixedAxis = namedtuple('FixedAxis', ['bc'])
 RigidBodyCondition = namedtuple('RigidBodyCondition', ['material', 'fixed_axes'])
 
 
 # Mesh data
 # ------------------------------
-NodalData = namedtuple('NodalData', ['node_set', 'name', 'data'])
-SurfaceData = namedtuple('SurfaceData', ['surf_set', 'name', 'data'])
-ElementData = namedtuple('ElementData', ['elem_set', 'name', 'data'])
+NodalData = namedtuple('NodalData', ['node_set', 'name', 'data', 'ids'])
+SurfaceData = namedtuple('SurfaceData', ['surf_set', 'name', 'data', 'ids'])
+ElementData = namedtuple('ElementData', ['elem_set', 'name', 'data', 'ids'])
 

@@ -286,7 +286,8 @@ class FebBaseObject():
         tag_name, tag_val = eu.check_enum(tag)
         tags = lead_element.findall(tag_val)
         if not tags:
-            raise KeyError(f"Tag '{tag_name}' not found within '{eu.check_enum(lead_tag)[0]}'.")
+            # raise KeyError(f"Tag '{tag_name}' not found within '{eu.check_enum(lead_tag)[0]}'.")
+            return []
         return tags
     
     def get_tag_data(self, lead_tag: str, tag: str, content_type='text', dtype=np.float32) -> OrderedDict:
@@ -307,7 +308,7 @@ class FebBaseObject():
             name = item.attrib.get('name', i)
             if content_type == 'text':
                 data[name] = np.array([np.fromstring(el.text, sep=",") for el in item], dtype=dtype)
-            elif content_type in item.attrib:
+            else:
                 data[name] = np.array([sub_el.attrib[content_type] for sub_el in item], dtype=dtype)
         return data
         

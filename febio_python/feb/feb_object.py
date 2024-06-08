@@ -20,7 +20,7 @@ from febio_python.core import (
     LoadCurve,
     BoundaryCondition,
     FixCondition,
-    FixedAxis,
+    # FixedAxis,
     RigidBodyCondition,
     NodalData,
     SurfaceData,
@@ -276,7 +276,7 @@ class Feb(FebBaseObject):
             except ValueError:
                 pass
             load_curve_type = loadcurve_elem.attrib['type']
-            points = []
+            points = deque()
 
             # Extract points from each 'point' element
             for point_elem in loadcurve_elem.findall('point'):
@@ -298,7 +298,7 @@ class Feb(FebBaseObject):
     
     @feb_instance_cache
     def get_boundary_conditions(self) -> List[Union[FixCondition, RigidBodyCondition, BoundaryCondition]]:
-        if self.boundary() is None:
+        if self.boundary is None:
             return []
         
         boundary_conditions_list = []
@@ -310,7 +310,8 @@ class Feb(FebBaseObject):
             
             elif elem.tag == 'rigid_body':
                 # Gather all 'fixed' sub-elements for a 'rigid_body'
-                fixed_axes = [FixedAxis(bc=fixed.attrib['bc']) for fixed in elem.findall('fixed')]
+                fixed_axes = [fixed.attrib['bc'] for fixed in elem.findall('fixed')]
+                fixed_axes = ",".join(fixed_axes) if fixed_axes else ""
                 # Create an instance of RigidBodyCondition for each 'rigid_body' element
                 rigid_body_condition = RigidBodyCondition(material=elem.attrib['mat'], fixed_axes=fixed_axes)
                 boundary_conditions_list.append(rigid_body_condition)
@@ -329,7 +330,19 @@ class Feb(FebBaseObject):
     def get_nodal_data(self, dtype=np.float32) -> List[NodalData]:
         nodal_data_list = []
         for data in self.meshdata.findall(self.MAJOR_TAGS.NODEDATA.value):
-            _this_data = [float(x.text) if x.text.isdigit() else x.text for x in data.findall("node")]
+            _this_data = deque()
+            _these_ids = deque()
+            for x in data.findall("node"):
+                if ',' in x.text:
+                    # Split the string by commas and convert each to float
+                    _this_data.append([float(num) for num in x.text.split(',')])
+                elif x.text.isdigit():
+                    # Convert single digit strings to float
+                    _this_data.append(float(x.text))
+                else:
+                    # Add non-numeric strings as is
+                    _this_data.append(x.text)
+                _these_ids.append(int(x.attrib["lid"]))
             ref = data.attrib["node_set"]
             name = data.attrib["name"]
             
@@ -337,7 +350,8 @@ class Feb(FebBaseObject):
             current_data = NodalData(
                 node_set=ref,
                 name=name,
-                data=np.array(_this_data, dtype=dtype)  # Ensure data is in the correct dtype
+                data=np.array(_this_data, dtype=dtype),  # Ensure data is in the correct dtype
+                ids=np.array(_these_ids, dtype=np.int64)
             )
 
             # Add the NodalData instance to the list
@@ -349,15 +363,28 @@ class Feb(FebBaseObject):
     def get_surface_data(self, dtype=np.float32) -> List[SurfaceData]:
         surf_data_list = []
         for data in self.meshdata.findall(self.MAJOR_TAGS.SURFACE_DATA.value):
-            _this_data = [float(x.text) if x.text.isdigit() else x.text for x in data.findall("surf")]
+            _this_data = deque()
+            _these_ids = deque()
+            for x in data.findall("surf"):
+                if ',' in x.text:
+                    # Split the string by commas and convert each to float
+                    _this_data.append([float(num) for num in x.text.split(',')])
+                elif x.text.isdigit():
+                    # Convert single digit strings to float
+                    _this_data.append(float(x.text))
+                else:
+                    # Add non-numeric strings as is
+                    _this_data.append(x.text)
+                _these_ids.append(int(x.attrib["lid"]))
             ref = data.attrib["surf_set"]
             name = data.attrib["name"]
             
             # Create a NodalData instance
-            current_data = NodalData(
-                node_set=ref,
+            current_data = SurfaceData(
+                surf_set=ref,
                 name=name,
-                data=np.array(_this_data, dtype=dtype)  # Ensure data is in the correct dtype
+                data=np.array(_this_data, dtype=dtype),  # Ensure data is in the correct dtype
+                ids=np.array(_these_ids, dtype=np.int64)
             )
 
             # Add the NodalData instance to the list
@@ -369,18 +396,32 @@ class Feb(FebBaseObject):
     def get_element_data(self, dtype=np.float32) -> List[ElementData]:
         elem_data_list = []
         for data in self.meshdata.findall(self.MAJOR_TAGS.ELEMENTDATA.value):
-            _this_data = [float(x.text) if x.text.isdigit() else x.text for x in data.findall("elem")]
+            _this_data = deque()
+            _these_ids = deque()
+            for x in data.findall("elem"):
+                if ',' in x.text:
+                    # Split the string by commas and convert each to float
+                    _this_data.append([float(num) for num in x.text.split(',')])
+                elif x.text.isdigit():
+                    # Convert single digit strings to float
+                    _this_data.append(float(x.text))
+                else:
+                    # Add non-numeric strings as is
+                    _this_data.append(x.text)
+                _these_ids.append(int(x.attrib["lid"]))
+            
             ref = data.attrib["elem_set"]
             name = data.attrib["name"]
             
-            # Create a NodalData instance
-            current_data = NodalData(
-                node_set=ref,
+            # Create a ElementData instance
+            current_data = ElementData(
+                elem_set=ref,
                 name=name,
-                data=np.array(_this_data, dtype=dtype)  # Ensure data is in the correct dtype
+                data=np.array(_this_data, dtype=dtype),  # Ensure data is in the correct dtype
+                ids=np.array(_these_ids, dtype=np.int64)
             )
 
-            # Add the NodalData instance to the list
+            # Add the ElementData instance to the list
             elem_data_list.append(current_data)
 
         return elem_data_list

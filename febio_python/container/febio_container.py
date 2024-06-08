@@ -98,9 +98,9 @@ class FEBioContainer():
             raise ValueError("No FEB or XPLT file is provided")
     
     @property
-    def elements(self) -> List[ElementSet]:
+    def elementsets(self) -> List[ElementSet]:
         if self.feb is not None:
-            return self.feb.get_elements()
+            return self.feb.get_elementsets()
         elif self.xplt is not None:
             raise NotImplementedError("XPLT file is not yet supported")
         else:
@@ -148,7 +148,7 @@ class FEBioContainer():
     @property
     def load_curves(self) -> List[LoadCurve]:
         if self.feb is not None:
-            return self.feb.get_load_curves()
+            return self.feb.get_loadcurves()
         else:
             raise RuntimeError(
                 "Trying to access load curve data without a FEB file. "
@@ -199,7 +199,7 @@ class FEBioContainer():
             raise NotImplementedError("XPLT file is not yet supported")
         else:
             raise ValueError("No FEB or XPLT file is provided")
-    
+
     # States (results)
     # -------------------
     

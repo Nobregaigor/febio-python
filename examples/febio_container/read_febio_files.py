@@ -1,42 +1,37 @@
 from febio_python import FEBioContainer
 from time import time
 from febio_python.core import Nodes
+from febio_python.utils.pyvista_utils import febio_to_pyvista
 
 # Load the FEBio file
-filepath = "./sample_beam_2d.feb"
+filepath = "./sample_heterogeneous_beam2d.feb"
 febio_container = FEBioContainer(feb=filepath)
+# febio_container.element_data
+# print(febio_container.feb.get_nodesets())
 
-start_time = time()
-print(febio_container.feb)
-end_time = time()
-print(f"Time to get print: {end_time - start_time}")
+# feb = febio_container.feb
+# nodesets: dict = feb.get_tag_data(feb.LEAD_TAGS.GEOMETRY, feb.MAJOR_TAGS.NODESET, content_type="id")
+# print(nodesets)
 
-start_time = time()
-nodes = febio_container.nodes
-end_time = time()
-print(f"Time to get nodes: {end_time - start_time}")
-start_time = time()
-nodes = febio_container.nodes
-end_time = time()
-print(f"Time to get nodes: {end_time - start_time}")
-start_time = time()
-nodes = febio_container.nodes
-end_time = time()
-print(f"Time to get nodes: {end_time - start_time}")
+mb = febio_to_pyvista(febio_container)
 
-# nodes[0].coordinates += 1
-coords = nodes[0].coordinates
-coords += 1
+grid = mb[0]
 
-new_nodes = Nodes(name="new_nodes", coordinates=coords)
+print(f"point data: {grid.point_data.keys()}")
+print(f"cell data: {grid.cell_data.keys()}")
+print(f"field data: {grid.field_data.keys()}")
+# grid.plot(scalars="neo-Hookean:SMGNN_BENCHMARK_MATERIAL", show_edges=True)
 
-febio_container.feb.add_nodes([new_nodes])
 
-start_time = time()
-nodes = febio_container.nodes
-end_time = time()
-print(f"Time to get nodes: {end_time - start_time}")
-print(nodes)
+# print(grid[0].points)
+# print(grid.get_block_name(0))
+# grid["SMGNN_BENCHMARK"].plot(show_edges=True)
+# grid.plot(show_edges=True)
+
+# start_time = time()
+# print(febio_container.feb)
+# end_time = time()
+# print(f"Time to get print: {end_time - start_time}")
 
 # start_time = time()
 # nodes = febio_container.nodes
@@ -46,3 +41,30 @@ print(nodes)
 # nodes = febio_container.nodes
 # end_time = time()
 # print(f"Time to get nodes: {end_time - start_time}")
+# start_time = time()
+# nodes = febio_container.nodes
+# end_time = time()
+# print(f"Time to get nodes: {end_time - start_time}")
+
+# # nodes[0].coordinates += 1
+# coords = nodes[0].coordinates
+# coords += 1
+
+# new_nodes = Nodes(name="new_nodes", coordinates=coords)
+
+# febio_container.feb.add_nodes([new_nodes])
+
+# start_time = time()
+# nodes = febio_container.nodes
+# end_time = time()
+# print(f"Time to get nodes: {end_time - start_time}")
+# print(nodes)
+
+# # start_time = time()
+# # nodes = febio_container.nodes
+# # end_time = time()
+# # print(f"Time to get nodes: {end_time - start_time}")
+# # start_time = time()
+# # nodes = febio_container.nodes
+# # end_time = time()
+# # print(f"Time to get nodes: {end_time - start_time}")
