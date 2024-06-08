@@ -30,8 +30,7 @@ class FebBaseObject():
         # Set some enums as attributes
         self.LEAD_TAGS = FEB_LEAD_TAGS
         self.MAJOR_TAGS = FEB_MAJOR_TAGS
-
-        
+    
     def __repr__(self):
         to_print = "{}:\n".format(self.__class__.__name__)
         for el in list(self.root):
