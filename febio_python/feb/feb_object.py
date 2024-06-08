@@ -7,14 +7,26 @@ import numpy as np
 from typing import Union, Dict, List
 from collections import OrderedDict, deque
 
-from .core.meta_data import Nodes, Elements
-from .core.meta_data import NodeSet, SurfaceSet, ElementSet
-from .core.meta_data import Material
-from .core.meta_data import NodalLoad, PressureLoad, LoadCurve
-from .core.meta_data import BoundaryCondition, FixCondition, FixedAxis, RigidBodyCondition
-from .core.meta_data import NodalData, SurfaceData, ElementData
-
-from .core.enums import SURFACE_EL_TYPE
+from febio_python.core import (
+    SURFACE_EL_TYPE,
+    Nodes,
+    Elements,
+    NodeSet,
+    SurfaceSet,
+    ElementSet,
+    Material,
+    NodalLoad,
+    PressureLoad,
+    LoadCurve,
+    BoundaryCondition,
+    FixCondition,
+    FixedAxis,
+    RigidBodyCondition,
+    NodalData,
+    SurfaceData,
+    ElementData,
+    FEBioElementType,
+)
 
 class Feb(FebBaseObject):
     def __init__(self, 
@@ -424,13 +436,22 @@ class Feb(FebBaseObject):
                 # Append to existing Elements group
                 el_root = self.geometry.find(f".//Elements[@name='{element.name}']")
             else:
+                # Make sure the element type is valid, it must be a valid FEBio element type
+                # However, user can also use VTK element types as input, but they must be 
+                # converted to FEBio types
+                el_type = element.type
+                if el_type not in FEBioElementType.__members__:
+                    try:
+                        el_type = FEBioElementType[str(el_type)]
+                    except KeyError:
+                        raise ValueError(f"Element type {el_type} is not a valid FEBio element type.")                        
+                        
                 # Create a new Elements group if no existing one matches the name
                 el_root = ET.Element("Elements")
                 el_root.set("name", element.name)
                 el_root.set("type", element.type)
                 el_root.set("mat", element.mat)
                 self.geometry.append(el_root)  # Append new "Elements" at the end of the geometry
-
             for i, connectivity in enumerate(element.connectivity):
                 subel = ET.SubElement(el_root, "elem")
                 subel.set("id", str(i + last_initial_id))

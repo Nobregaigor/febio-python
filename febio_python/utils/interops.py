@@ -8,7 +8,7 @@ from febio_python.feb import (
 )
 from typing import List
 
-from febio_python.utils.element_types import FebioElementTypeToVTKElementType
+from febio_python.core.element_types import FebioElementTypeToVTKElementType
 
 def feb_to_pyvista(feb: Feb):
     

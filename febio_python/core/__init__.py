@@ -24,3 +24,8 @@ from .meta_data import (
     SurfaceData,
     ElementData
 )
+
+from .element_types import (
+    FEBioElementType,
+    FebioElementTypeToVTKElementType,
+)

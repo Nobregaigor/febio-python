@@ -1,5 +1,23 @@
 from enum import Enum
 
+class FEBioElementType(Enum):
+    # Linear elements
+    TRIANGLE = "tri3"
+    QUAD = "quad4"
+    TETRA = "tet4"
+    WEDGE = "penta6"
+    HEXAHEDRON = "hex8"
+    # Quadratic elements
+    QUADRATIC_TRIANGLE = "tri6"
+    QUADRATIC_QUAD = "quad8"
+    QUADRATIC_TETRA = "tet10"
+    QUADRATIC_WEDGE = "penta15"
+    QUADRATIC_HEXAHEDRON = "hex20"
+    # Higher order elements
+    BIQUADRATIC_QUAD = "quad9"
+    TRIQUADRATIC_HEXAHEDRON = "hex27"
+
+
 class FebioElementTypeToVTKElementType(Enum):
     # Linear elements
     tri3 = "TRIANGLE"
@@ -16,3 +34,4 @@ class FebioElementTypeToVTKElementType(Enum):
     # Higher order elements
     quad9 = "BIQUADRATIC_QUAD"
     hex27 = "TRIQUADRATIC_HEXAHEDRON"
+
