@@ -14,7 +14,6 @@ from febio_python.core import (
     LoadCurve,
     BoundaryCondition,
     FixCondition,
-    FixedAxis,
     RigidBodyCondition,
     NodalData,
     SurfaceData,
@@ -161,7 +160,7 @@ class FEBioContainer():
     # -------------------
     
     @property
-    def boundary_conditions(self) -> List[BoundaryCondition]:
+    def boundary_conditions(self) -> List[Union[BoundaryCondition, FixCondition, RigidBodyCondition]]:
         if self.feb is not None:
             return self.feb.get_boundary_conditions()
         else:

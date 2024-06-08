@@ -1,13 +1,21 @@
 from functools import lru_cache, wraps
 from .bases import FebBaseObject
+import xml.etree.ElementTree as ET
+import hashlib
 
 def feb_instance_cache(func):
-    """ Cache decorator that uses instance attributes to generate cache keys. """
+    """ Cache decorator that uses a hash of the string representation of instance data to generate cache keys. """
     @wraps(func)
-    def wrapper(self: FebBaseObject, *args, **kwargs):
-        # Assuming self.tree or self.root can be converted to a hashable type for caching.
-        # If these are complex types, you might need a stable identifier or use id(self.tree).
-        cache_key = (id(self.tree), id(self.root)) + args + tuple(kwargs.items())
+    def wrapper(self: 'FebBaseObject', *args, **kwargs):
+        # Obtain the string representation of the object, possibly using __repr__ or a custom method
+        object_repr = self.__repr__()
+
+        # Generate a hash of this representation
+        object_hash = hashlib.sha256(object_repr.encode('utf-8')).hexdigest()
+
+        # Use the hash, function arguments, and keyword arguments to form a cache key
+        cache_key = (object_hash,) + args + tuple(sorted(kwargs.items()))
+
         if cache_key not in wrapper.cache:
             wrapper.cache[cache_key] = func(self, *args, **kwargs)
         return wrapper.cache[cache_key]

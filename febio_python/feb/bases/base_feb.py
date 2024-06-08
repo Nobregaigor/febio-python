@@ -36,17 +36,6 @@ class FebBaseObject():
         to_print = "{}:\n".format(self.__class__.__name__)
         for el in list(self.root):
             to_print += "-> {}: {}\n".format(el.tag, len(el))
-
-            # print material details
-            if str(el.tag).lower() == str(FEB_LEAD_TAGS.MATERIAL.value).lower() and len(el) > 0:
-                for geo_el in list(el):
-                    if "type" in geo_el.keys():
-                        to_print += "--> {} '{}': {}\n".format(
-                            geo_el.tag, geo_el.attrib["type"], len(geo_el))
-                    else:
-                        to_print += "--> {}: {}\n".format(
-                            geo_el.tag, len(geo_el))
-
             # print geometry details (nodes and elements)
             if str(el.tag).lower() == str(FEB_LEAD_TAGS.GEOMETRY.value).lower() and len(el) > 0:
                 for geo_el in list(el):
@@ -57,6 +46,16 @@ class FebBaseObject():
                         else:
                             to_print += "--> {}: {}\n".format(
                                 geo_el.tag, len(geo_el))
+
+            # print material details
+            if str(el.tag).lower() == str(FEB_LEAD_TAGS.MATERIAL.value).lower() and len(el) > 0:
+                for geo_el in list(el):
+                    if "type" in geo_el.keys():
+                        to_print += "--> {} '{}': {}\n".format(
+                            geo_el.tag, geo_el.attrib["type"], len(geo_el))
+                    else:
+                        to_print += "--> {}: {}\n".format(
+                            geo_el.tag, len(geo_el))
         return to_print
     
     def __len__(self):

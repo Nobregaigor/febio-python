@@ -43,8 +43,6 @@ class Feb(FebBaseObject):
     
     # Main geometry data
     # ------------------------------
-
-    # Get full geometry data (as a dict)
     
     @feb_instance_cache
     def get_nodes(self, dtype: np.dtype = np.float32) -> List[Nodes]:
