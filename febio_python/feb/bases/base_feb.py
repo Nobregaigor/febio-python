@@ -6,15 +6,9 @@ from febio_python.core.enums import FEB_ROOT, FEB_LEAD_TAGS, FEB_MAJOR_TAGS
 from pathlib import Path
 import numpy as np
 from typing import Union, Tuple, List
-
-
 from febio_python.utils import enum_utils as eu
 from collections import OrderedDict
 
-
-def convert_text_to_array(elements, dtype=np.float32):
-        """Converts text from each sub-element to a numpy array of the specified dtype."""
-        return np.array([np.fromstring(el.text, sep=",") for el in elements], dtype=dtype)
 
 class FebBaseObject():
     def __init__(self, 

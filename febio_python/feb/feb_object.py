@@ -28,6 +28,8 @@ from febio_python.core import (
     FEBioElementType,
 )
 
+from ._caching import feb_instance_cache
+
 class Feb(FebBaseObject):
     def __init__(self, 
                  tree: Union[ElementTree, None] = None, 
@@ -44,6 +46,7 @@ class Feb(FebBaseObject):
 
     # Get full geometry data (as a dict)
     
+    @feb_instance_cache
     def get_nodes(self, dtype: np.dtype = np.float32) -> List[Nodes]:
         all_nodes: OrderedDict = self.get_tag_data(self.LEAD_TAGS.GEOMETRY, self.MAJOR_TAGS.NODES, content_type="text",  dtype=dtype)
         listed_nodes = list()
@@ -54,6 +57,7 @@ class Feb(FebBaseObject):
             last_id += value.shape[0]
         return listed_nodes
 
+    @feb_instance_cache
     def get_elements(self, dtype: np.dtype = np.int64) -> List[Elements]:
         all_elements = []
         last_elem_id = 1
@@ -83,6 +87,7 @@ class Feb(FebBaseObject):
 
         return all_elements
 
+    @feb_instance_cache
     def get_surface_elements(self, dtype=np.int64) -> List[Elements]:
         # get all elements
         all_elements = self.get_elements(dtype=dtype)
@@ -93,6 +98,7 @@ class Feb(FebBaseObject):
                 filtered.append(elem)
         return filtered
 
+    @feb_instance_cache
     def get_volume_elements(self, dtype=np.int64) -> List[Elements]:
         # get all elements
         all_elements = self.get_elements(dtype=dtype)
@@ -106,6 +112,7 @@ class Feb(FebBaseObject):
     # Node, element, surface sets
     # ------------------------------
 
+    @feb_instance_cache
     def get_nodesets(self, dtype=np.int64) -> List[NodeSet]:
         """
         Returns a dict with keys representing node set names and values \
@@ -125,6 +132,7 @@ class Feb(FebBaseObject):
             nodeset_list.append(NodeSet(name=key, ids=value))
         return nodeset_list
     
+    @feb_instance_cache
     def get_surfacesets(self, dtype=np.int64) -> List[SurfaceSet]:
         """
         Returns a dict with keys representing node set names and values \
@@ -144,6 +152,7 @@ class Feb(FebBaseObject):
             surfaceset_list.append(SurfaceSet(name=key, node_ids=value))
         return surfaceset_list
     
+    @feb_instance_cache
     def get_elementsets(self, dtype=np.int64) -> List[ElementSet]:
         """
         Returns a dict with keys representing node set names and values \
@@ -166,6 +175,7 @@ class Feb(FebBaseObject):
     # Materials
     # ------------------------------
     
+    @feb_instance_cache
     def get_materials(self) -> List[Material]:
         materials_list = []
         for item in self.material.findall("material"):
@@ -201,6 +211,7 @@ class Feb(FebBaseObject):
     # Loads
     # ------------------------------
     
+    @feb_instance_cache
     def get_nodal_loads(self) -> List[NodalLoad]:
         nodal_loads = []
         for i, load in enumerate(self.loads.findall("nodal_load")):
@@ -229,7 +240,8 @@ class Feb(FebBaseObject):
             nodal_loads.append(current_load)
 
         return nodal_loads
-        
+    
+    @feb_instance_cache
     def get_pressure_loads(self) -> List[PressureLoad]:
         pressure_loads_list = []
         for i, load in enumerate(self.loads.findall("surface_load")):
@@ -256,6 +268,7 @@ class Feb(FebBaseObject):
 
         return pressure_loads_list
     
+    @feb_instance_cache
     def get_loadcurves(self, dtype=np.float32) -> List[LoadCurve]:
         load_curves_list = []
         for loadcurve_elem in self.loaddata.findall(self.MAJOR_TAGS.LOADCURVE.value):
@@ -285,6 +298,7 @@ class Feb(FebBaseObject):
     # Boundary conditions
     # ------------------------------
     
+    @feb_instance_cache
     def get_boundary_conditions(self) -> List[Union[FixCondition, RigidBodyCondition, BoundaryCondition]]:
         if self.boundary() is None:
             return []
@@ -313,6 +327,7 @@ class Feb(FebBaseObject):
     # Mesh data
     # ------------------------------
     
+    @feb_instance_cache
     def get_nodal_data(self, dtype=np.float32) -> List[NodalData]:
         nodal_data_list = []
         for data in self.meshdata.findall(self.MAJOR_TAGS.NODEDATA.value):
@@ -332,6 +347,7 @@ class Feb(FebBaseObject):
 
         return nodal_data_list
     
+    @feb_instance_cache
     def get_surface_data(self, dtype=np.float32) -> List[SurfaceData]:
         surf_data_list = []
         for data in self.meshdata.findall(self.MAJOR_TAGS.SURFACE_DATA.value):
@@ -351,6 +367,7 @@ class Feb(FebBaseObject):
 
         return surf_data_list
     
+    @feb_instance_cache
     def get_element_data(self, dtype=np.float32) -> List[ElementData]:
         elem_data_list = []
         for data in self.meshdata.findall(self.MAJOR_TAGS.ELEMENTDATA.value):
