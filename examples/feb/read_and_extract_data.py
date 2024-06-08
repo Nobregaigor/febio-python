@@ -1,5 +1,5 @@
 from febio_python.feb.feb_object import Feb
-from febio_python.utils.interops import feb_to_pyvista
+from febio_python.utils.pyvista_utils import feb_to_pyvista
 
 
 filepath = "./sample_beam_2d.feb"
