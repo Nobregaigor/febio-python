@@ -212,6 +212,9 @@ def add_surfacesets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.
     
     return multiblock
 
+# Data
+# -----------------------------------------------------------------------------
+
 def add_nodaldata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
     """
     Adds nodal data from the FEBioContainer to the PyVista MultiBlock.
@@ -270,7 +273,7 @@ def add_nodaldata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
                 raise ValueError(f"Could not find the proper grid for node set {node_set}")
             # grid = multiblock[node_set]
             full_data = np.full((grid.n_points, data.shape[1]), np.nan)
-            full_data[node_ids] = data
+            full_data[related_nodeset.ids[node_ids]] = data
             grid[name] = full_data
     return multiblock
 
@@ -447,8 +450,7 @@ def add_nodalload(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
     for nodal_load in nodal_loads:
         bc = nodal_load.bc
         node_set = nodal_load.node_set
-        scale = nodal_load.scale
-        load_curve = nodal_load.load_curve
+        scale = nodal_load.scale        
         # Find the proper grid
         related_nodeset = None
         for nodeset_item in nodesets:

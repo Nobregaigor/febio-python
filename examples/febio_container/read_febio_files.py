@@ -4,8 +4,10 @@ from febio_python.core import Nodes
 from febio_python.utils.pyvista_utils import febio_to_pyvista
 
 # Load the FEBio file
-filepath = "./sample_heterogeneous_beam2d.feb"
+# filepath = "./sample_heterogeneous_beam2d.feb"
+filepath = "./sample_beam2d.feb"
 febio_container = FEBioContainer(feb=filepath)
+print(febio_container.load_curves)
 # febio_container.element_data
 # print(febio_container.feb.get_nodesets())
 
@@ -26,7 +28,15 @@ grid = mb[0]
 print(f"point data: {grid.point_data.keys()}")
 print(f"cell data: {grid.cell_data.keys()}")
 print(f"field data: {grid.field_data.keys()}")
-print(grid["fix"].sum(0))
+print(f"nodal load: {grid['nodal_load']}")
+
+import pyvista as pv
+# pv.set_plot_theme("document")
+plotter = pv.Plotter()
+plotter.add_mesh(grid, show_edges=True)
+plotter.add_arrows(grid.points, grid["nodal_load"], mag=1000.0)
+plotter.show(cpos="xy")
+
 # grid.plot(scalars="neo-Hookean:SMGNN_BENCHMARK_MATERIAL", show_edges=True)
 
 
