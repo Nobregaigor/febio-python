@@ -1,9 +1,9 @@
-def read_surface_section(bf, TAGS, verbose=0, filesize=0):
-  from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log
-  from numpy import zeros as npzeros
-  from numpy import array as nparray
-  from collections import deque
+from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log
+from numpy import zeros as npzeros
+from numpy import array as nparray
+from collections import deque
 
+def read_surface_section(bf, TAGS, verbose=0, filesize=0):
   
   console_log("---read_surface_section", 2, verbose)
   
