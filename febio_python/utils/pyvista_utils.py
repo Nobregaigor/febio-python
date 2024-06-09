@@ -144,21 +144,24 @@ def add_nodalsets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
     Returns:
         pv.MultiBlock: The updated MultiBlock with nodal sets added.
     """
-    nodesets = container.nodesets
-    for node_set in nodesets:
+    # Calculate cumulative node counts across grids
+    cumulative_nodes = np.cumsum([grid.n_points for grid in multiblock])
+
+    for node_set in container.nodesets:
         name = node_set.name
-        ids = node_set.ids - 1
-        node_count = 0
-        selected_grid = None
-        for grid in multiblock:
-            node_count += grid.n_points
-            if ids[-1] < node_count:
-                selected_grid = grid
-                break
-        if selected_grid is None:
+        ids = node_set.ids - 1  # zero-based index
+        grid_index = int(np.searchsorted(cumulative_nodes, ids[-1], side='right'))
+        
+        if grid_index == len(cumulative_nodes):
             raise ValueError(f"Could not find the proper grid for node set {name}")
-        grid.field_data[name] = ids
-    
+
+        # Adjust indices for the selected grid
+        if grid_index > 0:
+            ids -= cumulative_nodes[grid_index - 1]
+
+        print(f"grid_index: {grid_index}")
+        multiblock[grid_index].field_data[name] = ids
+
     return multiblock
 
 def add_elementsets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
@@ -174,42 +177,30 @@ def add_elementsets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.
     Returns:
         pv.MultiBlock: The updated MultiBlock with element sets added.
     """
-    elementsets = container.elementsets
-    for elem_set in elementsets:
+    # Calculate cumulative element counts across grids
+    cumulative_elements = np.cumsum([grid.n_cells for grid in multiblock])
+
+    for elem_set in container.elementsets:
         name = elem_set.name
-        ids = elem_set.ids - 1
-        elem_count = 0
-        selected_grid = None
-        for grid in multiblock:
-            elem_count += grid.n_cells
-            if ids[-1] < elem_count:
-                selected_grid = grid
-                break
-        if selected_grid is None:
+        ids = elem_set.ids - 1  # zero-based index
+        grid_index = int(np.searchsorted(cumulative_elements, ids[-1], side='right'))
+
+        if grid_index == len(cumulative_elements):
             raise ValueError(f"Could not find the proper grid for element set {name}")
-        grid.field_data[name] = ids  
-    
+
+        # Adjust indices for the selected grid
+        if grid_index > 0:
+            ids -= cumulative_elements[grid_index - 1]
+
+        # Access the correct grid and update field data
+        selected_grid = multiblock[grid_index]
+        selected_grid.field_data[name] = ids
+
     return multiblock
 
 def add_surfacesets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
     if len(container.surfacesets) > 0:
         print("WARNING: Surface sets are not yet supported.")
-    # # Extract the surface sets
-    # surfacesets = container.surfacesets
-    # for surf_set in surfacesets:
-    #     name = surf_set.name
-    #     ids = surf_set.ids - 1
-    #     surf_count = 0
-    #     selected_grid = None
-    #     for grid in multiblock:
-    #         surf_count += grid.n_cells
-    #         if ids[-1] < surf_count:
-    #             selected_grid = grid
-    #             break
-    #     if selected_grid is None:
-    #         raise ValueError(f"Could not find the proper grid for surface set {name}")
-    #     grid.field_data[name] = ids  
-    
     return multiblock
 
 # Data
@@ -232,49 +223,34 @@ def add_nodaldata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
     nodal_data = container.nodal_data
     # Add nodal data
     if len(nodesets) > 0:
+        cumulative_nodes = np.cumsum([grid.n_points for grid in multiblock])
         for nd in nodal_data:
-            # get the nodal data
-            data: np.ndarray = nd.data
-            if len(data.shape) == 1:
-                data = data.reshape(-1, 1)
-            # get the node set
+            # Get the nodal data and reshape if necessary
+            data = nd.data.reshape(-1, 1) if len(nd.data.shape) == 1 else nd.data
             node_set = nd.node_set
-            node_ids = nd.ids - 1
-            # get the name of the data
             name = nd.name
-            # Find the proper grid
-            # In febio, node data is related to a nodeset;
-            # this nodeset indicated the id of the nodes;
-            # there is not information about which "Nodes" object
-            # is related to this nodeset. e.g. they have only the node ids
-            # Thus, we must first find which nodeset this data is related to
-            # then we must get the ids of this nodeset, and finally
-            # we must find the proper grid based on the node ids and number
-            # of nodes in each block of the multiblock.
-            # related_nodeset = 
-            related_nodeset = None
-            for nodeset_item in nodesets:
-                if nodeset_item.name == node_set:
-                    related_nodeset = nodeset_item
-                    break
+
+            # Find the nodeset and corresponding grid using a more efficient method
+            related_nodeset = next((ns for ns in nodesets if ns.name == node_set), None)
             if related_nodeset is None:
                 raise ValueError(f"Node set {node_set} not found.")
-            
-            # Now, we must find the proper grid based on ids
+
+            # Use binary search to find the grid
             last_id = related_nodeset.ids[-1] - 1
-            node_count = 0
-            grid = None
-            for this_grid in multiblock:
-                node_count += this_grid.n_points
-                if last_id < node_count:
-                    grid = this_grid
-                    break
-            if grid is None:
+            grid_index = int(np.searchsorted(cumulative_nodes, last_id, side='right'))
+
+            if grid_index == len(cumulative_nodes):
                 raise ValueError(f"Could not find the proper grid for node set {node_set}")
-            # grid = multiblock[node_set]
+
+            grid = multiblock[grid_index]
+            if grid_index > 0:
+                related_nodeset.ids -= cumulative_nodes[grid_index - 1]
+
+            # Create a full data array with NaNs and assign the actual data
             full_data = np.full((grid.n_points, data.shape[1]), np.nan)
-            full_data[related_nodeset.ids[node_ids]] = data
-            grid[name] = full_data
+            full_data[related_nodeset.ids - 1] = data  # Adjusting for zero indexing
+            grid.point_data[name] = full_data
+
     return multiblock
 
 def add_elementdata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
@@ -356,64 +332,53 @@ def add_material(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mul
         - Access the order of parameters:
           multiblock['ElementBlockName'].field_data['mat_parameters:1']  # Returns ['Young's modulus', 'Poisson's ratio']
     """
-    elements: List[Elements] = container.elements
-    # Extract the materials
+    elements = container.elements
     materials = container.materials
+    # Create a map from element names to their corresponding grids for quick access
+    element_to_grid = {elem.name: multiblock[elem.name] for elem in elements}
+    
     for mat in materials:
         mat_name = mat.name
         mat_type = mat.type
         mat_id = mat.id
-        parameters = OrderedDict(mat.parameters)        
-        # For material, we must find the element that matched the material id
-        # then we must add the material as field data to the grid corresponding to this element
-        added_mat = False
-        for elem in elements:
-            if str(elem.mat) == str(mat_id):
-                grid = multiblock[elem.name]
-                
-                num_params = len(parameters)
-                params_names = list(parameters.keys())
-                params_values = list(parameters.values())
-                
-                params_array = np.full((grid.n_cells, num_params), np.nan)
-                
-                for i, value in enumerate(params_values):                    
-                    # value can be a scalar (int, float) or a string
-                    if isinstance(value, (int, float)):
-                        params_array[:, i] = value
-                    elif isinstance(value, str):
-                        # check if the value is a valid cell data (e.g. mesh data)
-                        if value in grid.cell_data.keys():
-                            # full_data = deepcopy(grid.cell_data[value])
-                            params_array[:, i] = deepcopy(grid.cell_data[value])
-                            del grid.cell_data[value]
-                        else:
-                            raise ValueError(f"Value {value} is not a valid cell data"
-                                             "FEBio allows to input material parameters in 3 formats: "
-                                             "1. scalar (int, float), "
-                                             "2. string (corresponding to a mesh data), "
-                                             "3. math expression (e.g. 2*value) or based on constants (e.g. 2*PI) "
-                                             "or based on coordinates (e.g. 2*X). "
-                                             "However, we currently only support the first two formats."
-                                             "Please make sure that the value is a valid cell data. "
-                                             )
-                    else:
-                        raise ValueError(f"Value {value} is not a valid material parameter. "
-                                         "FEBio allows to input material parameters in 3 formats: "
-                                         "1. scalar (int, float), "
-                                         "2. string (corresponding to a mesh data), "
-                                         "3. math expression (e.g. 2*value) or based on constants (e.g. 2*PI) "
-                                         "or based on coordinates (e.g. 2*X). "
-                                         "However, we currently only support the first two formats."
-                                         )                
-                grid.cell_data[f"mat_parameters:{mat_id}"] = params_array
-                grid.field_data[f"mat_parameters:{mat_id}"] = np.array(params_names, dtype=object)
-                grid.field_data[f"mat_type:{mat_id}"] = [mat_type]
-                grid.field_data[f"mat_name:{mat_id}"] = [mat_name]
-                added_mat = True
-                break
-        if not added_mat:
-            raise ValueError(f"Could not find the proper grid for material {mat_name}")
+        parameters = OrderedDict(mat.parameters)
+
+        # Find the corresponding element for the material
+        target_element = next((elem for elem in elements if str(elem.mat) == str(mat_id)), None)
+        if not target_element:
+            raise ValueError(f"Could not find the proper element for material {mat_name}")
+        
+        # Get the corresponding grid from the map
+        grid = element_to_grid.get(target_element.name)
+        if not grid:
+            raise ValueError(f"Could not find the proper grid for element {target_element.name}")
+        
+        num_params = len(parameters)
+        params_names = list(parameters.keys())
+        params_values = list(parameters.values())
+
+        # Initialize parameter array with NaNs
+        params_array = np.full((grid.n_cells, num_params), np.nan)
+        
+        # Assign values to the parameter array
+        for i, value in enumerate(params_values):
+            # Directly assign scalar values
+            if isinstance(value, (int, float)):
+                params_array[:, i] = value
+            elif isinstance(value, str):
+                # If the value corresponds to existing cell data, use that data
+                if value in grid.cell_data.keys():
+                    params_array[:, i] = grid.cell_data[value]
+                else:
+                    raise ValueError(f"Value {value} is not a valid cell data for material {mat_name}")
+            else:
+                raise ValueError(f"Unsupported material parameter format for {value} in material {mat_name}")
+
+        # Store material properties in the grid
+        grid.cell_data[f"mat_parameters:{mat_id}"] = params_array
+        grid.field_data[f"mat_parameters:{mat_id}"] = np.array(params_names, dtype=object)
+        grid.field_data[f"mat_type:{mat_id}"] = [mat_type]
+        grid.field_data[f"mat_name:{mat_id}"] = [mat_name]
 
     return multiblock
 
@@ -445,75 +410,51 @@ def add_nodalload(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
         Each row in the array represents the total force vector for each node, with columns corresponding to forces in the X, Y, and Z directions.
     """
     nodesets = container.nodesets
-    # Extract the nodal loads
     nodal_loads = container.nodal_loads
+    cumulative_nodes = np.cumsum([grid.n_points for grid in multiblock])
+
     for nodal_load in nodal_loads:
-        bc = nodal_load.bc
+        bc = nodal_load.bc.lower()  # 'x', 'y', or 'z' axis
         node_set = nodal_load.node_set
-        scale = nodal_load.scale        
-        # Find the proper grid
-        related_nodeset = None
-        for nodeset_item in nodesets:
-            if nodeset_item.name == node_set:
-                related_nodeset = nodeset_item
-                break
+        scale = nodal_load.scale  # scale can be numeric or a reference to another data field
+
+        related_nodeset = next((ns for ns in nodesets if ns.name == node_set), None)
         if related_nodeset is None:
             raise ValueError(f"Node set {node_set} not found.")
-        last_id = related_nodeset.ids[-1] - 1
-        node_count = 0
-        grid = None
-        for this_grid in multiblock:
-            node_count += this_grid.n_points
-            if last_id < node_count:
-                grid = this_grid
-                break
-        if grid is None:
-            raise ValueError(f"Could not find the proper grid for node set {node_set}")
-        
-        scale = str(scale)
-        scale_sign = 1
-        if scale.startswith("1*"):
-            scale = scale[2:]
-        elif scale.startswith("-1*"):
-            scale = "-" + scale[3:]
-            scale_sign = -1
-        elif scale.endswith("*1"):
-            scale = scale[:-2]
-        elif scale.endswith("*-1"):
-            scale = scale[:-3]
-            scale_sign = -1
 
-        scale_name = f"nodal_load:{bc.lower()}:{node_set}"
-        scale_data = scale
-        if scale in grid.point_data.keys():
-            scale_name = f"nodal_load:{bc.lower()}:{scale}"
-            scale_data = deepcopy(grid.point_data[scale])
-            # delete the scale data
-            del grid.point_data[scale]            
-            scale_data = scale_data[related_nodeset.ids - 1]
-        full_data = np.full((grid.n_points, 3), 0.0)
+        last_id = related_nodeset.ids[-1] - 1
+        grid_index = int(np.searchsorted(cumulative_nodes, last_id, side='right'))
+        if grid_index == len(cumulative_nodes):
+            raise ValueError(f"Could not find the proper grid for node set {node_set}")
+
+        grid = multiblock[grid_index]
+        if grid_index > 0:
+            related_nodeset.ids -= cumulative_nodes[grid_index - 1]
+
+        if "nodal_load" not in grid.point_data:
+            grid.point_data["nodal_load"] = np.zeros((grid.n_points, 3))
         
-        if str(bc).lower() == "x":
-            full_data[related_nodeset.ids - 1, 0] = scale_data * scale_sign
-        elif str(bc).lower() == "y":
-            full_data[related_nodeset.ids - 1, 1] = scale_data * scale_sign
-        elif str(bc).lower() == "z":
-            full_data[related_nodeset.ids - 1, 2] = scale_data * scale_sign
-        
-        # full_data[related_nodeset.ids - 1] = scale
-        grid.point_data[scale_name] = full_data
-    
-    # resolve nodal loads -> final vector field of nodal loads
-    for grid in multiblock:
-        nodal_loads = [key for key in grid.point_data.keys() if "nodal_load" in key]
-        full_data = np.full((grid.n_points, 3), 0.0)
-        for nodal_load in nodal_loads:
-            data = grid.point_data[nodal_load]
-            full_data += data
-        grid.point_data["nodal_load"] = full_data
-        for nodal_load in nodal_loads:
-            del grid.point_data[nodal_load]
-    
+        axis_map = {'x': 0, 'y': 1, 'z': 2}
+        axis_index = axis_map[bc]
+        load_indices = related_nodeset.ids - 1  # Adjust indices for zero-based indexing
+
+        # Handle scale being a reference to other data fields or a numeric scale
+        if isinstance(scale, str) and '*' in scale:
+            parts = scale.split('*')
+            scale_factor = float(parts[0]) if parts[0].replace('-', '', 1).isdigit() else float(parts[1])
+            data_field = parts[1] if parts[0].replace('-', '', 1).isdigit() else parts[0]
+
+            if data_field not in grid.point_data:
+                raise ValueError(f"Referenced data field '{data_field}' not found in grid point data.")
+
+            # Extract only the relevant scale data for the specified indices
+            scale_data = grid.point_data[data_field][load_indices] * scale_factor
+        else:
+            scale_data = np.full(len(load_indices), float(scale))  # Create a full array of the scale value
+
+        # Update the nodal load data
+        grid.point_data["nodal_load"][load_indices, axis_index] += scale_data
+
     return multiblock
 
 def add_pressure_load(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
@@ -559,139 +500,61 @@ def add_boundary_conditions(container: FEBioContainer, multiblock: pv.MultiBlock
           multiblock['MeshBlockName'].point_data['rigid_body']  # Fixed position constraints.
           multiblock['MeshBlockName'].point_data['rigid_body_rot']  # Fixed rotational constraints.
     """
-    nodesets = container.nodesets
-    elements: List[Elements] = container.elements
-    # Extract the boundary conditions
-    boundary_conditions = container.boundary_conditions
+    # Mapping of node sets and material ids to their corresponding grids with precomputed indices
+    node_set_to_grid = {}
+    element_to_grid = {}
+    cumulative_nodes = np.cumsum([grid.n_points for grid in multiblock])
     
-    for bc in boundary_conditions:
-        
+    for nodeset in container.nodesets:
+        last_id = nodeset.ids[-1] - 1
+        grid_index = int(np.searchsorted(cumulative_nodes, last_id, side='right'))
+        if grid_index < len(multiblock):
+            node_set_to_grid[nodeset.name] = (multiblock[grid_index], nodeset.ids - 1)
+    
+    for element in container.elements:
+        element_to_grid[element.name] = multiblock[element.name]
+
+    for bc in container.boundary_conditions:
         if isinstance(bc, FixCondition):
-            bc_type = bc.bc
             node_set = bc.node_set
-            # Find the proper grid
-            related_nodeset = None
-            for nodeset_item in nodesets:
-                if nodeset_item.name == node_set:
-                    related_nodeset = nodeset_item
-                    break
-            if related_nodeset is None:
+            if node_set not in node_set_to_grid:
                 raise ValueError(f"Node set {node_set} not found.")
-            last_id = related_nodeset.ids[-1] - 1
-            node_count = 0
-            grid = None
-            for this_grid in multiblock:
-                node_count += this_grid.n_points
-                if last_id < node_count:
-                    grid = this_grid
-                    break
-            if grid is None:
-                raise ValueError(f"Could not find the proper grid for node set {node_set}")
             
-            bc_values = np.full((grid.n_points,), 0)
-            bc_values[related_nodeset.ids - 1] = 1
-            if "x" in bc_type:
-                _fix_mode = "x"
-                if "sx" in bc_type:
-                    _fix_mode = "sx"
-                grid.point_data[f"fix:{_fix_mode}:{node_set}"] = bc_values
-            if "y" in bc_type:
-                _fix_mode = "y"
-                if "sy" in bc_type:
-                    _fix_mode = "sy"
-                grid.point_data[f"fix:{_fix_mode}:{node_set}"] = bc_values
-            if "z" in bc_type:
-                _fix_mode = "z"
-                if "sz" in bc_type:
-                    _fix_mode = "sz"
-                grid.point_data[f"fix:{_fix_mode}:{node_set}"] = bc_values
+            grid, indices = node_set_to_grid[node_set]
+            fixed_axes = np.zeros((grid.n_points, 3))  # For 'x', 'y', 'z'
+            fixed_shells = np.zeros((grid.n_points, 3))  # For 'sx', 'sy', 'sz'
+            
+            # Apply constraints to axes
+            for axis in ['x', 'y', 'z']:
+                if axis in bc.bc:
+                    fixed_axes[indices, 'xyz'.index(axis)] = 1
+            for axis in ['sx', 'sy', 'sz']:
+                if axis in bc.bc:
+                    fixed_shells[indices, 'xyz'.index(axis[-1])] = 1
+            
+            # Update or initialize 'fix' and 'fix_shell' arrays in grid's point_data
+            if "fix" in grid.point_data:
+                grid.point_data["fix"] = grid.point_data["fix"].astype(int) | fixed_axes.astype(int)
+            else:
+                grid.point_data["fix"] = fixed_axes
+            
+            if "fix_shell" in grid.point_data:
+                grid.point_data["fix_shell"] = grid.point_data["fix_shell"].astype(int) | fixed_shells.astype(int)
+            else:
+                grid.point_data["fix_shell"] = fixed_shells
         
         elif isinstance(bc, RigidBodyCondition):
             material = bc.material
-            fixed_axes = bc.fixed_axes
-            # Find the proper grid
-            added_mat = False
-            for elem in elements:
-                if str(elem.mat) == str(material):
-                    grid = multiblock[elem.name]
-                    grid.point_data[f"rigid_body:{fixed_axes}:{material}"] = np.full((grid.n_points, 1), 1)
-                    added_mat = True
-                    break
-            if not added_mat:
-                raise ValueError(f"Could not find the proper grid for material {material}")
-    
-    # resolve "fix" (fixed boundary conditions) -> final vector field of fixed boundary conditions
-    for grid in multiblock:
-        fix_keys = [key for key in grid.point_data.keys() if "fix:" in key]
-        full_data = np.full((grid.n_points, 6), 0.0)
-        for key in fix_keys:
-            fix_mode = key.split(":")[1]
-            data = grid.point_data[key]
-            if fix_mode == "x":
-                full_data[:, 0] += data.flatten()
-            elif fix_mode == "y":
-                full_data[:, 1] += data.flatten()
-            elif fix_mode == "z":
-                full_data[:, 2] += data.flatten()
-            elif fix_mode == "sx":
-                full_data[:, 3] += data.flatten()
-            elif fix_mode == "sy":
-                full_data[:, 4] += data.flatten()
-            elif fix_mode == "sz":
-                full_data[:, 5] += data.flatten()
-        # transform into a binary array (0: free, 1: fixed), but for each axis
-        full_data = np.where(full_data > 0, 1, 0)
-        fix_disp = full_data[:, :3]
-        if sum(fix_disp.flatten()) > 0:
-            grid.point_data["fix"] = fix_disp
-        fix_shell = full_data[:, 3:]
-        if sum(fix_shell.flatten()) > 0:
-            grid.point_data["fix_shell"] = fix_shell
-        # delete the fix keys
-        for fix_mode in fix_keys:
-            del grid.point_data[fix_mode]
-
-    # resolve "rigid_body" (rigid body boundary conditions) -> final vector field of rigid body boundary conditions
-    for i, grid in enumerate(multiblock):
-        rigid_body_keys = [key for key in grid.point_data.keys() if "rigid_body:" in key]
-        full_data = np.full((grid.n_points, 6), 0.0)
-        for key in rigid_body_keys:
-            fixed_axis = key.split(":")[1]
-            fixed_material_id = key.split(":")[2]
-            # Find the material
-            for mat in container.materials:
-                if str(mat.id) == fixed_material_id:
-                    material = mat.name
-                    break
-            # check if the material is same as grid
-            if multiblock.get_block_name(i) != mat.name:
-                continue
-            
-            if fixed_axis == "x":
-                full_data[:, 0] += 1
-            elif fixed_axis == "y":
-                full_data[:, 1] += 1
-            elif fixed_axis == "z":
-                full_data[:, 2] += 1
-            elif fixed_axis == "Rx":
-                full_data[:, 3] += 1
-            elif fixed_axis == "Ry":
-                full_data[:, 4] += 1
-            elif fixed_axis == "Rz":
-                full_data[:, 5] += 1
-            
-                                    
-        # transform into a binary array (0: free, 1: fixed), but for each axis
-        full_data = np.where(full_data > 0, 1, 0)
-        fix_disp = full_data[:, :3]
-        if sum(fix_disp.flatten()) > 0:
-            grid.point_data["rigid_body"] = fix_disp
-        fix_rot = full_data[:, 3:]
-        if sum(fix_rot.flatten()) > 0:
-            grid.point_data["rigid_body_rot"] = fix_rot
-            
-        # delete the rigid body keys
-        for rigid_body in rigid_body_keys:
-            del grid.point_data[rigid_body]
+            for grid_name, grid in element_to_grid.items():
+                if grid.material == material:
+                    for axis in ['x', 'y', 'z', 'Rx', 'Ry', 'Rz']:
+                        key = "rigid_body" if 'R' not in axis else "rigid_body_rot"
+                        rigid_body_axes = np.zeros((grid.n_points, 3))
+                        rigid_body_axes[:, 'xyz'.index(axis[-1])] = 1
+                        
+                        if key in grid.point_data:
+                            grid.point_data[key] = grid.point_data[key].astype(int) | rigid_body_axes.astype(int)
+                        else:
+                            grid.point_data[key] = rigid_body_axes
 
     return multiblock

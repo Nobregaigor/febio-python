@@ -30,10 +30,15 @@ print(f"cell data: {grid.cell_data.keys()}")
 print(f"field data: {grid.field_data.keys()}")
 print(f"nodal load: {grid['nodal_load']}")
 
+print(f"mat_parameters: {grid['mat_parameters:1']}")
+
+fixed = grid["fix"].sum(1)
+
+mat_parameters = grid["mat_parameters:1"][:, 1]
 import pyvista as pv
 # pv.set_plot_theme("document")
 plotter = pv.Plotter()
-plotter.add_mesh(grid, show_edges=True)
+plotter.add_mesh(grid, scalars=fixed, show_edges=True, cmap="bwr")
 plotter.add_arrows(grid.points, grid["nodal_load"], mag=1000.0)
 plotter.show(cpos="xy")
 
