@@ -1,10 +1,9 @@
-
+from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log
+from numpy import zeros as npzeros
+from collections import deque
+from numpy import array as nparray
 
 def read_nodeset_section(bf, TAGS, verbose=0):
-    from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log
-    from numpy import zeros as npzeros
-    from collections import deque
-    from numpy import array as nparray
 
     nodeset_ids   = deque()
     nodeset_names = deque()
