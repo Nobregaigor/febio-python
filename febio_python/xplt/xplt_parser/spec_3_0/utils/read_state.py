@@ -1,9 +1,11 @@
+from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log, decompress_state, get_file_size
+from numpy import array as nparray
+from numpy import vstack, hstack
+    
+from collections import deque
+    
 def read_state(bf, TAGS, states_dict, decompress=False, verbose=0):
-    from ...common.utils import search_block, check_block, read_bytes, num_el_nodes, console_log, decompress_state, get_file_size
-    from numpy import array as nparray
-    from numpy import vstack, hstack
-      
-    from collections import deque
+    
   
     # decompress if needed.
     if decompress:
