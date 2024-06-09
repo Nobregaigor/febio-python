@@ -23,14 +23,12 @@ PressureLoad = namedtuple('PressureLoad', ['surface', 'attributes', 'multiplier'
 
 LoadCurve = namedtuple('LoadCurve', ['id', 'type', 'data'])
 
-
 # Boundary conditions
 # ------------------------------
 BoundaryCondition = namedtuple('BoundaryCondition', ['type', 'attributes']) # generic boundary condition
 FixCondition = namedtuple('FixCondition', ['bc', 'node_set'])
 # FixedAxis = namedtuple('FixedAxis', ['bc'])
 RigidBodyCondition = namedtuple('RigidBodyCondition', ['material', 'fixed_axes'])
-
 
 # Mesh data
 # ------------------------------
