@@ -1,57 +1,45 @@
+import struct
+from .console_log import console_log
+from enum import IntEnum
 
 
-def search_block(f, TAGS, BLOCK_TAG, max_depth=5, cur_depth=0,
-                 verbose=0, inv_TAGS=0):
-    import struct
-    from .console_log import console_log
-
-    console_log('Search for BLOCK_TAG: {}'.format(BLOCK_TAG), 2, verbose)
-    # record the initial cursor position
+def search_block(f, TAGS: IntEnum, BLOCK_TAG: str, max_depth: int = 5, cur_depth: int = 0, verbose: int = 0):
+    # Log the start of a new search at the first depth level
     if cur_depth == 0:
         ini_pos = f.tell()
-    # check if we passed the target
+        console_log(f'Searching for BLOCK_TAG: {BLOCK_TAG}', 2, verbose)
+
+    # Stop recursion if maximum depth exceeded
     if cur_depth > max_depth:
-        console_log('Max iteration depth reached: Cannot find %s.' % BLOCK_TAG, 2, verbose)
+        console_log(f'Max iteration depth reached: Cannot find {BLOCK_TAG}.', 2, verbose)
         return -1
-    # read block
+
+    # Read and unpack the block identifier
     buf = f.read(4)
-    
-    # check for end of file
-    if buf == b'':
-        console_log('EOF: Cannot find %s' % BLOCK_TAG, 2, verbose)
+    if buf == b'':  # Check for end of file
+        console_log(f'EOF: Cannot find {BLOCK_TAG}', 2, verbose)
         return -1
+    cur_id = struct.unpack('I', buf)[0]
+
+    # Read and unpack the size of the block
+    block_size = struct.unpack('I', f.read(4))[0]
+
+    # Debugging information
+    if verbose >= 3:
+        cur_id_str = f'0x{cur_id:08x}'
+        id_name = TAGS(cur_id).name if cur_id in TAGS._value2member_map_ else "NOT IN TAGS"
+        console_log(f'cur_ID: {cur_id_str} -> {id_name} | searching for: {BLOCK_TAG}', 4, verbose)
+        console_log(f'-cur_depth: {cur_depth}, max_depth: {max_depth}', 4, verbose)
+        console_log(f'-block size: {block_size}', 4, verbose)
+
+    # Check if current block matches the search tag
+    if TAGS[BLOCK_TAG].value == cur_id:
+        console_log(f'Found BLOCK_TAG: {BLOCK_TAG}', 3, verbose)
+        return block_size
     else:
-        cur_id = struct.unpack('I', buf)[0]
-
-    # read size of block (content after header)
-    a = struct.unpack('I', f.read(4))[0]  # size of the block
-
-    # for debugging
-    if verbose == 3:
-        cur_id_str = '0x' + '{0:08x}'.format(cur_id)
-        if TAGS.in_values(cur_id):
-            console_log('cur_ID: {} -> {} | searching for: {}'.format(cur_id_str, TAGS(cur_id).name, BLOCK_TAG), 4, verbose)
-        else:
-            console_log('cur_ID: {} -> NOT IN TAGS | searching for: {}'.format(cur_id_str, BLOCK_TAG), 4, verbose)
-        console_log('-cur_depth: {}, max_depth: {}'.format(cur_depth, max_depth), 4, verbose)
-        console_log('-block size: {}'.format(a), 4, verbose)
-        
-
-    if (TAGS[BLOCK_TAG].value == cur_id):
-        console_log('Found BLOCK_TAG: {}'.format(BLOCK_TAG), 3, verbose)
-        return a
-
-
-    else:
-        f.seek(a, 1)
-        d = search_block(f, TAGS, BLOCK_TAG, 
-                         cur_depth=cur_depth + 1,
-                         verbose=verbose,
-                         inv_TAGS=inv_TAGS)
-        if d == -1:
-            # put the cursor position back
-            if cur_depth == 0:
-                f.seek(ini_pos, 0)
-            return -1
-        else:
-            return d
+        # Recursively search within the block
+        f.seek(block_size, 1)
+        result = search_block(f, TAGS, BLOCK_TAG, max_depth, cur_depth + 1, verbose)
+        if result == -1 and cur_depth == 0:
+            f.seek(ini_pos)  # Restore file position only at the topmost level
+        return result
