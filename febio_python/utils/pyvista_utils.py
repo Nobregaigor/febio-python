@@ -2,7 +2,10 @@ import pyvista as pv
 import numpy as np
 from copy import deepcopy
 
-from febio_python import FEBioContainer, Feb
+from febio_python import FEBioContainer
+from febio_python.feb._feb_25 import Feb25
+from febio_python.feb._feb_30 import Feb30
+
 # from febio_python.feb import Feb
 from febio_python.core import (
     Nodes,
@@ -16,7 +19,7 @@ from febio_python.core.element_types import FebioElementTypeToVTKElementType
 # from copy import deepcopy
 from collections import OrderedDict
 
-def febio_to_pyvista(data: Union[FEBioContainer, Feb]) -> pv.MultiBlock:
+def febio_to_pyvista(data: Union[FEBioContainer, Feb25, Feb30]) -> pv.MultiBlock:
     """
     Converts FEBio simulation data into a PyVista MultiBlock structure for advanced visualization and analysis. 
     This function orchestrates a series of operations to transfer all pertinent data from FEBio into a structured 
@@ -72,9 +75,9 @@ def febio_to_pyvista(data: Union[FEBioContainer, Feb]) -> pv.MultiBlock:
 # Validation functions
 # =============================================================================
 
-def ensure_febio_container(data: Union[FEBioContainer, Feb]) -> FEBioContainer:
+def ensure_febio_container(data: Union[FEBioContainer, Feb25, Feb30]) -> FEBioContainer:
     """Ensure the input data is a FEBioContainer object."""
-    if isinstance(data, Feb):
+    if isinstance(data, (Feb25, Feb30)):
         return FEBioContainer(feb=data)
     elif isinstance(data, FEBioContainer):
         return data
@@ -159,7 +162,6 @@ def add_nodalsets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
         if grid_index > 0:
             ids -= cumulative_nodes[grid_index - 1]
 
-        print(f"grid_index: {grid_index}")
         multiblock[grid_index].field_data[name] = ids
 
     return multiblock
@@ -284,11 +286,17 @@ def add_elementdata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.
         elem_ids = el_data.ids - 1
         # get the name of the data
         name = el_data.name
+        var = el_data.var
         # Find the proper grid
         grid = multiblock[elem_set]
         full_data = np.full((grid.n_cells, data.shape[1]), np.nan)
         full_data[elem_ids] = data
-        grid[name] = full_data
+        if name is not None:
+            grid.cell_data[name] = full_data
+        elif var is not None:
+            grid.cell_data[var] = full_data
+        else:
+            grid.cell_data[f"element_data_{elem_set}"] = full_data
     return multiblock
 
 def add_surface_data(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
@@ -344,9 +352,17 @@ def add_material(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mul
         parameters = OrderedDict(mat.parameters)
 
         # Find the corresponding element for the material
-        target_element = next((elem for elem in elements if str(elem.mat) == str(mat_id)), None)
+        target_element = next((elem for elem in elements if (str(elem.mat) == str(mat_id) or (elem.name) == mat_name)), None)
         if not target_element:
-            raise ValueError(f"Could not find the proper element for material {mat_name}")
+            raise ValueError(f"Could not find the proper element for material {mat_name} "
+                             "Currently, the material ID must match the element material ID or the element name."
+                             "e.g.:\n"
+                             '<material id="1" name="MESH1" type="isotropic elastic">\n'
+                             '...\n'
+                             '<Elements type="tri3" name="MESH1">\n'
+                             'or\n'
+                             '<Elements type="tri3" name="MESH1", mat="1">\n'
+                             )
         
         # Get the corresponding grid from the map
         grid = element_to_grid.get(target_element.name)
@@ -414,7 +430,7 @@ def add_nodalload(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
     cumulative_nodes = np.cumsum([grid.n_points for grid in multiblock])
 
     for nodal_load in nodal_loads:
-        bc = nodal_load.bc.lower()  # 'x', 'y', or 'z' axis
+        bc = nodal_load.dof.lower()  # 'x', 'y', or 'z' axis
         node_set = nodal_load.node_set
         scale = nodal_load.scale  # scale can be numeric or a reference to another data field
 
@@ -449,6 +465,10 @@ def add_nodalload(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
 
             # Extract only the relevant scale data for the specified indices
             scale_data = grid.point_data[data_field][load_indices] * scale_factor
+        elif isinstance(scale, str):
+            if scale not in grid.point_data:
+                raise ValueError(f"Referenced data field '{scale}' not found in grid point data.")
+            scale_data = grid.point_data[scale][load_indices]
         else:
             scale_data = np.full(len(load_indices), float(scale))  # Create a full array of the scale value
 
@@ -526,10 +546,10 @@ def add_boundary_conditions(container: FEBioContainer, multiblock: pv.MultiBlock
             
             # Apply constraints to axes
             for axis in ['x', 'y', 'z']:
-                if axis in bc.bc:
+                if axis in bc.dof:
                     fixed_axes[indices, 'xyz'.index(axis)] = 1
             for axis in ['sx', 'sy', 'sz']:
-                if axis in bc.bc:
+                if axis in bc.dof:
                     fixed_shells[indices, 'xyz'.index(axis[-1])] = 1
             
             # Update or initialize 'fix' and 'fix_shell' arrays in grid's point_data

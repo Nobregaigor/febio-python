@@ -1,4 +1,4 @@
-from febio_python.feb.feb_object import Feb
+from febio_python.feb.feb_version_handler import Feb
 
 # Create a new FEB object
 print("Creating a new FEB object")

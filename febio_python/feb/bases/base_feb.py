@@ -2,7 +2,8 @@
 import xml.etree.ElementTree as ET
 from os.path import isfile, join
 # from .. logger import console_log as log
-from febio_python.core.enums import FEB_ROOT, FEB_LEAD_TAGS, FEB_MAJOR_TAGS
+from febio_python.core.enums import FEB_2_5_LEAD_TAGS, FEB_3_0_LEAD_TAGS
+from febio_python.core.enums import FEB_ROOT, FEB_MAJOR_TAGS
 from pathlib import Path
 import numpy as np
 from typing import Union, Tuple, List
@@ -23,38 +24,42 @@ class FebBaseObject():
         # Set tree and root attributes
         self.tree: ET.ElementTree = tree
         self.root: ET.Element = root
-
-        # Order in which outer tags should be placed
-        self.lead_tag_order = [item.value for item in list(FEB_LEAD_TAGS)]
-
         # Set some enums as attributes
-        self.LEAD_TAGS = FEB_LEAD_TAGS
+        if self.version < 3.0:
+            LEAD_TAGS = FEB_2_5_LEAD_TAGS
+        else:
+            LEAD_TAGS = FEB_3_0_LEAD_TAGS
+            
+        # Order in which outer tags should be placed
+        self.LEAD_TAGS: FEB_2_5_LEAD_TAGS | FEB_3_0_LEAD_TAGS = LEAD_TAGS
         self.MAJOR_TAGS = FEB_MAJOR_TAGS
+        
+        self.lead_tag_order = [item.value for item in list(LEAD_TAGS)]
     
     def __repr__(self):
-        to_print = "{}:\n".format(self.__class__.__name__)
+        to_print = f"{self.__class__.__name__}({self.version}):\n"
         for el in list(self.root):
             to_print += "-> {}: {}\n".format(el.tag, len(el))
             # print geometry details (nodes and elements)
-            if str(el.tag).lower() == str(FEB_LEAD_TAGS.GEOMETRY.value).lower() and len(el) > 0:
-                for geo_el in list(el):
-                    if geo_el.tag == "Nodes" or geo_el.tag == "Elements":
-                        if "name" in geo_el.keys():
-                            to_print += "--> {} '{}': {}\n".format(
-                                geo_el.tag, geo_el.attrib["name"], len(geo_el))
-                        else:
-                            to_print += "--> {}: {}\n".format(
-                                geo_el.tag, len(geo_el))
+            # if str(el.tag).lower() == str(self.LEAD_TAGS.GEOMETRY.value).lower() and len(el) > 0:
+            #     for geo_el in list(el):
+            #         if geo_el.tag == "Nodes" or geo_el.tag == "Elements":
+            #             if "name" in geo_el.keys():
+            #                 to_print += "--> {} '{}': {}\n".format(
+            #                     geo_el.tag, geo_el.attrib["name"], len(geo_el))
+            #             else:
+            #                 to_print += "--> {}: {}\n".format(
+            #                     geo_el.tag, len(geo_el))
 
             # print material details
-            if str(el.tag).lower() == str(FEB_LEAD_TAGS.MATERIAL.value).lower() and len(el) > 0:
-                for geo_el in list(el):
-                    if "type" in geo_el.keys():
-                        to_print += "--> {} '{}': {}\n".format(
-                            geo_el.tag, geo_el.attrib["type"], len(geo_el))
-                    else:
-                        to_print += "--> {}: {}\n".format(
-                            geo_el.tag, len(geo_el))
+            # if str(el.tag).lower() == str(self.LEAD_TAGS.MATERIAL.value).lower() and len(el) > 0:
+            #     for geo_el in list(el):
+            #         if "type" in geo_el.keys():
+            #             to_print += "--> {} '{}': {}\n".format(
+            #                 geo_el.tag, geo_el.attrib["type"], len(geo_el))
+            #         else:
+            #             to_print += "--> {}: {}\n".format(
+            #                 geo_el.tag, len(geo_el))
         return to_print
     
     def __len__(self):
@@ -92,7 +97,7 @@ class FebBaseObject():
             # Handle the case in which a tree was not provided: Plant a new tree!
             else:
                 root = ET.Element(FEB_ROOT.ROOT.value)
-                for item in FEB_LEAD_TAGS:
+                for item in self.LEAD_TAGS:
                     _ = ET.SubElement(root, item.value)
                 tree = ET.ElementTree(root)
                 
@@ -157,7 +162,7 @@ class FebBaseObject():
         """Remore all root children that are empty."
         """
         for child in list(self.root):
-            if child.tag != FEB_LEAD_TAGS.MODULE:
+            if child.tag != self.LEAD_TAGS.MODULE:
                 if len(child) == 0:
                     self.root.remove(child)
 
@@ -192,7 +197,7 @@ class FebBaseObject():
         """Tries to add lead tag at proper position according to 'lead_tag_order'.
 
         Args:
-            lead_tag (str): Lead tag to add. Refer to FEB_LEAD_TAGS enum for details.
+            lead_tag (str): Lead tag to add. Refer to self.LEAD_TAGS enum for details.
 
         Raises:
             ValueError: If lead_tag is invalid.
@@ -206,7 +211,7 @@ class FebBaseObject():
             tag_name, tag_val = self.check_enum(lead_tag)
             if tag_val not in self.lead_tag_order:
                 raise ValueError(
-                    f"Invalid value for 'lead_tag': {tag_name}. Check FEB_LEAD_TAGS enum for details.")
+                    f"Invalid value for 'lead_tag': {tag_name}. Check self.LEAD_TAGS enum for details.")
             idx = self.lead_tag_order.index(tag_val)  # where to insert
 
             if len(self.root) == 0 or idx == 0:
@@ -246,7 +251,7 @@ class FebBaseObject():
         el = self.root.find(tag_val)
         if el is None:
             raise KeyError(
-                f"Tag '{tag_name}' not found. Are you sure it is valid? Check FEB_LEAD_TAGS enums for details.")
+                f"Tag '{tag_name}' not found. Are you sure it is valid? Check self.LEAD_TAGS enums for details.")
         return el
     
     # Sub-tags
@@ -269,7 +274,7 @@ class FebBaseObject():
             ET.Element: Pointer to tag element.
 
         Example:
-            feb.get_tag(FEB_LEAD_TAGS.GEOMETRY, "Nodes")
+            feb.get_tag(self.LEAD_TAGS.GEOMETRY, "Nodes")
         """
         el = self.get_lead_tag(lead_tag)
         tag_name, tag_val = eu.check_enum(tag)
@@ -317,81 +322,110 @@ class FebBaseObject():
     # ====================================================================================================== #
     
     @property
+    def version(self) -> float:
+        """Return version of FEBio file."""
+        return float(self.root.attrib.get("version", None))
+    
+    @property
     def control(self) -> ET.Element:
         """Returns 'CONTROL' tree element within 'febio_spec'."""
         try:
-            return self.get_lead_tag(FEB_LEAD_TAGS.CONTROL)
+            return self.get_lead_tag(self.LEAD_TAGS.CONTROL)
         except KeyError:
-            return self.add_lead_tag(FEB_LEAD_TAGS.CONTROL)
+            return self.add_lead_tag(self.LEAD_TAGS.CONTROL)
 
     @property
     def material(self) -> ET.Element:
         """Returns 'MATERIAL' tree element within 'febio_spec'."""
         try:
-            return self.get_lead_tag(FEB_LEAD_TAGS.MATERIAL)
+            return self.get_lead_tag(self.LEAD_TAGS.MATERIAL)
         except KeyError:
-            return self.add_lead_tag(FEB_LEAD_TAGS.MATERIAL)
+            return self.add_lead_tag(self.LEAD_TAGS.MATERIAL)
 
     @property
     def globals(self) -> ET.Element:
         """Returns 'GLOBALS' tree element within 'febio_spec'."""
         try:
-            return self.get_lead_tag(FEB_LEAD_TAGS.GLOBALS)
+            return self.get_lead_tag(self.LEAD_TAGS.GLOBALS)
         except KeyError:
-            return self.add_lead_tag(FEB_LEAD_TAGS.GLOBALS)
+            return self.add_lead_tag(self.LEAD_TAGS.GLOBALS)
 
     @property
     def geometry(self) -> ET.Element:
         """Returns 'GEOMETRY' tree element within 'febio_spec'."""
+        if self.version > 2.5:
+            raise ValueError("Geometry tag is not available for FEBio versions greater than 2.5."
+                             "Please, use 'Mesh' tag instead.")
         try:
-            return self.get_lead_tag(FEB_LEAD_TAGS.GEOMETRY)
+            return self.get_lead_tag(self.LEAD_TAGS.GEOMETRY)
         except KeyError:
-            return self.add_lead_tag(FEB_LEAD_TAGS.GEOMETRY)
+            return self.add_lead_tag(self.LEAD_TAGS.GEOMETRY)
 
+    @property
+    def mesh(self) -> ET.Element:
+        """Returns 'MESH' tree element within 'febio_spec'."""
+        if self.version < 3.0:
+            raise ValueError("Mesh tag is not available for FEBio versions less than 3.0."
+                             "Please, use 'Geometry' tag instead.")
+        try:
+            return self.get_lead_tag(self.LEAD_TAGS.MESH)
+        except KeyError:
+            return self.add_lead_tag(self.LEAD_TAGS.MESH)
+    
+    @property
+    def meshdomains(self) -> ET.Element:
+        """Returns 'MESHDOMAINS' tree element within 'febio_spec'."""
+        if self.version < 3.0:
+            raise ValueError("MeshDomains tag is not available for FEBio versions less than 3.0.")
+        try:
+            return self.get_lead_tag(self.LEAD_TAGS.MESHDOMAINS)
+        except KeyError:
+            return self.add_lead_tag(self.LEAD_TAGS.MESHDOMAINS)
+    
     @property
     def boundary(self) -> ET.Element:
         """Returns 'BOUNDARY' tree element within 'febio_spec'."""
         try:
-            return self.get_lead_tag(FEB_LEAD_TAGS.BOUNDARY)
+            return self.get_lead_tag(self.LEAD_TAGS.BOUNDARY)
         except KeyError:
-            return self.add_lead_tag(FEB_LEAD_TAGS.BOUNDARY)
+            return self.add_lead_tag(self.LEAD_TAGS.BOUNDARY)
 
     @property
     def loads(self) -> ET.Element:
         """Returns 'LOADS' tree element within 'febio_spec'."""
         try:
-            return self.get_lead_tag(FEB_LEAD_TAGS.LOADS)
+            return self.get_lead_tag(self.LEAD_TAGS.LOADS)
         except KeyError:
-            return self.add_lead_tag(FEB_LEAD_TAGS.LOADS)
+            return self.add_lead_tag(self.LEAD_TAGS.LOADS)
 
     @property
     def discrete(self) -> ET.Element:
         """Returns 'DISCRETE' tree element within 'febio_spec'."""
         try:
-            return self.get_lead_tag(FEB_LEAD_TAGS.DISCRETE)
+            return self.get_lead_tag(self.LEAD_TAGS.DISCRETE)
         except KeyError:
-            return self.add_lead_tag(FEB_LEAD_TAGS.DISCRETE)
+            return self.add_lead_tag(self.LEAD_TAGS.DISCRETE)
 
     @property
     def loaddata(self) -> ET.Element:
         """Returns 'LOADDATA' tree element within 'febio_spec'."""
         try:
-            return self.get_lead_tag(FEB_LEAD_TAGS.LOADDATA)
+            return self.get_lead_tag(self.LEAD_TAGS.LOADDATA)
         except KeyError:
-            return self.add_lead_tag(FEB_LEAD_TAGS.LOADDATA)
+            return self.add_lead_tag(self.LEAD_TAGS.LOADDATA)
 
     @property
     def output(self) -> ET.Element:
         """Returns 'OUTPUT' tree element within 'febio_spec'."""
         try:
-            return self.get_lead_tag(FEB_LEAD_TAGS.OUTPUT)
+            return self.get_lead_tag(self.LEAD_TAGS.OUTPUT)
         except KeyError:
-            return self.add_lead_tag(FEB_LEAD_TAGS.OUTPUT)
+            return self.add_lead_tag(self.LEAD_TAGS.OUTPUT)
 
     @property
     def meshdata(self) -> ET.Element:
         """Returns 'MESHDATA' tree element within 'febio_spec'."""
         try:
-            return self.get_lead_tag(FEB_LEAD_TAGS.MESHDATA)
+            return self.get_lead_tag(self.LEAD_TAGS.MESHDATA)
         except KeyError:
-            return self.add_lead_tag(FEB_LEAD_TAGS.MESHDATA)
+            return self.add_lead_tag(self.LEAD_TAGS.MESHDATA)

@@ -2,7 +2,7 @@ from pathlib import Path
 from xml.etree.ElementTree import Element, ElementTree
 import xml.etree.ElementTree as ET
 
-from .bases import FebBaseObject
+from .bases import AbstractFebObject
 import numpy as np
 from typing import Union, Dict, List
 from collections import OrderedDict, deque
@@ -30,12 +30,15 @@ from febio_python.core import (
 
 from ._caching import feb_instance_cache
 
-class Feb(FebBaseObject):
+class Feb25(AbstractFebObject):
     def __init__(self, 
                  tree: Union[ElementTree, None] = None, 
                  root: Union[Element, None] = None, 
                  filepath: Union[str, Path] = None):
         super().__init__(tree, root, filepath)
+        if self.version != 2.5:
+            raise ValueError("This class is only for FEBio 2.5 files"
+                             f"Version found: {self.version}")
         
     # =========================================================================================================
     # Retrieve methods
@@ -228,7 +231,7 @@ class Feb(FebBaseObject):
             except ValueError:
                 pass
             current_load = NodalLoad(
-                bc=load.attrib.get("bc", "UndefinedBC"),  # Default to 'UndefinedBC' if not specified
+                dof=load.attrib.get("bc", "UndefinedBC"),  # Default to 'UndefinedBC' if not specified
                 node_set=load.attrib.get("node_set", f"UnnamedNodeSet{i}"),  # Default to an indexed name if not specified
                 scale=scale_value,
                 load_curve=lc_curve  # Default to 'NoCurve' if not specified
@@ -288,7 +291,7 @@ class Feb(FebBaseObject):
             points_array = np.array(points, dtype=dtype)
 
             # Create a LoadCurve instance
-            current_load_curve = LoadCurve(id=load_curve_id, type=load_curve_type, data=points_array)
+            current_load_curve = LoadCurve(id=load_curve_id, interpolate_type=load_curve_type, data=points_array)
             load_curves_list.append(current_load_curve)
 
         return load_curves_list
@@ -305,7 +308,7 @@ class Feb(FebBaseObject):
         for elem in self.boundary:
             if elem.tag == 'fix':
                 # Create an instance of FixCondition for each 'fix' element
-                fix_condition = FixCondition(bc=elem.attrib['bc'], node_set=elem.attrib['node_set'])
+                fix_condition = FixCondition(dof=elem.attrib['bc'], node_set=elem.attrib['node_set'], name=None)
                 boundary_conditions_list.append(fix_condition)
             
             elif elem.tag == 'rigid_body':
@@ -313,7 +316,7 @@ class Feb(FebBaseObject):
                 fixed_axes = [fixed.attrib['bc'] for fixed in elem.findall('fixed')]
                 fixed_axes = ",".join(fixed_axes) if fixed_axes else ""
                 # Create an instance of RigidBodyCondition for each 'rigid_body' element
-                rigid_body_condition = RigidBodyCondition(material=elem.attrib['mat'], fixed_axes=fixed_axes)
+                rigid_body_condition = RigidBodyCondition(material=elem.attrib['mat'], dof=fixed_axes)
                 boundary_conditions_list.append(rigid_body_condition)
             
             else:
@@ -411,12 +414,14 @@ class Feb(FebBaseObject):
                 _these_ids.append(int(x.attrib["lid"]))
             
             ref = data.attrib["elem_set"]
-            name = data.attrib["name"]
+            name = data.attrib.get("name", None)
+            var = data.attrib.get("var", None)            
             
             # Create a ElementData instance
             current_data = ElementData(
                 elem_set=ref,
                 name=name,
+                var=var,
                 data=np.array(_this_data, dtype=dtype),  # Ensure data is in the correct dtype
                 ids=np.array(_these_ids, dtype=np.int64)
             )
@@ -642,7 +647,7 @@ class Feb(FebBaseObject):
                 el_root.set("node_set", load.node_set)
                 self.loads.append(el_root)
 
-            el_root.set("bc", load.bc)
+            el_root.set("bc", load.dof)
             el_root.text = str(load.scale)
             el_root.set("lc", str(load.load_curve))
     
@@ -686,7 +691,7 @@ class Feb(FebBaseObject):
                 # Create a new LoadCurve element if no existing one matches the ID
                 el_root = ET.Element("loadcurve")
                 el_root.set("id", str(curve.id))
-                el_root.set("type", curve.type)
+                el_root.set("type", curve.interpolate_type)
                 self.loaddata.append(el_root)
 
             for point in curve.data:
@@ -714,15 +719,15 @@ class Feb(FebBaseObject):
                 el_root = ET.Element(bc.type)
                 self.boundary.append(el_root)
 
-            el_root.set("bc", bc.bc)
+            el_root.set("bc", bc.dof)
             if hasattr(bc, "node_set"):
                 el_root.set("node_set", bc.node_set)
             if hasattr(bc, "material"):
                 el_root.set("mat", bc.material)
-            if hasattr(bc, "fixed_axes"):
-                for fixed in bc.fixed_axes:
+            if hasattr(bc, "dof"):
+                for fixed in bc.dof:
                     subel = ET.SubElement(el_root, "fixed")
-                    subel.set("bc", fixed.bc)
+                    subel.set("bc", fixed)
     
     # Mesh data
     # ------------------------------
@@ -788,7 +793,10 @@ class Feb(FebBaseObject):
                 # Create a new ElementData element if no existing one matches the element set
                 el_root = ET.Element(self.MAJOR_TAGS.ELEMENTDATA.value)
                 el_root.set("elem_set", data.node_set)
-                el_root.set("name", data.name)
+                if data.name is not None:
+                    el_root.set("name", data.name)
+                if data.var is not None:
+                    el_root.set("var", data.var)
                 self.meshdata.append(el_root)
 
             el_root.text = ",".join(map(str, data.data))

@@ -1,4 +1,4 @@
-from febio_python.feb.feb_object import Feb
+from febio_python.feb.feb_version_handler import Feb
 from febio_python.utils.pyvista_utils import feb_to_pyvista
 
 

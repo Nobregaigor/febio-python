@@ -5,7 +5,7 @@ class FEB_ROOT(Enum):
     ROOT = 'febio_spec'
 
 
-class FEB_LEAD_TAGS(Enum):
+class FEB_2_5_LEAD_TAGS(Enum):
     MODULE = "Module"
     CONTROL = "Control"
     MATERIAL = "Material"
@@ -18,9 +18,19 @@ class FEB_LEAD_TAGS(Enum):
     OUTPUT = "Output"
     MESHDATA = "MeshData"
 
-    @classmethod
-    def has_value(cls, value):
-        return value in cls._value2member_map_
+class FEB_3_0_LEAD_TAGS(Enum):
+    MODULE = "Module"
+    CONTROL = "Control"
+    MATERIAL = "Material"
+    GLOBALS = "Globals"
+    MESH = "Mesh"
+    MESHDOMAINS = "MeshDomains"
+    MESHDATA = "MeshData"
+    BOUNDARY = "Boundary"
+    LOADS = "Loads"
+    DISCRETE = "Discrete"
+    LOADDATA = "LoadData"
+    OUTPUT = "Output"
 
 class FEB_MAJOR_TAGS(Enum):
     NODES = "Nodes"

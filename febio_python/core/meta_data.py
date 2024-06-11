@@ -17,22 +17,21 @@ Material = namedtuple('Material', ['id', 'type', 'parameters', 'name', 'attribut
 
 # Loads
 # ------------------------------
-NodalLoad = namedtuple('NodalLoad', ['bc', 'node_set', 'scale', 'load_curve'])
+NodalLoad = namedtuple('NodalLoad', ['dof', 'node_set', 'scale', 'load_curve'])
 # Pressure load must be checked (not sure if it is correct)
 PressureLoad = namedtuple('PressureLoad', ['surface', 'attributes', 'multiplier'])
 
-LoadCurve = namedtuple('LoadCurve', ['id', 'type', 'data'])
+LoadCurve = namedtuple('LoadCurve', ['id', 'interpolate_type', 'data'])
 
 # Boundary conditions
 # ------------------------------
 BoundaryCondition = namedtuple('BoundaryCondition', ['type', 'attributes']) # generic boundary condition
-FixCondition = namedtuple('FixCondition', ['bc', 'node_set'])
-# FixedAxis = namedtuple('FixedAxis', ['bc'])
-RigidBodyCondition = namedtuple('RigidBodyCondition', ['material', 'fixed_axes'])
+FixCondition = namedtuple('FixCondition', ['dof', 'node_set', 'name'])
+RigidBodyCondition = namedtuple('RigidBodyCondition', ['material', 'dof'])
 
 # Mesh data
 # ------------------------------
 NodalData = namedtuple('NodalData', ['node_set', 'name', 'data', 'ids'])
 SurfaceData = namedtuple('SurfaceData', ['surf_set', 'name', 'data', 'ids'])
-ElementData = namedtuple('ElementData', ['elem_set', 'name', 'data', 'ids'])
+ElementData = namedtuple('ElementData', ['elem_set', 'name', 'var', 'data', 'ids'])
 
