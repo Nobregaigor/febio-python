@@ -40,20 +40,14 @@ GenericDomain = namedtuple('GenericDomain', ['id', 'name', 'mat'])
 ShellDomain = namedtuple('ShellDomain', ['id', 'name', 'mat', 'shell_normal_nodal'])
 ShellDomain.__new__.__defaults__ = (1,)  # This sets a default for the last field only
 
-
 # xplt mesh data
 XpltMeshPart = namedtuple('MeshPart', ['id', 'name'])
 XpltMesh = namedtuple("XpltMesh", ["nodes", "elements", "surfaces", "nodesets", "parts"])
 
-
 # States
 # ------------------------------
 StatesDict = namedtuple("StatesDict", ["types", "formats", "names"])
-
-
 StateVariable = namedtuple("StateVariable", ["name", "dim", "dom", "data"])
-
 StateData = namedtuple("StateData", ["name", "dom", "data"])
-
 States = namedtuple("States", ["nodes", "elements", "surfaces", "timesteps"])
 

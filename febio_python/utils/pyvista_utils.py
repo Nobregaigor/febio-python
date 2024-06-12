@@ -12,6 +12,8 @@ from febio_python.core import (
     Elements,
     FixCondition,
     RigidBodyCondition,
+    States,
+    StateData
 )
 from typing import Union, List
 
@@ -19,7 +21,7 @@ from febio_python.core.element_types import FebioElementTypeToVTKElementType
 # from copy import deepcopy
 from collections import OrderedDict
 
-def febio_to_pyvista(data: Union[FEBioContainer, Feb25, Feb30]) -> pv.MultiBlock:
+def febio_to_pyvista(data: Union[FEBioContainer, Feb25, Feb30], apply_load_curves=True) -> List[pv.UnstructuredGrid]:
     """
     Converts FEBio simulation data into a PyVista MultiBlock structure for advanced visualization and analysis. 
     This function orchestrates a series of operations to transfer all pertinent data from FEBio into a structured 
@@ -47,29 +49,35 @@ def febio_to_pyvista(data: Union[FEBioContainer, Feb25, Feb30]) -> pv.MultiBlock
     container: FEBioContainer = ensure_febio_container(data)
     
     # Create a multiblock object from the FEBioContainer (nodes, elements, etc.)
-    multiblock: pv.MultiBlock = create_multiblock_from_febio_container(container)
+    grid: pv.UnstructuredGrid = create_unstructured_grid_from_febio_container(container)
     
     # Add nodal sets, element sets, and surface sets
-    multiblock = add_nodalsets(container, multiblock)
-    multiblock = add_elementsets(container, multiblock)
-    multiblock = add_surfacesets(container, multiblock)
+    grid = add_nodalsets(container, grid)
+    grid = add_elementsets(container, grid)
+    grid = add_surfacesets(container, grid)
     
     # Add mesh data -> point data, cell data
-    multiblock = add_nodaldata(container, multiblock)
-    multiblock = add_elementdata(container, multiblock)
-    multiblock = add_surface_data(container, multiblock)
+    grid = add_nodaldata(container, grid)
+    grid = add_elementdata(container, grid)
+    grid = add_surface_data(container, grid)
     
     # Add materials -> cell data (parameters), field data (parameter names, type, material name)
-    multiblock = add_material(container, multiblock)
+    grid = add_material(container, grid)
     
     # Add loads -> point data (resultant nodal load), cell data (resultant pressure load)
-    multiblock = add_nodalload(container, multiblock)
-    multiblock = add_pressure_load(container, multiblock)
+    grid = add_nodalload(container, grid)
+    grid = add_pressure_load(container, grid)
     
     # Add boundary conditions -> point data (fixed boundary conditions), cell data (rigid body boundary conditions
-    multiblock = add_boundary_conditions(container, multiblock)
+    grid = add_boundary_conditions(container, grid)
     
-    return multiblock
+    # If states data is available, we should create a list of grids for each state
+    grid_or_list_of_grids = add_states_to_grid(container, grid, apply_load_curves=apply_load_curves)
+    
+    if not isinstance(grid_or_list_of_grids, list):
+        return [grid_or_list_of_grids]
+    
+    return grid_or_list_of_grids
 
 # =============================================================================
 # Validation functions
@@ -88,144 +96,135 @@ def ensure_febio_container(data: Union[FEBioContainer, Feb25, Feb30]) -> FEBioCo
 # Create mesh (multiblock) from FEBioContainer
 # =============================================================================
 
-def create_multiblock_from_febio_container(container: FEBioContainer) -> pv.MultiBlock:
+def create_unstructured_grid_from_febio_container(container: FEBioContainer) -> pv.UnstructuredGrid:
     """
-    Converts an FEBioContainer object containing mesh data into a PyVista MultiBlock object.
+    Converts an FEBioContainer object containing mesh data into a PyVista UnstructuredGrid object.
     This function handles the conversion of node coordinates and element connectivity from the FEBio format (1-based indexing)
-    to the PyVista format (0-based indexing). For each node set in the container, it creates a corresponding unstructured grid in the MultiBlock.
+    to the PyVista format (0-based indexing). For each node set in the container, it creates a corresponding unstructured grid in the UnstructuredGrid.
 
     Parameters:
         container (FEBioContainer): The FEBio container with mesh data.
 
     Returns:
-        pv.MultiBlock: A MultiBlock object containing the mesh data.
+        pv.UnstructuredGrid: A UnstructuredGrid object containing the mesh data.
     """
     nodes: List[Nodes] = container.nodes
-    elements: List[Elements] = container.elements
+    volumes: List[Elements] = container.volumes
+    surfaces: List[Elements] = container.surfaces
+    
+    elements = deepcopy(volumes) + deepcopy(surfaces) # deep copy to avoid modifying the original data
+    
     # create a MultiBlock object
-    multiblock = pv.MultiBlock()
-    for node in nodes:
-        # get the coordinates
-        coordinates = node.coordinates
-        # create a cells_dict.
-        # This is a dictionary that maps the element type to the connectivity
-        cells_dict = {}
-        for elem in elements:
-            el_type: str = elem.type
-            connectivity: np.ndarray = elem.connectivity # FEBio uses 1-based indexing
-            try:
-                elem_type = FebioElementTypeToVTKElementType[el_type].value
-                elem_type = pv.CellType[elem_type]
-            except KeyError:
-                raise ValueError(f"Element type {el_type} is not supported. "
-                                 "Please add it to the FebioElementTypeToVTKElementType enum.")
-            
-            # if the element type already exists in the cells_dict, append the connectivity
-            if el_type in cells_dict:
-                cells_dict[elem_type] = np.vstack([cells_dict[elem_type], connectivity])
-            else:
-                cells_dict[elem_type] = connectivity      
-        # print(cells_dict)
-        mesh = pv.UnstructuredGrid(cells_dict, coordinates)
-        multiblock.append(mesh, f"{node.name}")
-    return multiblock
+    # multiblock = pv.MultiBlock()
+    
+    # First, stack all the node coordinates; this will be the points of the mesh
+    coordinates = np.vstack([node.coordinates for node in nodes])
+    
+    # Next, create a cells_dict.
+    # This is a dictionary that maps the element type to the connectivity
+    cells_dict = {}
+    for elem in elements:
+        el_type: str = elem.type
+        connectivity: np.ndarray = elem.connectivity # FEBio uses 1-based indexing
+        try:
+            elem_type = FebioElementTypeToVTKElementType[el_type].value
+            elem_type = pv.CellType[elem_type]
+        except KeyError:
+            raise ValueError(f"Element type {el_type} is not supported. "
+                                "Please add it to the FebioElementTypeToVTKElementType enum.")
+        
+        # if the element type already exists in the cells_dict, append the connectivity
+        if el_type in cells_dict:
+            cells_dict[elem_type] = np.vstack([cells_dict[elem_type], connectivity])
+        else:
+            cells_dict[elem_type] = connectivity      
+    # print(cells_dict)
+    grid = pv.UnstructuredGrid(cells_dict, coordinates)
+    
+    return grid
 
 # =============================================================================
 # Helper functions related to mesh data
 # =============================================================================
 
-def add_nodalsets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
+def add_nodalsets(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     """
-    Adds nodal sets from the FEBioContainer to the PyVista MultiBlock.
-    Nodal sets define specific groups of nodes. This function maps these groups to the corresponding nodes in the PyVista grids,
-    storing the indices of the nodes in the field_data of the appropriate grid.
+    Adds nodal sets from the FEBioContainer to the PyVista UnstructuredGrid.
+    Nodal sets define specific groups of nodes. This function maps these groups to the corresponding nodes in the PyVista grids.
+    Node sets are converted to binary arrays (masks) where each element represents whether a node is part of the set,
+    and these masks are stored in the 'point_data' of the grid. The key for each nodal set is the name of the set.
+    The reason we use binary arrays is to allow for easy visualization and analysis of nodal sets in PyVista; it also
+    allows us to keep data consistent even after we "extract" parts of the mesh or apply filters.
 
     Parameters:
         container (FEBioContainer): The container containing nodal sets.
-        multiblock (pv.MultiBlock): The MultiBlock to which the nodal sets will be added.
+        grid (pv.UnstructuredGrid): The UnstructuredGrid to which the nodal sets will be added.
 
     Returns:
-        pv.MultiBlock: The updated MultiBlock with nodal sets added.
+        pv.UnstructuredGrid: The updated UnstructuredGrid with nodal sets added.
     """
-    # Calculate cumulative node counts across grids
-    cumulative_nodes = np.cumsum([grid.n_points for grid in multiblock])
-
     for node_set in container.nodesets:
         name = node_set.name
-        ids = node_set.ids  # zero-based index
-        grid_index = int(np.searchsorted(cumulative_nodes, ids[-1], side='right'))
-        
-        if grid_index == len(cumulative_nodes):
-            raise ValueError(f"Could not find the proper grid for node set {name}")
+        ids = node_set.ids
 
-        # Adjust indices for the selected grid
-        if grid_index > 0:
-            ids -= cumulative_nodes[grid_index]
+        mask = np.zeros(grid.n_points, dtype=bool)
+        mask[ids] = True
+        grid.point_data[name] = mask
+        # print(f"Added nodal set {name} to the grid.")
+    return grid
 
-        multiblock[grid_index].field_data[name] = ids
-
-    return multiblock
-
-def add_elementsets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
+def add_elementsets(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     """
-    Adds element sets from the FEBioContainer to the PyVista MultiBlock.
-    Element sets define specific groups of elements. This function maps these groups to the corresponding elements in the PyVista grids,
-    storing the indices of the elements in the field_data of the appropriate grid.
+    Adds element sets from the FEBioContainer to the PyVista UnstructuredGrid.
+    Element sets define specific groups of elements. This function maps these groups to the corresponding elements in the PyVista grids.
+    Element sets are converted to binary arrays (masks) where each element represents whether an element is part of the set,
+    and these masks are stored in the 'cell_data' of the grid. The key for each element set is the name of the set.
+    The reason we use binary arrays is to allow for easy visualization and analysis of element sets in PyVista; it also
+    allows us to keep data consistent even after we "extract" parts of the mesh or apply filters.
 
     Parameters:
         container (FEBioContainer): The container containing element sets.
-        multiblock (pv.MultiBlock): The MultiBlock to which the element sets will be added.
+        UnstructuredGrid (pv.UnstructuredGrid): The UnstructuredGrid to which the element sets will be added.
 
     Returns:
-        pv.MultiBlock: The updated MultiBlock with element sets added.
+        pv.UnstructuredGrid: The updated UnstructuredGrid with element sets added.
     """
-    # Calculate cumulative element counts across grids
-    cumulative_elements = np.cumsum([grid.n_cells for grid in multiblock])
 
     for elem_set in container.elementsets:
         name = elem_set.name
         ids = elem_set.ids
-        grid_index = int(np.searchsorted(cumulative_elements, ids[-1], side='right'))
+        # Add the element set to the field data
+        mask = np.zeros(grid.n_cells, dtype=bool)
+        mask[ids] = True
+        grid.cell_data[name] = mask
 
-        if grid_index == len(cumulative_elements):
-            raise ValueError(f"Could not find the proper grid for element set {name}")
+    return grid
 
-        # Adjust indices for the selected grid
-        if grid_index > 0:
-            ids -= cumulative_elements[grid_index]
-
-        # Access the correct grid and update field data
-        selected_grid = multiblock[grid_index]
-        selected_grid.field_data[name] = ids
-
-    return multiblock
-
-def add_surfacesets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
+def add_surfacesets(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     if len(container.surfacesets) > 0:
         print("WARNING: Surface sets are not yet supported.")
-    return multiblock
+    return grid
 
 # Data
 # -----------------------------------------------------------------------------
 
-def add_nodaldata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
+def add_nodaldata(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     """
-    Adds nodal data from the FEBioContainer to the PyVista MultiBlock.
-    This function finds the corresponding nodeset and updates the 'point_data' of the respective grid in the MultiBlock.
+    Adds nodal data from the FEBioContainer to the PyVista UnstructuredGrid.
+    Nodal data is stored in the 'point_data' of the grid, where each data field is associated with the corresponding nodes.
     NaNs are used to fill the gaps in the data arrays to ensure consistent dimensions across the grid.
 
     Parameters:
         container (FEBioContainer): The container containing nodal data.
-        multiblock (pv.MultiBlock): The MultiBlock where nodal data will be added.
+        UnstructuredGrid (pv.UnstructuredGrid): The UnstructuredGrid where nodal data will be added.
 
     Returns:
-        pv.MultiBlock: The updated MultiBlock with nodal data added.
+        pv.UnstructuredGrid: The updated UnstructuredGrid with nodal data added.
     """
     nodesets = container.nodesets
     nodal_data = container.nodal_data
     # Add nodal data
     if len(nodesets) > 0:
-        cumulative_nodes = np.cumsum([grid.n_points for grid in multiblock])
         for nd in nodal_data:
             # Get the nodal data and reshape if necessary
             data = nd.data.reshape(-1, 1) if len(nd.data.shape) == 1 else nd.data
@@ -237,37 +236,25 @@ def add_nodaldata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
             if related_nodeset is None:
                 raise ValueError(f"Node set {node_set} not found.")
 
-            # Use binary search to find the grid
-            last_id = related_nodeset.ids[-1]
-            grid_index = int(np.searchsorted(cumulative_nodes, last_id, side='right'))
-
-            if grid_index == len(cumulative_nodes):
-                raise ValueError(f"Could not find the proper grid for node set {node_set}")
-
-            grid = multiblock[grid_index]
-            if grid_index > 0:
-                related_nodeset.ids -= cumulative_nodes[grid_index]
-
             # Create a full data array with NaNs and assign the actual data
             full_data = np.full((grid.n_points, data.shape[1]), np.nan)
             full_data[related_nodeset.ids] = data  # Adjusting for zero indexing
             grid.point_data[name] = full_data
 
-    return multiblock
+    return grid
 
-def add_elementdata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
+def add_elementdata(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     """
-    Adds element data from the FEBioContainer to the PyVista MultiBlock.
-    This function maps these properties to their corresponding elements in the PyVista grids.
+    Adds element data from the FEBioContainer to the PyVista UnstructuredGrid.
     Element data is stored in the 'cell_data' of the appropriate grid.
     NaNs are used to fill the gaps in the data arrays to ensure consistent dimensions across the grid.
 
     Parameters:
         container (FEBioContainer): The container containing element data.
-        multiblock (pv.MultiBlock): The MultiBlock where element data will be added.
+        UnstructuredGrid (pv.UnstructuredGrid): The UnstructuredGrid where element data will be added.
 
     Returns:
-        pv.MultiBlock: The updated MultiBlock with element data added.
+        pv.UnstructuredGrid: The updated UnstructuredGrid with element data added.
         
     Notes:
         This function assumes that the element data provided in the FEBioContainer is appropriately formatted and that element
@@ -288,7 +275,6 @@ def add_elementdata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.
         name = el_data.name
         var = el_data.var
         # Find the proper grid
-        grid = multiblock[elem_set]
         full_data = np.full((grid.n_cells, data.shape[1]), np.nan)
         full_data[elem_ids] = data
         if name is not None:
@@ -297,20 +283,20 @@ def add_elementdata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.
             grid.cell_data[var] = full_data
         else:
             grid.cell_data[f"element_data_{elem_set}"] = full_data
-    return multiblock
+    return grid
 
-def add_surface_data(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
+def add_surface_data(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     if len(container.surface_data) > 0:
         print("WARNING: Surface data is not yet supported.")
-    return multiblock
+    return grid
 
 # =============================================================================
 # Material helper functions
 # =============================================================================
 
-def add_material(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
+def add_material(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     """
-    Adds material properties from the FEBioContainer to the PyVista MultiBlock. Material properties such as Young's modulus,
+    Adds material properties from the FEBioContainer to the PyVista UnstructuredGrid. Material properties such as Young's modulus,
     Poisson's ratio, or any other parameters defined in FEBio are associated with specific elements based on their material IDs.
 
     - `Material Parameters`: These are transferred to PyVista as arrays in `cell_data` under "mat_parameters:{mat_id}",
@@ -323,27 +309,25 @@ def add_material(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mul
 
     Parameters:
         container (FEBioContainer): The container containing material data.
-        multiblock (pv.MultiBlock): The MultiBlock where material properties will be added.
+        UnstructuredGrid (pv.UnstructuredGrid): The UnstructuredGrid where material properties will be added.
 
     Returns:
-        pv.MultiBlock: The updated MultiBlock with material properties added.
+        pv.UnstructuredGrid: The updated UnstructuredGrid with material properties added.
 
     Example:
         If a material in FEBio with mat_id=1 has a Young's modulus of 210 GPa and a Poisson's ratio of 0.3, after
         running this function, the parameters can be accessed in PyVista as follows:
         - Access material parameters:
-          multiblock['ElementBlockName'].cell_data['mat_parameters:1']  # Array of shape [n_elements, 2]
+          grid.cell_data['mat_parameters:1']  # Array of shape [n_elements, 2]
           where the first column is Young's modulus and the second is Poisson's ratio.
         - Access material type and name:
-          multiblock['ElementBlockName'].field_data['mat_type:1']  # Returns ['Elastic']
-          multiblock['ElementBlockName'].field_data['mat_name:1']  # Returns ['GenericElasticMaterial']
+          grid.field_data['mat_type:1']  # Returns ['Elastic']
+          grid.field_data['mat_name:1']  # Returns ['GenericElasticMaterial']
         - Access the order of parameters:
-          multiblock['ElementBlockName'].field_data['mat_parameters:1']  # Returns ['Young's modulus', 'Poisson's ratio']
+          grid.field_data['mat_parameters:1']  # Returns ['Young's modulus', 'Poisson's ratio']
     """
     elements = container.elements
     materials = container.materials
-    # Create a map from element names to their corresponding grids for quick access
-    element_to_grid = {elem.name: multiblock[elem.name] for elem in elements}
     
     for mat in materials:
         mat_name = mat.name
@@ -363,11 +347,6 @@ def add_material(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mul
                              'or\n'
                              '<Elements type="tri3" name="MESH1", mat="1">\n'
                              )
-        
-        # Get the corresponding grid from the map
-        grid = element_to_grid.get(target_element.name)
-        if not grid:
-            raise ValueError(f"Could not find the proper grid for element {target_element.name}")
         
         num_params = len(parameters)
         params_names = list(parameters.keys())
@@ -396,25 +375,25 @@ def add_material(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mul
         grid.field_data[f"mat_type:{mat_id}"] = [mat_type]
         grid.field_data[f"mat_name:{mat_id}"] = [mat_name]
 
-    return multiblock
+    return grid
 
 # =============================================================================
 # Load helper functions
 # =============================================================================
 
-def add_nodalload(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
+def add_nodalload(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     """
-    Adds nodal force loads from the FEBioContainer to the PyVista MultiBlock. This function interprets force loads applied to specific
+    Adds nodal force loads from the FEBioContainer to the PyVista UnstructuredGrid. This function interprets force loads applied to specific
     nodes as described in the FEBio model. It processes these loads, assigning them to the correct nodes based on the node sets
     specified in the loads, and stores a resultant vector for each node in point_data under the key "nodal_load". The resultant
     load vector for each node is calculated by summing all applicable force vectors along the x, y, and z axes.
 
     Parameters:
         container (FEBioContainer): The container containing nodal force load data.
-        multiblock (pv.MultiBlock): The MultiBlock where nodal loads will be added.
+        UnstructuredGrid (pv.UnstructuredGrid): The UnstructuredGrid where nodal loads will be added.
 
     Returns:
-        pv.MultiBlock: The updated MultiBlock with nodal force loads aggregated and added.
+        pv.UnstructuredGrid: The updated UnstructuredGrid with nodal force loads aggregated and added.
 
     Example:
         Consider nodal loads specified in FEBio for certain nodes in various directions:
@@ -427,7 +406,6 @@ def add_nodalload(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
     """
     nodesets = container.nodesets
     nodal_loads = container.nodal_loads
-    cumulative_nodes = np.cumsum([grid.n_points for grid in multiblock])
 
     for nodal_load in nodal_loads:
         bc = nodal_load.dof.lower()  # 'x', 'y', or 'z' axis
@@ -437,15 +415,6 @@ def add_nodalload(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
         related_nodeset = next((ns for ns in nodesets if ns.name == node_set), None)
         if related_nodeset is None:
             raise ValueError(f"Node set {node_set} not found.")
-
-        last_id = related_nodeset.ids[-1]
-        grid_index = int(np.searchsorted(cumulative_nodes, last_id, side='right'))
-        if grid_index == len(cumulative_nodes):
-            raise ValueError(f"Could not find the proper grid for node set {node_set}")
-
-        grid = multiblock[grid_index]
-        if grid_index > 0:
-            related_nodeset.ids -= cumulative_nodes[grid_index]
 
         if "nodal_load" not in grid.point_data:
             grid.point_data["nodal_load"] = np.zeros((grid.n_points, 3))
@@ -475,20 +444,20 @@ def add_nodalload(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
         # Update the nodal load data
         grid.point_data["nodal_load"][load_indices, axis_index] += scale_data
 
-    return multiblock
+    return grid
 
-def add_pressure_load(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
+def add_pressure_load(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     if len(container.pressure_loads) > 0:
         print("WARNING: Pressure loads are not yet supported.")
-    return multiblock
+    return grid
 
 # =============================================================================
 # Boundary condition helper functions
 # =============================================================================
 
-def add_boundary_conditions(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.MultiBlock:
+def add_boundary_conditions(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     """
-    Adds boundary conditions from the FEBioContainer to the PyVista MultiBlock. This function handles two main types of boundary 
+    Adds boundary conditions from the FEBioContainer to the PyVista UnstructuredGrid. This function handles two main types of boundary 
     conditions: fixed conditions (FixCondition) and rigid body conditions (RigidBodyCondition):
 
     - `Fixed Conditions`: These apply constraints on node displacements ('x', 'y', 'z') or shell rotations ('sx', 'sy', 'sz') for 
@@ -505,42 +474,30 @@ def add_boundary_conditions(container: FEBioContainer, multiblock: pv.MultiBlock
 
     Parameters:
         container (FEBioContainer): The container containing boundary conditions.
-        multiblock (pv.MultiBlock): The MultiBlock where boundary conditions will be added.
+        UnstructuredGrid (pv.UnstructuredGrid): The UnstructuredGrid where boundary conditions will be added.
 
     Returns:
-        pv.MultiBlock: The updated MultiBlock with boundary conditions processed and added.
+        pv.UnstructuredGrid: The updated UnstructuredGrid with boundary conditions processed and added.
 
     Example:
         After processing, to access the constraints:
         - Displacement constraints for a specific mesh block:
-          multiblock['MeshBlockName'].point_data['fix']  # Outputs a binary array where 1 indicates a fixed displacement.
+          grid.point_data['fix']  # Outputs a binary array where 1 indicates a fixed displacement.
         - Shell rotation constraints for the same block:
-          multiblock['MeshBlockName'].point_data['fix_shell']  # Outputs a binary array where 1 indicates a fixed shell rotation.
+          grid.point_data['fix_shell']  # Outputs a binary array where 1 indicates a fixed shell rotation.
         - For rigid body constraints related to a specific material ID:
-          multiblock['MeshBlockName'].point_data['rigid_body']  # Fixed position constraints.
-          multiblock['MeshBlockName'].point_data['rigid_body_rot']  # Fixed rotational constraints.
+          grid.point_data['rigid_body']  # Fixed position constraints.
+          grid.point_data['rigid_body_rot']  # Fixed rotational constraints.
     """
-    # Mapping of node sets and material ids to their corresponding grids with precomputed indices
-    node_set_to_grid = {}
-    element_to_grid = {}
-    cumulative_nodes = np.cumsum([grid.n_points for grid in multiblock])
-    
-    for nodeset in container.nodesets:
-        last_id = nodeset.ids[-1]
-        grid_index = int(np.searchsorted(cumulative_nodes, last_id, side='right'))
-        if grid_index < len(multiblock):
-            node_set_to_grid[nodeset.name] = (multiblock[grid_index], nodeset.ids)
-    
-    for element in container.elements:
-        element_to_grid[element.name] = multiblock[element.name]
 
     for bc in container.boundary_conditions:
         if isinstance(bc, FixCondition):
             node_set = bc.node_set
-            if node_set not in node_set_to_grid:
+            if node_set not in grid.point_data:
                 raise ValueError(f"Node set {node_set} not found.")
             
-            grid, indices = node_set_to_grid[node_set]
+            # grid, indices = grid[node_set]
+            indices = np.where(grid.point_data[node_set] == 1)[0] # Get the indices of the nodes in the node set
             fixed_axes = np.zeros((grid.n_points, 3))  # For 'x', 'y', 'z'
             fixed_shells = np.zeros((grid.n_points, 3))  # For 'sx', 'sy', 'sz'
             
@@ -564,17 +521,176 @@ def add_boundary_conditions(container: FEBioContainer, multiblock: pv.MultiBlock
                 grid.point_data["fix_shell"] = fixed_shells
         
         elif isinstance(bc, RigidBodyCondition):
-            material = bc.material
-            for grid_name, grid in element_to_grid.items():
-                if grid.material == material:
-                    for axis in ['x', 'y', 'z', 'Rx', 'Ry', 'Rz']:
-                        key = "rigid_body" if 'R' not in axis else "rigid_body_rot"
-                        rigid_body_axes = np.zeros((grid.n_points, 3))
-                        rigid_body_axes[:, 'xyz'.index(axis[-1])] = 1
-                        
-                        if key in grid.point_data:
-                            grid.point_data[key] = grid.point_data[key].astype(int) | rigid_body_axes.astype(int)
-                        else:
-                            grid.point_data[key] = rigid_body_axes
+            # material = bc.material
+            # if grid.material == material:
+            for axis in ['x', 'y', 'z', 'Rx', 'Ry', 'Rz']:
+                key = "rigid_body" if 'R' not in axis else "rigid_body_rot"
+                rigid_body_axes = np.zeros((grid.n_points, 3))
+                rigid_body_axes[:, 'xyz'.index(axis[-1])] = 1
+                
+                if key in grid.point_data:
+                    grid.point_data[key] = grid.point_data[key].astype(int) | rigid_body_axes.astype(int)
+                else:
+                    grid.point_data[key] = rigid_body_axes
 
-    return multiblock
+    return grid
+
+# =============================================================================
+# DOMAINS
+# =============================================================================
+
+# def break_grid_into_domains(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.MultiBlock:
+        
+#     # get domains:
+#     domains = container.mesh_domains # List[Union[GenericDomain, ShellDomain]]
+    
+#     elems_by_name = {elem.name: elem for elem in container.elements}
+#     nodes_by_name = {node.name: node for node in container.nodes}
+#     materials_by_name = {mat.name: mat for mat in container.materials}
+    
+#     node_names = [node.name for node in container.nodes]
+#     elem_names = [elem.name for elem in container.elements]
+    
+#     # selected_domains and
+#     selected_domains = []
+#     selected_materials = []
+#     for dom in domains:
+#         part = dom.name        
+#         selected_materials.append(dom.mat)
+#         if part in elem_names:
+#             selected_domains.append(("elements", part))
+#         elif part in node_names:
+#             selected_domains.append(("nodes", part))
+#         else:
+#             print(f"Domain {part} not found in the mesh.")
+    
+#     # Extract the selected domains
+#     mb = pv.MultiBlock()
+#     for domain_type, domain_name in selected_domains:
+#         mat_name = selected_materials[selected_domains.index((domain_type, domain_name))]
+#         mat_id = materials_by_name[mat_name].id
+#         if domain_type == "elements":
+#             indices = elems_by_name[domain_name].ids
+#             if len(indices) == 0:
+#                 raise ValueError(f"Element domain {domain_name} not found.")
+#             grid_part = grid.extract_cells(indices)
+#             mb[domain_name] = grid_part
+#         elif domain_type == "nodes":
+#             indices = nodes_by_name[domain_name].ids
+#             if len(indices) == 0:
+#                 raise ValueError(f"Node domain {domain_name} not found.")
+#             grid_part = grid.extract_points(indices)
+        
+#         # Copy correspondind material data (from field_data) to the grid_part
+#         mat_type_key = f"mat_type:{mat_id}"
+#         mat_name_key = f"mat_name:{mat_id}"
+#         grid_part.field_data[mat_type_key] = grid.field_data[mat_type_key]
+#         grid_part.field_data[mat_name_key] = grid.field_data[mat_name_key]
+#         mb[domain_name] = grid_part
+    
+#     return mb
+
+
+# =============================================================================
+# STATES
+# =============================================================================
+
+def _load_curvers_to_interpolators(container: FEBioContainer) -> dict:
+    from scipy import interpolate
+    interpolators = dict()
+    loadcurves = container.load_curves
+    for lc in loadcurves:
+        lc_id = lc.id
+        lc_type = lc.interpolate_type
+        lc_data = lc.data
+        # if lc_type == "linear":
+        #     this_interpolator = interpolate.interp1d(lc_data[:, 0], lc_data[:, 1], kind='linear', fill_value="extrapolate")
+        # elif lc_type == "smooth":
+        #     this_interpolator = interpolate.interp1d(lc_data[:, 0], lc_data[:, 1], kind='cubic', fill_value="extrapolate")
+        # else:
+        #     # default to linear
+        this_interpolator = interpolate.interp1d(lc_data[:, 0], lc_data[:, 1], kind='linear', fill_value="extrapolate")
+        interpolators[lc_id] = this_interpolator
+    return interpolators
+
+def add_states_to_grid(container: FEBioContainer, grid:pv.UnstructuredGrid, apply_load_curves=True) -> List[pv.UnstructuredGrid]:
+    
+    # First, check if .xplt is provided
+    if container.xplt is None:
+        return grid # No states to add
+    
+    # Otherwise, we can extract the states
+    states: States = container.states
+    
+    node_states: List[StateData] = states.nodes
+    element_states: List[StateData] = states.elements
+    surface_states: List[StateData] = states.surfaces
+    timesteps: np.ndarray = states.timesteps
+    
+    # First, create a list of grids for each state
+    state_grids = [grid.copy() for _ in range(len(timesteps))]
+    # Add timestep to each field_data
+    for i, grid in enumerate(state_grids):
+        grid.field_data["timestep"] = [timesteps[i]]
+        
+    # Add node states
+    for node_state in node_states:
+        name = node_state.name
+        data = node_state.data
+        for i, grid in enumerate(state_grids):
+            grid.point_data[name] = data[i]
+            # special case: displacement
+            if name == "displacement":
+                grid.points += data[i]
+    
+    # Add element states
+    for elem_state in element_states:
+        name = elem_state.name
+        data = elem_state.data
+        for i, grid in enumerate(state_grids):
+            grid.cell_data[name] = data[i]
+    
+    # Add surface states
+    for surf_state in surface_states:
+        name = surf_state.name
+        data = surf_state.data
+        for i, grid in enumerate(state_grids):
+            grid.cell_data[name] = data[i]
+    
+    # Now, we need to interpolate the load curves, based on the timesteps
+    if apply_load_curves:
+        interpolators = _load_curvers_to_interpolators(container)
+        for lc_id, interpolator in interpolators.items():
+            for i, grid in enumerate(state_grids):
+                grid.field_data[f"lc_{lc_id}"] = [interpolator(timesteps[i])]
+        
+        # Additionally, we should also interpolate some Input data;
+        # for default we interpolate: 
+        # - nodal_load
+        # - pressure_load
+        
+        # handle nodal loads
+        # get nodal loads
+        nodal_loads = container.nodal_loads
+        for nodal_load in nodal_loads:
+            # get the related data
+            bc = nodal_load.dof.lower()
+            axis = 'xyz'.index(bc)
+            node_set = nodal_load.node_set
+            node_indices = np.where(grid.point_data[node_set] == 1)[0]
+            lc_id = nodal_load.load_curve
+            # get the interpolator
+            interpolator = interpolators[lc_id]
+            for i, grid in enumerate(state_grids):
+                # get the data
+                time_scale = interpolator(timesteps[i])
+                # apply the modification to the load in the grid
+                current_data = grid.point_data["nodal_load"][node_indices, axis]
+                new_data = current_data * time_scale
+                grid.point_data["nodal_load"][node_indices, axis] = new_data
+        
+        # handle pressure loads
+        # NOTE: NOT YET IMPLEMENTED
+
+    return state_grids
+    
