@@ -1,5 +1,6 @@
 # from febio_python.xplt import read_xplt
 from febio_python.xplt import read_xplt
+from febio_python.xplt.xplt_object import Xplt
 from time import time
 import pathlib
 
@@ -24,13 +25,5 @@ def measure_performance(file_path, runs=50):
 
 if __name__ == "__main__":
     data = measure_performance(filepath)
-    mesh, states = read_xplt(filepath, verbose=0)
-    print(states.nodes[0].data.shape)
-    print(states.timesteps.shape)
-    # print(mesh.elements)
-    # print(data.keys())
-    # print(data["N_DOMAINS"])
-    # print(data["NODES"])
-    # print(data["ELEMENTS"])
-    # print("STATES:")
-    # print(data["STATES"])
+    
+    xplt_obj = Xplt(filepath)

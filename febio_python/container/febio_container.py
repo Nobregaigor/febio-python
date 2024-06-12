@@ -1,8 +1,7 @@
 from pathlib import Path
 from typing import Union, List
-from febio_python.feb import Feb
+
 from febio_python.core import (
-    SURFACE_EL_TYPE,
     Nodes,
     Elements,
     NodeSet,
@@ -18,20 +17,31 @@ from febio_python.core import (
     NodalData,
     SurfaceData,
     ElementData,
-    # FEBioElementType,
 )
+
+from febio_python.feb import Feb25, Feb30, Feb
+from febio_python.xplt import Xplt
 
 
 class FEBioContainer():
-    def __init__(self, feb: Union[Feb, str, Path]=None, xplt: Union[str, Path]=None) -> None:
+    def __init__(self, feb: Union[Feb30, Feb25, str, Path]=None, xplt: Union[Xplt, str, Path]=None) -> None:
         
-        self.feb: None | Feb = feb
+        self.feb: None | Feb30 | Feb25 = feb
         if isinstance(feb, str) or isinstance(feb, Path):
-            self.feb: Feb = Feb(filepath=feb)            
+            self.feb: Feb30 | Feb25 = Feb(filepath=feb)            
         
-        self.xplt: None | str = xplt
+        self.xplt: None | Xplt = xplt
         if isinstance(xplt, str) or isinstance(xplt, Path):
-            self.xplt: str = xplt
+            self.xplt: Xplt = Xplt(filepath=xplt)
+        
+        # Make sure that we have the correct input
+        if self.feb is None and self.xplt is None:
+            raise ValueError("No FEB or XPLT file is provided")
+        
+        if self.feb is not None and not isinstance(self.feb, Feb):
+            raise ValueError("FEB is not valid. Check input file or input parameters.")
+        if self.xplt is not None and not isinstance(self.xplt, Xplt):
+            raise ValueError("XPLT is not valid. Check input file or input parameters.")
         
     # ========================================================================
     # Properties
@@ -45,7 +55,7 @@ class FEBioContainer():
         if self.feb is not None:
             return self.feb.get_nodes()
         elif self.xplt is not None:
-            raise NotImplementedError("XPLT file is not yet supported")
+            return self.xplt.nodes
         else:
             raise ValueError("No FEB or XPLT file is provided")
     
@@ -54,25 +64,25 @@ class FEBioContainer():
         if self.feb is not None:
             return self.feb.get_elements()
         elif self.xplt is not None:
-            raise NotImplementedError("XPLT file is not yet supported")
+            return self.xplt.elements
         else:
             raise ValueError("No FEB or XPLT file is provided")
     
     @property
     def surfaces(self) -> List[Elements]:
         if self.feb is not None:
-            return self.feb.get_surfaces()
+            return self.feb.get_surface_elements()
         elif self.xplt is not None:
-            raise NotImplementedError("XPLT file is not yet supported")
+            return self.xplt.surfaces
         else:
             raise ValueError("No FEB or XPLT file is provided")
     
     @property
     def volumes(self) -> List[Elements]:
         if self.feb is not None:
-            return self.feb.get_volumes()
+            return self.feb.get_volume_elements()
         elif self.xplt is not None:
-            raise NotImplementedError("XPLT file is not yet supported")
+            return self.xplt.volumes
         else:
             raise ValueError("No FEB or XPLT file is provided")
     
@@ -84,7 +94,7 @@ class FEBioContainer():
         if self.feb is not None:
             return self.feb.get_nodesets()
         elif self.xplt is not None:
-            raise NotImplementedError("XPLT file is not yet supported")
+            return self.xplt.nodesets
         else:
             raise ValueError("No FEB or XPLT file is provided")
     
@@ -93,7 +103,7 @@ class FEBioContainer():
         if self.feb is not None:
             return self.feb.get_surfacesets()
         elif self.xplt is not None:
-            raise NotImplementedError("XPLT file is not yet supported")
+            raise RuntimeError("XPLT file does not save surface sets. Please provide a FEB file.")
         else:
             raise ValueError("No FEB or XPLT file is provided")
     
@@ -102,7 +112,7 @@ class FEBioContainer():
         if self.feb is not None:
             return self.feb.get_elementsets()
         elif self.xplt is not None:
-            raise NotImplementedError("XPLT file is not yet supported")
+            raise RuntimeError("XPLT file does not save element sets. Please provide a FEB file.")
         else:
             raise ValueError("No FEB or XPLT file is provided")
     
@@ -178,7 +188,8 @@ class FEBioContainer():
         if self.feb is not None:
             return self.feb.get_nodal_data()
         elif self.xplt is not None:
-            raise NotImplementedError("XPLT file is not yet supported")
+            raise RuntimeError("XPLT file does not save nodal data. Please provide a FEB file."
+                               "If you are looking for nodal state data, please, use the 'states' property.")
         else:
             raise ValueError("No FEB or XPLT file is provided")
     
@@ -187,7 +198,8 @@ class FEBioContainer():
         if self.feb is not None:
             return self.feb.get_surface_data()
         elif self.xplt is not None:
-            raise NotImplementedError("XPLT file is not yet supported")
+            raise RuntimeError("XPLT file does not save surface data. Please provide a FEB file."
+                               "If you are looking for surface state data, please, use the 'states' property.")
         else:
             raise ValueError("No FEB or XPLT file is provided")
     
@@ -196,7 +208,8 @@ class FEBioContainer():
         if self.feb is not None:
             return self.feb.get_element_data()
         elif self.xplt is not None:
-            raise NotImplementedError("XPLT file is not yet supported")
+            raise RuntimeError("XPLT file does not save element data. Please provide a FEB file."
+                               "If you are looking for element state data, please, use the 'states' property.")
         else:
             raise ValueError("No FEB or XPLT file is provided")
 
@@ -206,10 +219,43 @@ class FEBioContainer():
     @property
     def states(self) -> None:
         if self.xplt is not None:
-            raise NotImplementedError("XPLT file is not yet supported")
+            return self.xplt.states
         else:
             raise RuntimeError(
                 "Trying to access state data without a XPLT file. "
+                "Currently XPLT files save state data."
+                "To access state data, provide a XPLT file."
+                )
+
+    @property
+    def node_states(self) -> List[Nodes]:
+        if self.xplt is not None:
+            return self.xplt.node_states
+        else:
+            raise RuntimeError(
+                "Trying to access node state data without a XPLT file. "
+                "Currently XPLT files save state data."
+                "To access state data, provide a XPLT file."
+                )
+    
+    @property
+    def element_states(self) -> List[Elements]:
+        if self.xplt is not None:
+            return self.xplt.element_states
+        else:
+            raise RuntimeError(
+                "Trying to access element state data without a XPLT file. "
+                "Currently XPLT files save state data."
+                "To access state data, provide a XPLT file."
+                )
+    
+    @property
+    def surface_states(self) -> List[Elements]:
+        if self.xplt is not None:
+            return self.xplt.surface_states
+        else:
+            raise RuntimeError(
+                "Trying to access surface state data without a XPLT file. "
                 "Currently XPLT files save state data."
                 "To access state data, provide a XPLT file."
                 )

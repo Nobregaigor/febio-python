@@ -3,6 +3,11 @@ from typing import Tuple
 
 from febio_python.utils.log import console_log
 from febio_python.core.enums import XPLT_TAGS as TAGS
+from febio_python.core import (
+    XpltMesh,
+    States,
+    StatesDict
+)
 
 from .. import _binary_file_reader_helpers as bf_helpers
 from .._binary_file_reader_helpers import search_block, read_bytes
@@ -12,9 +17,6 @@ from ._xplt_sections import (
     read_dictionary,
     read_mesh,
     read_state,
-    XpltMesh,
-    StatesDict,
-    StateData
 )
 
 def check_fileversion(bf, verbose):
@@ -27,7 +29,7 @@ def check_fileversion(bf, verbose):
         raise(ValueError("Incorrect XPLIT file version: {} | expected {} (from docs) or 49 ('0x00031')"
                          .format(version, TAGS.VERSION_3_0.value)))
 
-def read_spec30(filepath: Path, verbose=0) -> Tuple[XpltMesh, StateData]:
+def read_spec30(filepath: Path, verbose=0) -> Tuple[XpltMesh, States]:
     
     with open(filepath, "rb") as bf:
         
@@ -75,6 +77,6 @@ def read_spec30(filepath: Path, verbose=0) -> Tuple[XpltMesh, StateData]:
         
         # Part 7: Read States
         # ------------------------------------
-        states: StateData = read_state(bf, states_dict, verbose=verbose)
+        states: States = read_state(bf, states_dict, verbose=verbose)
         
     return mesh, states
