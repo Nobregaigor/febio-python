@@ -29,7 +29,11 @@ from .meta_data import (
     StatesDict,
     StateVariable,
     StateData, 
-    States
+    States,
+    
+    # Mesh Domains
+    GenericDomain,
+    ShellDomain,
 )
 
 from .element_types import (

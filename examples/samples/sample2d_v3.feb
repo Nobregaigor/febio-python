@@ -175,11 +175,11 @@
 			<node id="132">2.83333333,1,0</node>
 			<node id="133">3,1,0</node>
 		</Nodes>
-		<Nodes name="Part2">
+		<!-- <Nodes name="Part2">
 			<node id="134">0,0,5.0</node>
 			<node id="135">0.166666667,0,5.0</node>
 			<node id="136">0.333333333,0,5.0</node>
-		</Nodes>
+		</Nodes> -->
 		<Elements type="tri3" name="Part1">
 			<elem id="1">1,2,21</elem>
 			<elem id="2">2,3,22</elem>

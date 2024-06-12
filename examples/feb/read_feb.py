@@ -22,4 +22,6 @@ print(feb_v30)
 # print(feb_v30.get_elements())
 
 # febio_to_pyvista(feb_v25).plot(show_edges=True)
-febio_to_pyvista(feb_v30).plot(show_edges=True)
+# febio_to_pyvista(feb_v30).plot(show_edges=True)
+
+print(feb_v30.get_mesh_domains())

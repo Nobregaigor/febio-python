@@ -125,7 +125,7 @@ def create_multiblock_from_febio_container(container: FEBioContainer) -> pv.Mult
                 cells_dict[elem_type] = np.vstack([cells_dict[elem_type], connectivity])
             else:
                 cells_dict[elem_type] = connectivity      
-        print(cells_dict)
+        # print(cells_dict)
         mesh = pv.UnstructuredGrid(cells_dict, coordinates)
         multiblock.append(mesh, f"{node.name}")
     return multiblock

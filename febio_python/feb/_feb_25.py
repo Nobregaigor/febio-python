@@ -25,6 +25,7 @@ from febio_python.core import (
     NodalData,
     SurfaceData,
     ElementData,
+    GenericDomain,
     FEBioElementType,
 )
 
@@ -185,6 +186,24 @@ class Feb25(AbstractFebObject):
             value -= 1  # Convert to zero-based indexing
             elementset_list.append(ElementSet(name=key, ids=value))
         return elementset_list
+
+    # Parts
+    # ------------------------------
+    
+    @feb_instance_cache
+    def get_mesh_domains(self) -> List[GenericDomain]:
+        # FEB 2.5 does not have a direct way to store mesh domains
+        # It is based on "materials"
+        materials = self.get_materials()
+        mesh_domains = []
+        for i, mat in enumerate(materials):
+            new_domain = GenericDomain(
+                id=i,
+                name=mat.name,
+                mat=mat.id
+            )
+            mesh_domains.append(new_domain)
+        return mesh_domains
     
     # Materials
     # ------------------------------

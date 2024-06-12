@@ -35,7 +35,13 @@ NodalData = namedtuple('NodalData', ['node_set', 'name', 'data', 'ids'])
 SurfaceData = namedtuple('SurfaceData', ['surf_set', 'name', 'data', 'ids'])
 ElementData = namedtuple('ElementData', ['elem_set', 'name', 'var', 'data', 'ids'])
 
+# Mesh Domains
+GenericDomain = namedtuple('GenericDomain', ['id', 'name', 'mat'])
+ShellDomain = namedtuple('ShellDomain', ['id', 'name', 'mat', 'shell_normal_nodal'])
+ShellDomain.__new__.__defaults__ = (1,)  # This sets a default for the last field only
 
+
+# xplt mesh data
 XpltMeshPart = namedtuple('MeshPart', ['id', 'name'])
 XpltMesh = namedtuple("XpltMesh", ["nodes", "elements", "surfaces", "nodesets", "parts"])
 

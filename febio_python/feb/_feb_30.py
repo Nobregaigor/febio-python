@@ -26,6 +26,8 @@ from febio_python.core import (
     SurfaceData,
     ElementData,
     FEBioElementType,
+    GenericDomain,
+    ShellDomain,
 )
 
 from ._caching import feb_instance_cache
@@ -65,6 +67,8 @@ class Feb30(AbstractFebObject):
         for elem_group in self.mesh.findall("Elements"):
             elem_type = elem_group.attrib.get("type")
             elem_name = elem_group.attrib.get("name", None)
+            elem_part = elem_group.attrib.get("part", None)
+            elem_mat = elem_group.attrib.get("mat", None)
             
             connectivity = deque()
             elem_ids = deque()
@@ -80,7 +84,12 @@ class Feb30(AbstractFebObject):
             # num_elems = connectivity.shape[0]
             elem_ids = np.array(elem_ids, dtype=np.int64) -1 # Correct ids to zero-based indexing
             # Create an Elements instance for each element
-            element = Elements(name=elem_name, mat=None, type=elem_type, connectivity=connectivity, ids=elem_ids)
+            element = Elements(name=elem_name, 
+                               mat=elem_mat,
+                               part=elem_part, 
+                               type=elem_type, 
+                               connectivity=connectivity, 
+                               ids=elem_ids)
             all_elements.append(element)
             # last_elem_id += num_elems
 
@@ -177,13 +186,47 @@ class Feb30(AbstractFebObject):
             elementset_list.append(ElementSet(name=key, ids=value))
         return elementset_list
     
-    # Materials
+    # Mesh Domains
     # ------------------------------
     
     @feb_instance_cache
+    def get_mesh_domains(self) -> List[Union[GenericDomain, ShellDomain]]:
+        
+        all_domains = []
+        # get all child elements of MeshDomains
+        for i, domain in enumerate(self.meshdomains.findall("./")):
+            
+            name = domain.attrib.get("name", f"UnnamedDomain{i}")
+            mat = domain.attrib.get("mat", None)           
+            
+            if domain.tag.upper() == "SHELLDOMAIN":
+                # get shell_normal_nodal child element
+                shell_normal_nodal = float(domain.find("shell_normal_nodal").text)
+                new_domain = ShellDomain(
+                    id=i,
+                    name=name,
+                    mat=mat,
+                    shell_normal_nodal=shell_normal_nodal
+                )
+            
+            else:
+                new_domain = GenericDomain(
+                    id=i,
+                    name=name,
+                    mat=mat
+                )
+                
+            all_domains.append(new_domain)
+
+        return all_domains
+
+    # Materials
+    # ------------------------------
+
+    @feb_instance_cache
     def get_materials(self) -> List[Material]:
         materials_list = []
-        for item in self.material.findall("material"):
+        for item in self.material.findall(self.MAJOR_TAGS.MATERIAL.value):
             # Initialize the dictionary for attributes
             mat_attrib = dict(item.attrib)
             
@@ -219,7 +262,7 @@ class Feb30(AbstractFebObject):
     @feb_instance_cache
     def get_nodal_loads(self) -> List[NodalLoad]:
         nodal_loads = []
-        for i, load in enumerate(self.loads.findall("nodal_load")):
+        for i, load in enumerate(self.loads.findall(self.MAJOR_TAGS.NODALLOAD.value)):
             scale_data = load.find("scale")
             
             # Convert scale text to float if possible, maintain as text if not
@@ -251,7 +294,7 @@ class Feb30(AbstractFebObject):
     @feb_instance_cache
     def get_pressure_loads(self) -> List[PressureLoad]:
         pressure_loads_list = []
-        for i, load in enumerate(self.loads.findall("surface_load")):
+        for i, load in enumerate(self.loads.findall(self.MAJOR_TAGS.SURFACELOAD.value)):
             press = load.find("pressure")
             if press is not None:
                 load_info = load.attrib

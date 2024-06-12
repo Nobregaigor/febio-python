@@ -45,6 +45,8 @@ class FEB_MAJOR_TAGS(Enum):
     MATERIAL = "material"
     NODALLOAD = "nodal_load"
     SURFACELOAD = "surface_load"
+    
+    SHELLDOMAIN = "ShellDomain"
 
 class ELEM_TYPES(Enum):
     TRIANGLE = "tri3"

@@ -17,7 +17,8 @@ from febio_python.core import (
     NodalData,
     SurfaceData,
     ElementData,
-    XpltMeshPart
+    XpltMeshPart,
+    GenericDomain
 )
 
 from febio_python.feb import Feb25, Feb30, Feb
@@ -88,9 +89,9 @@ class FEBioContainer():
             raise ValueError("No FEB or XPLT file is provided")
     
     @property
-    def parts(self) -> List[XpltMeshPart]:
+    def mesh_domains(self) -> List[Union[GenericDomain, XpltMeshPart]]:
         if self.feb is not None:
-            raise NotImplementedError("Method not yet implemented for FEB files.")
+            return self.feb.get_mesh_domains()
         elif self.xplt is not None:
             return self.xplt.parts
         else:
