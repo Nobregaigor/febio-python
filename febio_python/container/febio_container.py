@@ -17,6 +17,7 @@ from febio_python.core import (
     NodalData,
     SurfaceData,
     ElementData,
+    XpltMeshPart
 )
 
 from febio_python.feb import Feb25, Feb30, Feb
@@ -83,6 +84,15 @@ class FEBioContainer():
             return self.feb.get_volume_elements()
         elif self.xplt is not None:
             return self.xplt.volumes
+        else:
+            raise ValueError("No FEB or XPLT file is provided")
+    
+    @property
+    def parts(self) -> List[XpltMeshPart]:
+        if self.feb is not None:
+            raise NotImplementedError("Method not yet implemented for FEB files.")
+        elif self.xplt is not None:
+            return self.xplt.parts
         else:
             raise ValueError("No FEB or XPLT file is provided")
     
