@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union, List
+from typing import Union, List, Optional
 
 from febio_python.core import (
     Nodes,
@@ -26,15 +26,12 @@ from febio_python.xplt import Xplt
 
 
 class FEBioContainer():
-    def __init__(self, feb: Union[Feb30, Feb25, str, Path]=None, xplt: Union[Xplt, str, Path]=None) -> None:
-        
-        self.feb: None | Feb30 | Feb25 = feb
-        if isinstance(feb, str) or isinstance(feb, Path):
-            self.feb: Feb30 | Feb25 = Feb(filepath=feb)            
-        
-        self.xplt: None | Xplt = xplt
-        if isinstance(xplt, str) or isinstance(xplt, Path):
-            self.xplt: Xplt = Xplt(filepath=xplt)
+    def __init__(self, feb: Union[Feb30, Feb25, str, Path] = None, xplt: Union[Xplt, str, Path] = None, auto_find: bool = True) -> None:
+        self.feb: Optional[Union[Feb30, Feb25]] = self._load_feb(feb) if feb else None
+        self.xplt: Optional[Xplt] = self._load_xplt(xplt) if xplt else None
+
+        if auto_find:
+            self._auto_find_files(feb, xplt)
         
         # Make sure that we have the correct input
         if self.feb is None and self.xplt is None:
@@ -45,6 +42,43 @@ class FEBioContainer():
         if self.xplt is not None and not isinstance(self.xplt, Xplt):
             raise ValueError("XPLT is not valid. Check input file or input parameters.")
         
+        # Now, if both files are provided, we must ensure that they are compatible.
+        # We will compare the number of nodes and elements in the FEB and XPLT files.
+        if self.feb is not None and self.xplt is not None:
+            feb_node_count = sum([node.ids.size for node in self.feb.get_nodes()])
+            feb_elem_count = sum([elem.ids.size for elem in self.feb.get_elements()])
+            xplt_node_count = sum([node.ids.size for node in self.xplt.nodes])
+            xplt_elem_count = sum([elem.ids.size for elem in self.xplt.elements])
+            
+            if feb_node_count != xplt_node_count:
+                raise ValueError("Number of nodes in FEB and XPLT files do not match."
+                                 "Please, make sure that the FEB and XPLT files are compatible.")
+            if feb_elem_count != xplt_elem_count:
+                raise ValueError("Number of elements in FEB and XPLT files do not match."
+                                 "Please, make sure that the FEB and XPLT files are compatible.")
+    
+    def _load_feb(self, feb: Union[Feb30, Feb25, str, Path]) -> Optional[Union[Feb30, Feb25]]:
+        if isinstance(feb, (str, Path)):
+            feb_path = Path(feb)
+            return Feb(filepath=feb_path)
+        return feb
+
+    def _load_xplt(self, xplt: Union[Xplt, str, Path]) -> Optional[Xplt]:
+        if isinstance(xplt, (str, Path)):
+            return Xplt(filepath=Path(xplt))
+        return xplt
+
+    def _auto_find_files(self, feb: Union[Feb30, Feb25, str, Path], xplt: Union[Xplt, str, Path]):
+        if not self.xplt and feb and isinstance(feb, (str, Path)):
+            xplt_path = Path(feb).with_suffix('.xplt')
+            if xplt_path.is_file():
+                self.xplt = Xplt(filepath=xplt_path)
+
+        if not self.feb and xplt and isinstance(xplt, (str, Path)):
+            feb_path = Path(xplt).with_suffix('.feb')
+            if feb_path.is_file():
+                self.feb = self._load_feb(feb_path)
+
     # ========================================================================
     # Properties
     # ========================================================================
