@@ -664,6 +664,27 @@ class Feb30(AbstractFebObject):
                 subel = ET.SubElement(el_root, "elem")
                 subel.set("id", str(int(elem_id + 1))) # Convert to one-based indexing
     
+    # Mesh Domains
+    # ------------------------------
+    
+    def add_mesh_domains(self, domains: List[Union[GenericDomain, ShellDomain]]):
+        # Get the root for MeshDomains or create one if it does not exist
+        mesh_domains = self.root.find("MeshDomains")
+        if mesh_domains is None:
+            mesh_domains = ET.SubElement(self.root, "MeshDomains")
+
+        # Iterate through the domains to add
+        for domain in domains:
+            if isinstance(domain, ShellDomain):
+                # Create a ShellDomain element with specific attributes
+                domain_elem = ET.SubElement(mesh_domains, "ShellDomain", name=domain.name, mat=domain.mat)
+                # Add specific child for ShellDomain
+                shell_normal_nodal_elem = ET.SubElement(domain_elem, "shell_normal_nodal")
+                shell_normal_nodal_elem.text = str(domain.shell_normal_nodal)
+            else:
+                # Create a GenericDomain element with basic attributes
+                ET.SubElement(mesh_domains, domain.tag, name=domain.name, mat=domain.mat)
+    
     # Materials
     # ------------------------------
     
@@ -983,6 +1004,27 @@ class Feb30(AbstractFebObject):
             if el is not None:
                 self.mesh.remove(el)
     
+    # Mesh Domains
+    # ------------------------------
+    
+    def remove_mesh_domains(self, identifiers: List[str]) -> None:
+        """
+        Removes domains from MeshDomains by id, name, or material.
+
+        Args:
+            identifiers (list of str): List of ids, names, or materials to remove.
+        """
+        mesh_domains = self.root.find("MeshDomains")
+        if mesh_domains is None:
+            return  # If there are no MeshDomains, nothing needs to be removed.
+
+        # Iterate through each identifier to remove domains
+        for identifier in identifiers:
+            # Remove by name or mat attribute
+            els_by_name_or_mat = mesh_domains.findall(f"./*[@name='{identifier}' or @mat='{identifier}']")
+            for el in els_by_name_or_mat:
+                mesh_domains.remove(el)
+    
     # Materials
     # ------------------------------
     
@@ -1193,6 +1235,13 @@ class Feb30(AbstractFebObject):
         for el in self.mesh.findall(self.MAJOR_TAGS.ELEMENTSET.value):
             self.mesh.remove(el)
     
+    def clear_mesh_domains(self) -> None:
+        """
+        Removes all mesh domains from MeshDomains.
+        """
+        for el in self.root.findall(self.LEAD_TAGS.MESHDOMAINS.value):
+            self.root.remove(el)
+    
     def clear_materials(self) -> None:
         """
         Removes all materials from Material.
@@ -1375,6 +1424,19 @@ class Feb30(AbstractFebObject):
         """
         self.remove_elementsets([elemset.name for elemset in elementsets])
         self.add_elementsets(elementsets)
+    
+    # Mesh Domains
+    # ------------------------------
+    
+    def update_mesh_domains(self, domains: List[Union[GenericDomain, ShellDomain]]) -> None:
+        """
+        Updates mesh domains in MeshDomains by name, replacing existing mesh domains with the same name.
+
+        Args:
+            domains (list of Union[GenericDomain, ShellDomain]): List of domain namedtuples.
+        """
+        self.remove_mesh_domains([domain.name for domain in domains])
+        self.add_mesh_domains(domains)
     
     # Materials
     # ------------------------------
