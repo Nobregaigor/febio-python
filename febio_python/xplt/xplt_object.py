@@ -20,6 +20,7 @@ class Xplt():
         
         if filepath is not None:
             xplt_mesh, states = read_xplt(filepath)
+            
         
         if xplt_mesh is None:
             raise ValueError("xplt_mesh is None. Check input file or input parameters.")
@@ -29,6 +30,7 @@ class Xplt():
         # Set attributes
         self.xplt_mesh: XpltMesh = xplt_mesh
         self.states: States = states
+        self.filepath = Path(filepath) if filepath is not None else None
     
     @cache
     def __repr__(self) -> str:
