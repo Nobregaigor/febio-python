@@ -11,7 +11,8 @@ from febio_python.core import (
     Nodes,
     Elements,
     NodeSet,
-    StateData
+    StateData,
+    XpltMeshPart
 )
 
 class Xplt():
@@ -112,6 +113,10 @@ class Xplt():
     @property
     def nodesets(self) -> List[NodeSet]:
         return self.xplt_mesh.nodesets
+    
+    @property
+    def parts(self) -> List[XpltMeshPart]:
+        return self.xplt_mesh.parts
     
     # ========================================================================
     # States-related properties
