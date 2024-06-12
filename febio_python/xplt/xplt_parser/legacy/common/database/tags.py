@@ -1,4 +1,4 @@
-from enum import Enum, IntEnum
+from enum import IntEnum
 
 class TAGS(IntEnum):
     FEBIO = int("0x00464542", base=16)  
@@ -65,15 +65,17 @@ class TAGS(IntEnum):
     FACET_LIST = int("0x01043200", base=16)   
     FACET = int("0x01043201", base=16)   
 
+    # -- nodeset section
     NODESET_SECTION = int("0x01044000", base=16)   
     NODESET = int("0x01044100", base=16)   
     NODESET_HEADER = int("0x01044101", base=16)   
     NODESET_ID = int("0x01044102", base=16)   
-
     NODESET_NAME = int("0x01044103", base=16)   
     NODESET_N_NODES = int("0x01044104", base=16)   
     NODESET_LIST = int("0x01044200", base=16)   
 
+    # -- parts section
+    PART_SECTION = int("0x01045000", base=16)
     PART = int("0x01045100", base=16)   
     PART_ID = int("0x01045101", base=16)   
     PART_NAME = int("0x01045102", base=16)   

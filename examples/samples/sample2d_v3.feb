@@ -33,14 +33,14 @@
 		</Constants>
 	</Globals>
 	<Material>
-		<material id="1" name="SMGNN_BENCHMARK" type="isotropic elastic">
+		<material id="1" name="Part1" type="isotropic elastic">
 			<density>1</density>
 			<E>0.679449155</E>
 			<v>0.242741151</v>
 		</material>
 	</Material>
 	<Mesh>
-		<Nodes name="SMGNN_BENCHMARK">
+		<Nodes name="Part1">
 			<node id="1">0,0,0</node>
 			<node id="2">0.166666667,0,0</node>
 			<node id="3">0.333333333,0,0</node>
@@ -175,7 +175,12 @@
 			<node id="132">2.83333333,1,0</node>
 			<node id="133">3,1,0</node>
 		</Nodes>
-		<Elements type="tri3" name="SMGNN_BENCHMARK">
+		<Nodes name="Part2">
+			<node id="134">0,0,5.0</node>
+			<node id="135">0.166666667,0,5.0</node>
+			<node id="136">0.333333333,0,5.0</node>
+		</Nodes>
+		<Elements type="tri3" name="Part1">
 			<elem id="1">1,2,21</elem>
 			<elem id="2">2,3,22</elem>
 			<elem id="3">3,4,23</elem>
@@ -566,12 +571,12 @@
 		</NodeSet>
 	</Mesh>
 	<MeshDomains>
-		<ShellDomain name="SMGNN_BENCHMARK" mat="SMGNN_BENCHMARK_MATERIAL">
+		<ShellDomain name="Part1" mat="Part1">
 			<shell_normal_nodal>1</shell_normal_nodal>
 		</ShellDomain>
 	</MeshDomains>
 	<MeshData>
-		<ElementData var="shell thickness" elem_set="SMGNN_BENCHMARK">
+		<ElementData var="shell thickness" elem_set="Part1">
 			<e lid="1">0.01,0.01,0.01</e>
 			<e lid="2">0.01,0.01,0.01</e>
 			<e lid="3">0.01,0.01,0.01</e>
@@ -819,11 +824,11 @@
 	<Loads>
 		<nodal_load name="NODAL_LOAD_X" type="nodal_load" node_set="NODAL_LOAD_X">
 			<dof>x</dof>
-			<scale lc="1">RIGHT_NODES_X</scale>
+			<scale lc="1">1*RIGHT_NODES_X</scale>
 		</nodal_load>
 		<nodal_load name="NODAL_LOAD_Y" type="nodal_load" node_set="NODAL_LOAD_Y">
 			<dof>y</dof>
-			<scale lc="1">RIGHT_NODES_Y</scale>
+			<scale lc="1">1*RIGHT_NODES_Y</scale>
 		</nodal_load>
 	</Loads>
 	<LoadData>

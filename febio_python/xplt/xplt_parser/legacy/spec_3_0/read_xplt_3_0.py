@@ -64,9 +64,11 @@ def read_xplt_3_0(xplit_filepath, nstate=-1, verbose=0):
     # -- Explore SURFACE_SECTION --
     surface_data = read_surface_section(bf, TAGS, filesize=filesize, verbose=verbose)
     # console_log("Surface names: {}".format(surface_names), 1, verbose)
+    # print("Surface data: ", surface_data)
 
     # -- Explore NODESET_SECTION --
     nodeset_data = read_nodeset_section(bf, TAGS, verbose=verbose)
+    # print("Nodeset data: ", nodeset_data)
     # console_log("Nodeset names: {}".format(nodeset_names), 1, verbose)
 
     # -- Explore Parts section --

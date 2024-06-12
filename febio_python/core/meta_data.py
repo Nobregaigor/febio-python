@@ -4,7 +4,7 @@ from collections import namedtuple
 # ------------------------------
 Nodes = namedtuple('Nodes', ['name', 'coordinates', 'ids'])
 Nodes.__new__.__defaults__ = (None,)  # This sets a default for the last field only
-Elements = namedtuple('Elements', ['name', 'mat', 'type', 'connectivity', 'ids'])
+Elements = namedtuple('Elements', ['name', 'mat', 'part', 'type', 'connectivity', 'ids'])
 Elements.__new__.__defaults__ = (None,)  # This sets a default for the last field only
 
 NodeSet = namedtuple('NodeSet', ['name', 'ids'])
@@ -34,4 +34,20 @@ RigidBodyCondition = namedtuple('RigidBodyCondition', ['material', 'dof'])
 NodalData = namedtuple('NodalData', ['node_set', 'name', 'data', 'ids'])
 SurfaceData = namedtuple('SurfaceData', ['surf_set', 'name', 'data', 'ids'])
 ElementData = namedtuple('ElementData', ['elem_set', 'name', 'var', 'data', 'ids'])
+
+
+XpltMeshPart = namedtuple('MeshPart', ['id', 'name'])
+XpltMesh = namedtuple("XpltMesh", ["nodes", "elements", "surfaces", "nodesets", "parts"])
+
+
+# States
+# ------------------------------
+StatesDict = namedtuple("StatesDict", ["types", "formats", "names"])
+
+
+StateVariable = namedtuple("StateVariable", ["name", "dim", "dom", "data"])
+
+StateData = namedtuple("StateData", ["name", "dom", "data"])
+
+States = namedtuple("States", ["nodes", "elements", "surfaces", "timesteps"])
 

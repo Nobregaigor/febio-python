@@ -6,6 +6,7 @@ from collections import deque
     
 def read_state(bf, TAGS, states_dict, decompress=False, verbose=0):
     
+    print(f"sates_dict: {states_dict}")
   
     # decompress if needed.
     if decompress:
@@ -141,14 +142,16 @@ def read_state(bf, TAGS, states_dict, decompress=False, verbose=0):
     # convert data to numpy arrays
     state_time = nparray(state_time, dtype="float32")    
     state_node_data = set_data_as_nparray_or_deque(state_node_data)
-    state_elem_data = set_data_as_nparray_or_deque(state_elem_data)
+    state_elem_data = set_data_as_nparray_or_deque(state_elem_data)[0]
     state_surf_data = set_data_as_nparray_or_deque(state_surf_data)
 
+    # print(f"state_elem_data: {state_elem_data.shape}")
     
     # combine data names and values
     data_by_name = {}
     nn, ne, ns = 0, 0, 0
     for (r, key) in zip(states_ref, states_dict["names"]):
+        print(r, key, nn, ne, ns)
         # print(key, r, nn, ne, ns)
         if r == 0:
             data_by_name[key] = state_node_data[nn]

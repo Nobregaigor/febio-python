@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, IntEnum
 
 class FEBioElementType(Enum):
     # Linear elements
@@ -7,6 +7,7 @@ class FEBioElementType(Enum):
     TETRA = "tet4"
     WEDGE = "penta6"
     HEXAHEDRON = "hex8"
+    TRUSS = "truss" # Assuming linear element
     # Quadratic elements
     QUADRATIC_TRIANGLE = "tri6"
     QUADRATIC_QUAD = "quad8"
@@ -16,7 +17,35 @@ class FEBioElementType(Enum):
     # Higher order elements
     BIQUADRATIC_QUAD = "quad9"
     TRIQUADRATIC_HEXAHEDRON = "hex27"
+    HIGHER_ORDER_TETRA = "tet15"
 
+class FEBioElementValue(IntEnum):
+    HEXAHEDRON = 0  # HEX
+    WEDGE = 1  # PENTA
+    TETRA = 2  # TET
+    QUAD = 3  # QUAD
+    TRIANGLE = 4  # TRI
+    TRUSS = 5  # Assuming linear element
+    QUADRATIC_HEXAHEDRON = 6  # HEX20
+    QUADRATIC_TETRA = 7  # TET10
+    QUADRATIC_WEDGE = 13  # PENTA15
+    TRIQUADRATIC_HEXAHEDRON = 9  # HEX27
+    QUADRATIC_QUAD = 11  # QUAD8
+    HIGHER_ORDER_TETRA = 8 # TET15
+
+class NumberOfNodesPerElement(IntEnum):
+    HEXAHEDRON = 8
+    WEDGE = 6
+    TETRA = 4
+    QUAD = 4
+    TRIANGLE = 3
+    TRUSS = 2
+    QUADRATIC_HEXAHEDRON = 20
+    QUADRATIC_TETRA = 10
+    QUADRATIC_WEDGE = 15
+    TRIQUADRATIC_HEXAHEDRON = 27
+    QUADRATIC_QUAD = 8
+    HIGHER_ORDER_TETRA = 15   
 
 class FebioElementTypeToVTKElementType(Enum):
     # Linear elements
@@ -34,4 +63,5 @@ class FebioElementTypeToVTKElementType(Enum):
     # Higher order elements
     quad9 = "BIQUADRATIC_QUAD"
     hex27 = "TRIQUADRATIC_HEXAHEDRON"
+    tet15 = "HIGHER_ORDER_TETRA"
 

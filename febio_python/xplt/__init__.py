@@ -1,1 +1,1 @@
-from .xplt_parser import read_xplt, to_json
+from .xplt_parser import read_xplt

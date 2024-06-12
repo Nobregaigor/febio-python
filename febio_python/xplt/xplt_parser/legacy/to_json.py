@@ -1,7 +1,7 @@
 
 
 def to_json(xplt_filepath, output_filepath, verbose=0):
-    from .read_xplt import read_xplt
+    from ..read_xplt import read_xplt
     from .common.utils import NumpyEncoder
     import json
     

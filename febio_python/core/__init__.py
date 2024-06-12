@@ -19,11 +19,17 @@ from .meta_data import (
     LoadCurve,
     BoundaryCondition,
     FixCondition,
-    # FixedAxis,
     RigidBodyCondition,
     NodalData,
     SurfaceData,
-    ElementData
+    ElementData,
+    # Xplt data
+    XpltMesh, 
+    XpltMeshPart,
+    StatesDict,
+    StateVariable,
+    StateData, 
+    States
 )
 
 from .element_types import (

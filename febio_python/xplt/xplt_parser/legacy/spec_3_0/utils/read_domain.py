@@ -17,8 +17,9 @@ def read_domain(bf, TAGS:IntEnum, ELEM_TYPES:IntEnum, NODES_PER_ELEM:IntEnum, ve
         
         # move pointer to domain content and header
         search_block(bf, TAGS, 'DOMAIN', verbose=verbose)
-        search_block(bf, TAGS, 'DOMAIN_HEADER', verbose=verbose)
         
+        # -- Explore domain HEADER --
+        search_block(bf, TAGS, 'DOMAIN_HEADER', verbose=verbose)
         # Read element type, part ID, and number of elements
         search_block(bf, TAGS, 'DOM_ELEM_TYPE', verbose=verbose)
         domain_info['elem_type'] = int(read_bytes(bf))
@@ -27,19 +28,22 @@ def read_domain(bf, TAGS:IntEnum, ELEM_TYPES:IntEnum, NODES_PER_ELEM:IntEnum, ve
         search_block(bf, TAGS, 'DOM_N_ELEMS', verbose=verbose)
         domain_info['n_elems'] = int(read_bytes(bf))
         
+        # Get element type name and number of nodes per element
         elem_type_name = ELEM_TYPES(domain_info['elem_type']).name
         n_nodes_per_element = NODES_PER_ELEM[elem_type_name].value
         
+        console_log(f"--domain_info: {domain_info}", 3, verbose=verbose)
+        console_log(f"--elem_type: {elem_type_name} -> {n_nodes_per_element} nodes per element", 3, verbose=verbose)
+        
         # Prepare for reading elements list
         search_block(bf, TAGS, 'DOM_ELEM_LIST', verbose=verbose)
-        elements = []
+        elements = deque()
         for _ in range(domain_info['n_elems']):
-            search_block(bf, TAGS, 'ELEMENT', verbose=verbose)
-            element = array(read_bytes(bf, nb=n_nodes_per_element+1, format="I"), dtype=int)
+            a = search_block(bf, TAGS, 'ELEMENT', verbose=verbose)
+            element = read_bytes(bf, nb=a, format="I"*(n_nodes_per_element+1))
             elements.append(element)
         
-        domain_info['elements'] = array(elements, dtype=int)
-        
+        domain_info['elements'] = array(elements, dtype=int)        
         domains.append(domain_info)
         console_log("--elements shape: {}".format(domain_info['elements'].shape), 3, verbose)
     
@@ -50,7 +54,7 @@ def read_domain(bf, TAGS:IntEnum, ELEM_TYPES:IntEnum, NODES_PER_ELEM:IntEnum, ve
         "n_elems": array([d['n_elems'] for d in domains], dtype=int),
         "elems": array([d['elements'] for d in domains], dtype=object),
     }
-    
+    print("n_doms: ", dom_data["n_doms"])
     console_log("->domain items: [types, ids, n_elems, elems]", 2, verbose)
     console_log(dom_data, 3, verbose)
     

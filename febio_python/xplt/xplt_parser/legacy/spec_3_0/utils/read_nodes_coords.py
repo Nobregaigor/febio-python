@@ -9,6 +9,11 @@ def read_nodes_coords(bf, TAGS:IntEnum, verbose=0):
   
   n_nodes = read_bytes(bf, search_block(bf, TAGS, 'NODE_N_NODES', verbose=verbose))
   n_dims = read_bytes(bf, search_block(bf, TAGS, 'NODE_DIM', verbose=verbose))
+  # read next 
+  
+  name = search_block(bf, TAGS, 'NODE_NAME', verbose=verbose)
+  print(f"NODES NAME: {name}")
+  
   nodes_shape = (n_nodes, n_dims)
   console_log(f"n_nodes: {n_nodes} | n_dim: {n_dims} -> shape {nodes_shape}", 3, verbose=verbose)  
 
