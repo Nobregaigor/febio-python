@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Tuple
 
 from febio_python.utils.log import console_log
 from febio_python.core.enums import XPLT_TAGS as TAGS
@@ -11,7 +12,9 @@ from ._xplt_sections import (
     read_dictionary,
     read_mesh,
     read_state,
+    XpltMesh,
     StatesDict,
+    StateData
 )
 
 def check_fileversion(bf, verbose):
@@ -24,8 +27,7 @@ def check_fileversion(bf, verbose):
         raise(ValueError("Incorrect XPLIT file version: {} | expected {} (from docs) or 49 ('0x00031')"
                          .format(version, TAGS.VERSION_3_0.value)))
 
-
-def read_spec30(filepath: Path, verbose=0):
+def read_spec30(filepath: Path, verbose=0) -> Tuple[XpltMesh, StateData]:
     
     with open(filepath, "rb") as bf:
         
@@ -66,13 +68,13 @@ def read_spec30(filepath: Path, verbose=0):
         # Part 5: Read mesh
         # ------------------------------------
         console_log("Reading mesh...", 1, verbose, header=True)
-        mesh = read_mesh(bf, verbose=verbose)
+        mesh: XpltMesh = read_mesh(bf, verbose=verbose)
         
         # Part 6: Read Parts (skip for now)
         # ------------------------------------
         
         # Part 7: Read States
         # ------------------------------------
-        states = read_state(bf, states_dict, verbose=verbose)
+        states: StateData = read_state(bf, states_dict, verbose=verbose)
         
     return mesh, states
