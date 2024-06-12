@@ -7,7 +7,7 @@ from febio_python.utils.pyvista_utils import febio_to_pyvista
 # filepath = "./sample_heterogeneous_beam2d.feb"
 filepath = "./sample_beam2d.feb"
 febio_container = FEBioContainer(feb=filepath)
-print(febio_container.load_curves)
+# print(febio_container.load_curves)
 # febio_container.element_data
 # print(febio_container.feb.get_nodesets())
 

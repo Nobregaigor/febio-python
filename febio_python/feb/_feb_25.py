@@ -51,7 +51,7 @@ class Feb25(AbstractFebObject):
     def get_nodes(self, dtype: np.dtype = np.float32) -> List[Nodes]:
         all_nodes: OrderedDict = self.get_tag_data(self.LEAD_TAGS.GEOMETRY, self.MAJOR_TAGS.NODES, content_type="text",  dtype=dtype)
         listed_nodes = list()
-        last_id = 1
+        last_id = 0 
         for key, value in all_nodes.items():
             this_ids = np.arange(last_id, last_id + value.shape[0], dtype=np.int64)
             listed_nodes.append(Nodes(name=key, coordinates=value, ids=this_ids))
@@ -61,10 +61,11 @@ class Feb25(AbstractFebObject):
     @feb_instance_cache
     def get_elements(self, dtype: np.dtype = np.int64) -> List[Elements]:
         all_elements = []
-        last_elem_id = 1
+        # last_elem_id = 1
         for elem_group in self.geometry.findall("Elements"):
             elem_type = elem_group.attrib.get("type")
             mat_id = elem_group.attrib.get("mat")
+            elem_part_id = elem_group.attrib.get("part", None)
             try:
                 mat_id = int(mat_id)
             except ValueError:
@@ -72,19 +73,28 @@ class Feb25(AbstractFebObject):
             elem_name = elem_group.attrib.get("name")
             
             connectivity = deque()
+            elem_ids = deque()
             for elem in elem_group.findall("elem"):
                 # Convert the comma-separated string of node indices into an array of integers
                 this_elem_connectivity = np.array(elem.text.split(','), dtype=dtype)
                 connectivity.append(this_elem_connectivity)
+                this_elem_id = int(elem.attrib["id"])
+                elem_ids.append(this_elem_id)
             
             # Convert the list of element connectivities to a numpy array
-            connectivity = np.array(connectivity, dtype=dtype)
-            num_elems = connectivity.shape[0]
-            elem_ids = np.arange(last_elem_id, last_elem_id + num_elems, dtype=np.int64)
+            connectivity = np.array(connectivity, dtype=dtype) -1 # Convert to zero-based indexing
+            elem_ids = np.array(elem_ids, dtype=np.int64) -1 # Convert to zero-based indexing
+            # num_elems = connectivity.shape[0]
+            # elem_ids = np.arange(last_elem_id, last_elem_id + num_elems, dtype=np.int64)
             # Create an Elements instance for each element
-            element = Elements(name=elem_name, mat=mat_id, type=elem_type, connectivity=connectivity, ids=elem_ids)
+            element = Elements(name=elem_name, 
+                               mat=mat_id, 
+                               part=elem_part_id, 
+                               type=elem_type, 
+                               connectivity=connectivity, 
+                               ids=elem_ids)
             all_elements.append(element)
-            last_elem_id += num_elems
+            # last_elem_id += num_elems
 
         return all_elements
 
@@ -130,6 +140,7 @@ class Feb25(AbstractFebObject):
         # Convert the nodesets dictionary to a list of Nodeset named tuples
         nodeset_list = list()
         for key, value in nodesets.items():
+            value -= 1  # Convert to zero-based indexing
             nodeset_list.append(NodeSet(name=key, ids=value))
         return nodeset_list
     
@@ -150,6 +161,7 @@ class Feb25(AbstractFebObject):
         # Convert the surfacesets dictionary to a list of Nodeset named tuples
         surfaceset_list = list()
         for key, value in surfacesets.items():
+            value -= 1  # Convert to zero-based indexing
             surfaceset_list.append(SurfaceSet(name=key, node_ids=value))
         return surfaceset_list
     
@@ -170,6 +182,7 @@ class Feb25(AbstractFebObject):
         # Convert the elementsets dictionary to a list of Nodeset named tuples
         elementset_list = list()
         for key, value in elementsets.items():
+            value -= 1  # Convert to zero-based indexing
             elementset_list.append(ElementSet(name=key, ids=value))
         return elementset_list
     
@@ -354,7 +367,7 @@ class Feb25(AbstractFebObject):
                 node_set=ref,
                 name=name,
                 data=np.array(_this_data, dtype=dtype),  # Ensure data is in the correct dtype
-                ids=np.array(_these_ids, dtype=np.int64)
+                ids=np.array(_these_ids, dtype=np.int64) - 1  # Ensure IDs are zero-based
             )
 
             # Add the NodalData instance to the list
@@ -387,7 +400,7 @@ class Feb25(AbstractFebObject):
                 surf_set=ref,
                 name=name,
                 data=np.array(_this_data, dtype=dtype),  # Ensure data is in the correct dtype
-                ids=np.array(_these_ids, dtype=np.int64)
+                ids=np.array(_these_ids, dtype=np.int64) - 1  # Ensure IDs are zero-based
             )
 
             # Add the NodalData instance to the list
@@ -423,7 +436,7 @@ class Feb25(AbstractFebObject):
                 name=name,
                 var=var,
                 data=np.array(_this_data, dtype=dtype),  # Ensure data is in the correct dtype
-                ids=np.array(_these_ids, dtype=np.int64)
+                ids=np.array(_these_ids, dtype=np.int64) - 1  # Ensure IDs are zero-based
             )
 
             # Add the ElementData instance to the list
@@ -556,7 +569,12 @@ class Feb25(AbstractFebObject):
                 el_root = ET.Element("NodeSet")
                 el_root.set("name", nodeset.name)
                 self.geometry.append(el_root)
-    
+
+            # Add node IDs as sub-elements
+            for node_id in nodeset.ids:
+                subel = ET.SubElement(el_root, "node")
+                subel.set("id", str(int(node_id + 1)))  # Convert to one-based indexing
+                
     def add_surfacesets(self, surfacesets: List[SurfaceSet]) -> None:
         """
         Adds surface sets to Geometry, appending to existing surface sets if they share the same name.
@@ -575,7 +593,12 @@ class Feb25(AbstractFebObject):
                 el_root = ET.Element("SurfaceSet")
                 el_root.set("name", surfset.name)
                 self.geometry.append(el_root)
-    
+
+            # Add node IDs as sub-elements
+            for node_id in surfset.node_ids:
+                subel = ET.SubElement(el_root, "node")
+                subel.set("id", str(int(node_id + 1))) # Convert to one-based indexing
+                
     def add_elementsets(self, elementsets: List[ElementSet]) -> None:
         """
         Adds element sets to Geometry, appending to existing element sets if they share the same name.
@@ -594,6 +617,11 @@ class Feb25(AbstractFebObject):
                 el_root = ET.Element("ElementSet")
                 el_root.set("name", elemset.name)
                 self.geometry.append(el_root)
+            
+            # Add element IDs as sub-elements
+            for elem_id in elemset.ids:
+                subel = ET.SubElement(el_root, "elem")
+                subel.set("id", str(int(elem_id + 1))) # Convert to one-based indexing
     
     # Materials
     # ------------------------------
@@ -752,7 +780,11 @@ class Feb25(AbstractFebObject):
                 el_root.set("name", data.name)
                 self.meshdata.append(el_root)
 
-            el_root.text = ",".join(map(str, data.data))
+            # Add node IDs and data as sub-elements
+            for i, node_data in enumerate(data.data):
+                subel = ET.SubElement(el_root, "node")
+                subel.set("lid", str(data.ids[i] + 1))  # Convert to one-based indexing
+                subel.text = ",".join(map(str, node_data))
     
     def add_surface_data(self, surface_data: List[SurfaceData]) -> None:
         """
@@ -774,7 +806,10 @@ class Feb25(AbstractFebObject):
                 el_root.set("name", data.name)
                 self.meshdata.append(el_root)
 
-            el_root.text = ",".join(map(str, data.data))
+            for i, surf_data in enumerate(data.data):
+                subel = ET.SubElement(el_root, "surf")
+                subel.set("lid", str(data.ids[i] + 1))  # Convert to one-based indexing
+                subel.text = ",".join(map(str, surf_data))
     
     def add_element_data(self, element_data: List[ElementData]) -> None:
         """
@@ -799,7 +834,10 @@ class Feb25(AbstractFebObject):
                     el_root.set("var", data.var)
                 self.meshdata.append(el_root)
 
-            el_root.text = ",".join(map(str, data.data))
+            for i, elem_data in enumerate(data.data):
+                subel = ET.SubElement(el_root, "elem")
+                subel.set("lid", str(data.ids[i] + 1)) # Convert to one-based indexing
+                subel.text = ",".join(map(str, elem_data))
 
     # =========================================================================================================
     # Remove methods

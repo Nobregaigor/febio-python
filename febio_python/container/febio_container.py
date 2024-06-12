@@ -39,7 +39,7 @@ class FEBioContainer():
         if self.feb is None and self.xplt is None:
             raise ValueError("No FEB or XPLT file is provided")
         
-        if self.feb is not None and not isinstance(self.feb, Feb):
+        if self.feb is not None and not isinstance(self.feb, (Feb30, Feb25)):
             raise ValueError("FEB is not valid. Check input file or input parameters.")
         if self.xplt is not None and not isinstance(self.xplt, Xplt):
             raise ValueError("XPLT is not valid. Check input file or input parameters.")

@@ -112,7 +112,7 @@ def create_multiblock_from_febio_container(container: FEBioContainer) -> pv.Mult
         cells_dict = {}
         for elem in elements:
             el_type: str = elem.type
-            connectivity: np.ndarray = elem.connectivity - 1 # FEBio uses 1-based indexing
+            connectivity: np.ndarray = elem.connectivity # FEBio uses 1-based indexing
             try:
                 elem_type = FebioElementTypeToVTKElementType[el_type].value
                 elem_type = pv.CellType[elem_type]
@@ -125,7 +125,7 @@ def create_multiblock_from_febio_container(container: FEBioContainer) -> pv.Mult
                 cells_dict[elem_type] = np.vstack([cells_dict[elem_type], connectivity])
             else:
                 cells_dict[elem_type] = connectivity      
-
+        print(cells_dict)
         mesh = pv.UnstructuredGrid(cells_dict, coordinates)
         multiblock.append(mesh, f"{node.name}")
     return multiblock
@@ -152,7 +152,7 @@ def add_nodalsets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
 
     for node_set in container.nodesets:
         name = node_set.name
-        ids = node_set.ids - 1  # zero-based index
+        ids = node_set.ids  # zero-based index
         grid_index = int(np.searchsorted(cumulative_nodes, ids[-1], side='right'))
         
         if grid_index == len(cumulative_nodes):
@@ -160,7 +160,7 @@ def add_nodalsets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
 
         # Adjust indices for the selected grid
         if grid_index > 0:
-            ids -= cumulative_nodes[grid_index - 1]
+            ids -= cumulative_nodes[grid_index]
 
         multiblock[grid_index].field_data[name] = ids
 
@@ -184,7 +184,7 @@ def add_elementsets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.
 
     for elem_set in container.elementsets:
         name = elem_set.name
-        ids = elem_set.ids - 1  # zero-based index
+        ids = elem_set.ids
         grid_index = int(np.searchsorted(cumulative_elements, ids[-1], side='right'))
 
         if grid_index == len(cumulative_elements):
@@ -192,7 +192,7 @@ def add_elementsets(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.
 
         # Adjust indices for the selected grid
         if grid_index > 0:
-            ids -= cumulative_elements[grid_index - 1]
+            ids -= cumulative_elements[grid_index]
 
         # Access the correct grid and update field data
         selected_grid = multiblock[grid_index]
@@ -238,7 +238,7 @@ def add_nodaldata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
                 raise ValueError(f"Node set {node_set} not found.")
 
             # Use binary search to find the grid
-            last_id = related_nodeset.ids[-1] - 1
+            last_id = related_nodeset.ids[-1]
             grid_index = int(np.searchsorted(cumulative_nodes, last_id, side='right'))
 
             if grid_index == len(cumulative_nodes):
@@ -246,11 +246,11 @@ def add_nodaldata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
 
             grid = multiblock[grid_index]
             if grid_index > 0:
-                related_nodeset.ids -= cumulative_nodes[grid_index - 1]
+                related_nodeset.ids -= cumulative_nodes[grid_index]
 
             # Create a full data array with NaNs and assign the actual data
             full_data = np.full((grid.n_points, data.shape[1]), np.nan)
-            full_data[related_nodeset.ids - 1] = data  # Adjusting for zero indexing
+            full_data[related_nodeset.ids] = data  # Adjusting for zero indexing
             grid.point_data[name] = full_data
 
     return multiblock
@@ -283,7 +283,7 @@ def add_elementdata(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.
             data = data.reshape(-1, 1)
         # get the element set
         elem_set = el_data.elem_set
-        elem_ids = el_data.ids - 1
+        elem_ids = el_data.ids
         # get the name of the data
         name = el_data.name
         var = el_data.var
@@ -438,21 +438,21 @@ def add_nodalload(container: FEBioContainer, multiblock: pv.MultiBlock) -> pv.Mu
         if related_nodeset is None:
             raise ValueError(f"Node set {node_set} not found.")
 
-        last_id = related_nodeset.ids[-1] - 1
+        last_id = related_nodeset.ids[-1]
         grid_index = int(np.searchsorted(cumulative_nodes, last_id, side='right'))
         if grid_index == len(cumulative_nodes):
             raise ValueError(f"Could not find the proper grid for node set {node_set}")
 
         grid = multiblock[grid_index]
         if grid_index > 0:
-            related_nodeset.ids -= cumulative_nodes[grid_index - 1]
+            related_nodeset.ids -= cumulative_nodes[grid_index]
 
         if "nodal_load" not in grid.point_data:
             grid.point_data["nodal_load"] = np.zeros((grid.n_points, 3))
         
         axis_map = {'x': 0, 'y': 1, 'z': 2}
         axis_index = axis_map[bc]
-        load_indices = related_nodeset.ids - 1  # Adjust indices for zero-based indexing
+        load_indices = related_nodeset.ids  # Adjust indices for zero-based indexing
 
         # Handle scale being a reference to other data fields or a numeric scale
         if isinstance(scale, str) and '*' in scale:
@@ -526,10 +526,10 @@ def add_boundary_conditions(container: FEBioContainer, multiblock: pv.MultiBlock
     cumulative_nodes = np.cumsum([grid.n_points for grid in multiblock])
     
     for nodeset in container.nodesets:
-        last_id = nodeset.ids[-1] - 1
+        last_id = nodeset.ids[-1]
         grid_index = int(np.searchsorted(cumulative_nodes, last_id, side='right'))
         if grid_index < len(multiblock):
-            node_set_to_grid[nodeset.name] = (multiblock[grid_index], nodeset.ids - 1)
+            node_set_to_grid[nodeset.name] = (multiblock[grid_index], nodeset.ids)
     
     for element in container.elements:
         element_to_grid[element.name] = multiblock[element.name]
