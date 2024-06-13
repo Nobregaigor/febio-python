@@ -9,7 +9,7 @@ from pathlib import Path
 
 # FebTypes = NewType('FebTypes', Union[Feb25, Feb30])
 
-def Feb(filepath: Union[str, Path], 
+def Feb(filepath: Union[str, Path]=None, 
         tree: Union[ET.ElementTree, None] = None, 
         root: Union[ET.Element, None] = None, 
         version: float = None) -> Union[Feb25, Feb30]:
@@ -26,8 +26,8 @@ def Feb(filepath: Union[str, Path],
             raise RuntimeError(f"Version should be a float, not {type(version)}") from e                   
     
     if version == 2.5:
-        return Feb25(filepath=filepath)
+        return Feb25(tree=tree, root=root, filepath=filepath)
     elif version == 3.0:
-        return Feb30(filepath=filepath)
+        return Feb30(tree=tree, root=root, filepath=filepath)
     else:
         raise ValueError(f"Unsupported version: {version}. Supported versions are 2.5 and 3.0.")
