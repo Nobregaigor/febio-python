@@ -21,8 +21,13 @@ jobs:
     - name: Install febio_python
       run: |
         pip install -e .
+    - name: Set PYTHONPATH
+      run: |
+        echo "PYTHONPATH=${PWD}:${PYTHONPATH}" >> $GITHUB_ENV
+        echo $PYTHONPATH
     - name: Build HTML
       run: |
+        pip install -e .
         python -m sphinx -W --keep-going --color docs/source docs/build/html/
     - name: Upload artifacts
       uses: actions/upload-artifact@v4

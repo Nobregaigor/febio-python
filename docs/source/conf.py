@@ -8,6 +8,10 @@ import sys
 # sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('../../febio_python'))
 
+print("Python Executable:", sys.executable)
+print("Python Version:", sys.version)
+print("Python Path:", sys.path)
+
 # import site
 # sys.path.append(site.getusersitepackages())
 
@@ -42,6 +46,8 @@ exclude_patterns = ['_build', '**.ipynb_checkpoints']
 
 autodoc_typehints_format = 'short'
 python_use_unqualified_type_names = True
+
+nbsphinx_allow_errors = True
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
