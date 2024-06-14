@@ -12,7 +12,7 @@ jobs:
     - name: Install pandoc
       run: |
         sudo apt-get install -y --no-install-recommends pandoc
-    - name: Set up Python 3.9.7
+    - name: Set up Python 3.9.18
       uses: s-weigand/setup-conda@v1
       with:
         python-version: 3.9.18
