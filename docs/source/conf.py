@@ -5,11 +5,11 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../..'))
+# sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('../../febio_python'))
 
-import site
-sys.path.append(site.getusersitepackages())
+# import site
+# sys.path.append(site.getusersitepackages())
 
 # print(os.path.abspath('../../febio_python'))
 # import febio_python.utils
