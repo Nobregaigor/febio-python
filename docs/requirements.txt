@@ -1,9 +1,1 @@
 furo
-sphinx
-pandoc
-nbsphinx
-jupytext
-myst-parser
-sphinx-book-theme
-ipython
-ipykernel
