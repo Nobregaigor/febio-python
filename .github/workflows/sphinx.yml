@@ -9,6 +9,9 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v4
+    - name: Install febio_python
+      run: |
+        pip install -e .
     - name: Build HTML
       uses: ammaraskar/sphinx-action@master
     - name: Upload artifacts
