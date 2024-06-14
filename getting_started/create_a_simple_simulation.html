@@ -372,6 +372,7 @@ Feb25(2.5):
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
+<span class="n">pv</span><span class="o">.</span><span class="n">set_jupyter_backend</span><span class="p">(</span><span class="s1">&#39;static&#39;</span><span class="p">)</span>
 
 <span class="c1"># Create a simple mesh (plane mesh)</span>
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plane</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">i_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">j_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">i_resolution</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">j_resolution</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -384,7 +385,8 @@ Feb25(2.5):
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "bce030384e6e44a59ca17e82df11c059"}</script></div>
+<img alt="../_images/getting_started_create_a_simple_simulation_11_0.png" src="../_images/getting_started_create_a_simple_simulation_11_0.png" />
+</div>
 </div>
 <p>In Pyvista, an unstructured grid is defined as “points” (nodes) and “cells” (elements). We can access them like this:</p>
 <div class="nbinput docutils container">
@@ -562,7 +564,7 @@ Feb25(2.5):
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a simple mesh (plane mesh)</span>
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plane</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">i_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">j_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">i_resolution</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">j_resolution</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cast_to_unstructured_grid</span><span class="p">()</span> <span class="c1"># we will be using unstructured grid for FEBio</span>
-<span class="n">mesh</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">jupyter_backend</span><span class="o">=</span><span class="s1">&#39;client&#39;</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">400</span><span class="p">),</span> <span class="n">cpos</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+<span class="n">mesh</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">400</span><span class="p">),</span> <span class="n">cpos</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -570,7 +572,8 @@ Feb25(2.5):
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "12e512e596fb4a9387246e4742ddc789"}</script></div>
+<img alt="../_images/getting_started_create_a_simple_simulation_23_0.png" src="../_images/getting_started_create_a_simple_simulation_23_0.png" />
+</div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
@@ -682,7 +685,7 @@ Feb25(2.5):
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plane</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">i_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">j_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">i_resolution</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">j_resolution</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">triangulate</span><span class="p">()</span> <span class="c1"># we will be using unstructured grid for FEBio</span>
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cast_to_unstructured_grid</span><span class="p">()</span> <span class="c1"># we will be using unstructured grid for FEBio</span>
-<span class="n">mesh</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">jupyter_backend</span><span class="o">=</span><span class="s1">&#39;client&#39;</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">400</span><span class="p">),</span> <span class="n">cpos</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+<span class="n">mesh</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">400</span><span class="p">),</span> <span class="n">cpos</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -690,7 +693,8 @@ Feb25(2.5):
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "8678a022f9dc492e94122b2d9c84c84b"}</script></div>
+<img alt="../_images/getting_started_create_a_simple_simulation_31_0.png" src="../_images/getting_started_create_a_simple_simulation_31_0.png" />
+</div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
@@ -991,7 +995,7 @@ Feb25(2.5):
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Xplt object [140033600302624]:
+Xplt object [140565396740464]:
 === xplt_mesh: ===
 -Nodes:
 ---&gt;None: (231, 3)
@@ -1800,7 +1804,7 @@ Feb25(2.5):
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Xplt object [140033113144576]:
+Xplt object [140565396739408]:
 === xplt_mesh: ===
 -Nodes:
 ---&gt;None: (231, 3)
@@ -2094,38 +2098,12 @@ Xplt object [140033113144576]:
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">ModuleNotFoundError</span>                       Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[37], line 3</span>
-<span class="ansi-green-intense-fg ansi-bold">      1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> <span class="ansi-bold" style="color: rgb(0,0,255)">febio_python</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">utils</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">pyvista_utils</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> febio_to_pyvista
-<span class="ansi-green-fg">----&gt; 3</span> grids_list <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">febio_to_pyvista</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">container</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">      4</span> <span style="color: rgb(0,135,0)">len</span>(grids_list)
-
-File <span class="ansi-green-fg">~/work/febio-python/febio-python/febio_python/utils/pyvista_utils.py:75</span>, in <span class="ansi-cyan-fg">febio_to_pyvista</span><span class="ansi-blue-fg">(data, apply_load_curves)</span>
-<span class="ansi-green-intense-fg ansi-bold">     72</span> grid <span style="color: rgb(98,98,98)">=</span> add_boundary_conditions(container, grid)
-<span class="ansi-green-intense-fg ansi-bold">     74</span> <span style="color: rgb(95,135,135)"># If states data is available, we should create a list of grids for each state</span>
-<span class="ansi-green-fg">---&gt; 75</span> grid_or_list_of_grids <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">add_states_to_grid</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">container</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">grid</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">apply_load_curves</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">apply_load_curves</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">     77</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span style="color: rgb(0,135,0)">isinstance</span>(grid_or_list_of_grids, <span style="color: rgb(0,135,0)">list</span>):
-<span class="ansi-green-intense-fg ansi-bold">     78</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> [grid_or_list_of_grids]
-
-File <span class="ansi-green-fg">~/work/febio-python/febio-python/febio_python/utils/pyvista_utils.py:684</span>, in <span class="ansi-cyan-fg">add_states_to_grid</span><span class="ansi-blue-fg">(container, grid, apply_load_curves)</span>
-<span class="ansi-green-intense-fg ansi-bold">    682</span> <span style="color: rgb(95,135,135)"># Now, we need to interpolate the load curves, based on the timesteps</span>
-<span class="ansi-green-intense-fg ansi-bold">    683</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> apply_load_curves:
-<span class="ansi-green-fg">--&gt; 684</span>     interpolators <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">_load_curvers_to_interpolators</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">container</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    685</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> lc_id, interpolator <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> interpolators<span style="color: rgb(98,98,98)">.</span>items():
-<span class="ansi-green-intense-fg ansi-bold">    686</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> i, grid <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">enumerate</span>(state_grids):
-
-File <span class="ansi-green-fg">~/work/febio-python/febio-python/febio_python/utils/pyvista_utils.py:621</span>, in <span class="ansi-cyan-fg">_load_curvers_to_interpolators</span><span class="ansi-blue-fg">(container)</span>
-<span class="ansi-green-intense-fg ansi-bold">    620</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">_load_curvers_to_interpolators</span>(container: FEBioContainer) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span style="color: rgb(0,135,0)">dict</span>:
-<span class="ansi-green-fg">--&gt; 621</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> <span class="ansi-bold" style="color: rgb(0,0,255)">scipy</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> interpolate
-<span class="ansi-green-intense-fg ansi-bold">    622</span>     interpolators <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">dict</span>()
-<span class="ansi-green-intense-fg ansi-bold">    623</span>     loadcurves <span style="color: rgb(98,98,98)">=</span> container<span style="color: rgb(98,98,98)">.</span>load_curves
-
-<span class="ansi-red-fg">ModuleNotFoundError</span>: No module named &#39;scipy&#39;
+11
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -2140,14 +2118,8 @@ File <span class="ansi-green-fg">~/work/febio-python/febio-python/febio_python/u
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<div class="highlight"><pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[38], line 1</span>
-<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-yellow-bg">grids_list</span>[<span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">1</span>]<span style="color: rgb(98,98,98)">.</span>plot(cpos<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">xy</span><span style="color: rgb(175,0,0)">&#39;</span>, show_edges<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>, scalars<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">stress</span><span style="color: rgb(175,0,0)">&#34;</span>)
-
-<span class="ansi-red-fg">NameError</span>: name &#39;grids_list&#39; is not defined
-</pre></div></div>
+<img alt="../_images/getting_started_create_a_simple_simulation_69_0.png" src="../_images/getting_started_create_a_simple_simulation_69_0.png" />
+</div>
 </div>
 <p>You can also quickly convert all cell data to node data:</p>
 <div class="nbinput docutils container">
@@ -2163,15 +2135,8 @@ Cell <span class="ansi-green-fg">In[38], line 1</span>
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<div class="highlight"><pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[39], line 1</span>
-<span class="ansi-green-fg">----&gt; 1</span> last_grid_as_nodal_data <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">grids_list</span>[<span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">1</span>]<span style="color: rgb(98,98,98)">.</span>cell_data_to_point_data()
-<span class="ansi-green-intense-fg ansi-bold">      2</span> last_grid_as_nodal_data<span style="color: rgb(98,98,98)">.</span>plot(cpos<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">xy</span><span style="color: rgb(175,0,0)">&#39;</span>, show_edges<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>, scalars<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">stress</span><span style="color: rgb(175,0,0)">&#34;</span>)
-
-<span class="ansi-red-fg">NameError</span>: name &#39;grids_list&#39; is not defined
-</pre></div></div>
+<img alt="../_images/getting_started_create_a_simple_simulation_71_0.png" src="../_images/getting_started_create_a_simple_simulation_71_0.png" />
+</div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
@@ -2182,17 +2147,45 @@ Cell <span class="ansi-green-fg">In[39], line 1</span>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+</pre></div>
 </div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[40], line 1</span>
-<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-yellow-bg">last_grid_as_nodal_data</span>
+<div class="output_area rendered_html docutils container">
+<table style='width: 100%;'><tr><th>Header</th><th>Data Arrays</th></tr><tr><td>
+<table style='width: 100%;'>
+<tr><th>UnstructuredGrid</th><th>Information</th></tr>
+<tr><td>N Cells</td><td>400</td></tr>
+<tr><td>N Points</td><td>231</td></tr>
+<tr><td>X Bounds</td><td>-1.000e+00, 1.168e+00</td></tr>
+<tr><td>Y Bounds</td><td>-9.501e-01, 5.000e-01</td></tr>
+<tr><td>Z Bounds</td><td>0.000e+00, 0.000e+00</td></tr>
+<tr><td>N Arrays</td><td>18</td></tr>
+</table>
 
-<span class="ansi-red-fg">NameError</span>: name &#39;last_grid_as_nodal_data&#39; is not defined
-</pre></div></div>
+</td><td>
+<table style='width: 100%;'>
+<tr><th>Name</th><th>Field</th><th>Type</th><th>N Comp</th><th>Min</th><th>Max</th></tr>
+<tr><td>right_edge</td><td>Points</td><td>bool</td><td>1</td><td>nan</td><td>nan</td></tr>
+<tr><td>left_edge</td><td>Points</td><td>bool</td><td>1</td><td>nan</td><td>nan</td></tr>
+<tr><td>all_nodes</td><td>Points</td><td>bool</td><td>1</td><td>nan</td><td>nan</td></tr>
+<tr><td>nodal_load_right_edge_scale</td><td>Points</td><td>float64</td><td>1</td><td>8.209e+00</td><td>1.000e+02</td></tr>
+<tr><td>nodal_load</td><td>Points</td><td>float64</td><td>3</td><td>-2.500e+01</td><td>1.000e+02</td></tr>
+<tr><td>fix</td><td>Points</td><td>int64</td><td>3</td><td>0.000e+00</td><td>1.000e+00</td></tr>
+<tr><td>fix_shell</td><td>Points</td><td>int64</td><td>3</td><td>0.000e+00</td><td>1.000e+00</td></tr>
+<tr><td>displacement</td><td>Points</td><td>float32</td><td>3</td><td>-4.948e-01</td><td>1.689e-01</td></tr>
+<tr><td>Element thickness</td><td>Points</td><td>float64</td><td>3</td><td>1.000e-02</td><td>1.000e-02</td></tr>
+<tr><td>mat_parameters:1</td><td>Points</td><td>float64</td><td>2</td><td>3.000e-01</td><td>1.000e+00</td></tr>
+<tr><td>Lagrange strain</td><td>Points</td><td>float32</td><td>6</td><td>-1.135e-01</td><td>2.052e-01</td></tr>
+<tr><td>stress</td><td>Points</td><td>float32</td><td>6</td><td>-1.071e+05</td><td>2.798e+05</td></tr>
+<tr><td><b>stress-normed</b></td><td>Points</td><td>float32</td><td>1</td><td>7.009e+03</td><td>2.953e+05</td></tr>
+<tr><td>mat_parameters:1</td><td>Fields</td><td><U7</td><td>1</td><td>nan</td><td>nan</td></tr>
+<tr><td>mat_type:1</td><td>Fields</td><td><U17</td><td>1</td><td>nan</td><td>nan</td></tr>
+<tr><td>mat_name:1</td><td>Fields</td><td><U14</td><td>1</td><td>nan</td><td>nan</td></tr>
+<tr><td>timestep</td><td>Fields</td><td>float32</td><td>1</td><td>1.000e+00</td><td>1.000e+00</td></tr>
+<tr><td>lc_1</td><td>Fields</td><td>float32</td><td>1</td><td>1.000e+00</td><td>1.000e+00</td></tr>
+</table>
+
+</td></tr> </table></div>
 </div>
 <p>When using the FEBio container, we have access to both Feb and Xplt data. This means that we can retrieve nodal load, boundary conditions, etc. Here is a cool plot that we can do:</p>
 <div class="nbinput docutils container">
@@ -2227,25 +2220,10 @@ Cell <span class="ansi-green-fg">In[40], line 1</span>
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<div class="highlight"><pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[41], line 2</span>
-<span class="ansi-green-intense-fg ansi-bold">      1</span> plotter <span style="color: rgb(98,98,98)">=</span> pv<span style="color: rgb(98,98,98)">.</span>Plotter()
-<span class="ansi-green-fg">----&gt; 2</span> strain_xx <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">last_grid_as_nodal_data</span>[<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Lagrange strain</span><span style="color: rgb(175,0,0)">&#34;</span>][:, <span style="color: rgb(98,98,98)">0</span>]
-<span class="ansi-green-intense-fg ansi-bold">      3</span> fixed_nodes <span style="color: rgb(98,98,98)">=</span> last_grid_as_nodal_data[<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">fix</span><span style="color: rgb(175,0,0)">&#34;</span>]<span style="color: rgb(98,98,98)">.</span>sum(<span style="color: rgb(98,98,98)">1</span>)
-<span class="ansi-green-intense-fg ansi-bold">      5</span> plotter<span style="color: rgb(98,98,98)">.</span>add_mesh(last_grid_as_nodal_data,
-<span class="ansi-green-intense-fg ansi-bold">      6</span>                  scalars<span style="color: rgb(98,98,98)">=</span>strain_xx,
-<span class="ansi-green-intense-fg ansi-bold">      7</span>                  cmap<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">coolwarm</span><span style="color: rgb(175,0,0)">&#34;</span>,
-<span class="ansi-green-intense-fg ansi-bold">      8</span>                  show_edges<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>,
-<span class="ansi-green-intense-fg ansi-bold">      9</span>                  scalar_bar_args<span style="color: rgb(98,98,98)">=</span>{<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">title</span><span style="color: rgb(175,0,0)">&#34;</span>: <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Strain - XX</span><span style="color: rgb(175,0,0)">&#34;</span>})
-
-<span class="ansi-red-fg">NameError</span>: name &#39;last_grid_as_nodal_data&#39; is not defined
-</pre></div></div>
+<img alt="../_images/getting_started_create_a_simple_simulation_74_0.png" src="../_images/getting_started_create_a_simple_simulation_74_0.png" />
 </div>
-<script type="application/vnd.jupyter.widget-state+json">
-{"state": {"ba40ae9d11dd4d64b93ad07b86c5dfcd": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "61d56726101543de807dc8713567a042": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "bce030384e6e44a59ca17e82df11c059": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_ba40ae9d11dd4d64b93ad07b86c5dfcd", "placeholder": "\u200b", "style": "IPY_MODEL_61d56726101543de807dc8713567a042", "tabbable": null, "tooltip": null, "value": "<iframe src=\"http://localhost:36091/index.html?ui=P_0x7f5c1fefd6a0_0&reconnect=auto\" class=\"pyvista\" style=\"width: 800px; height: 400px; border: 1px solid rgb(221,221,221);\"></iframe>"}}, "c6440419a74f4297acd1ec8352eed2b1": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "0462ac6c06274d338a9891d84ea45640": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "12e512e596fb4a9387246e4742ddc789": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_c6440419a74f4297acd1ec8352eed2b1", "placeholder": "\u200b", "style": "IPY_MODEL_0462ac6c06274d338a9891d84ea45640", "tabbable": null, "tooltip": null, "value": "<iframe src=\"http://localhost:36091/index.html?ui=P_0x7f5c1fefddc0_1&reconnect=auto\" class=\"pyvista\" style=\"width: 800px; height: 400px; border: 1px solid rgb(221,221,221);\"></iframe>"}}, "03431bccf31546c6aba5961ab94c7a06": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "ececfcecbd474975a91d53dd3d5b75b4": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "8678a022f9dc492e94122b2d9c84c84b": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_03431bccf31546c6aba5961ab94c7a06", "placeholder": "\u200b", "style": "IPY_MODEL_ececfcecbd474975a91d53dd3d5b75b4", "tabbable": null, "tooltip": null, "value": "<iframe src=\"http://localhost:36091/index.html?ui=P_0x7f5c38d8fee0_2&reconnect=auto\" class=\"pyvista\" style=\"width: 800px; height: 400px; border: 1px solid rgb(221,221,221);\"></iframe>"}}}, "version_major": 2, "version_minor": 0}
-</script></section>
+</div>
+</section>
 </section>
 
         </article>
@@ -2338,7 +2316,6 @@ Cell <span class="ansi-green-fg">In[41], line 2</span>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=4e2eecee"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>

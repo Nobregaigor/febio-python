@@ -96,6 +96,7 @@
    "outputs": [],
    "source": [
     "import pyvista as pv\n",
+    "pv.set_jupyter_backend('static')\n",
     "\n",
     "# Create a simple mesh (plane mesh)\n",
     "mesh = pv.Plane(direction=(0,0,1), i_size=2, j_size=1, i_resolution=6, j_resolution=3)\n",
@@ -214,7 +215,7 @@
     "# Create a simple mesh (plane mesh)\n",
     "mesh = pv.Plane(direction=(0,0,1), i_size=2, j_size=1, i_resolution=10, j_resolution=5)\n",
     "mesh = mesh.cast_to_unstructured_grid() # we will be using unstructured grid for FEBio\n",
-    "mesh.plot(show_edges=True, jupyter_backend='client', window_size=(800, 400), cpos='xy')"
+    "mesh.plot(show_edges=True, window_size=(800, 400), cpos='xy')"
    ]
   },
   {
@@ -303,7 +304,7 @@
     "mesh = pv.Plane(direction=(0,0,1), i_size=2, j_size=1, i_resolution=20, j_resolution=10)\n",
     "mesh = mesh.triangulate() # we will be using unstructured grid for FEBio\n",
     "mesh = mesh.cast_to_unstructured_grid() # we will be using unstructured grid for FEBio\n",
-    "mesh.plot(show_edges=True, jupyter_backend='client', window_size=(800, 400), cpos='xy')"
+    "mesh.plot(show_edges=True, window_size=(800, 400), cpos='xy')"
    ]
   },
   {
