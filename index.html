@@ -1,11 +1,11 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="">
+<html class="no-js" lang="en" data-content_root="./">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Installation" href="installation.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2024.05.06 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
         <title>Febio-Python 0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=387cc868" />
@@ -191,7 +191,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -215,7 +215,34 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started/create_a_simple_simulation.html">Creating a simple simulation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/feb/index.html">febio_python.feb</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of febio_python.feb</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/feb/feb.html">Feb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/feb/feb25.html">Feb25</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/xplt/index.html">febio_python.xplt</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of febio_python.xplt</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/xplt/xplt.html">Xplt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/xplt/read_xplt.html">read_xplt</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/container/index.html">febio_python.container</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of febio_python.container</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/container/container.html">FEBioContainer</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/utils/index.html">febio_python.utils</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of febio_python.utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/utils/pyvista_utils.html">pyvista_utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/core/index.html">febio_python.core</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of febio_python.core</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/core/meta_data.html">meta_data (namedtuples)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/core/enums.html">enums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/core/element_types.html">element types</a></li>
+</ul>
+</li>
 </ul>
 
 </div>
@@ -250,18 +277,64 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
           <section id="welcome-to-febio-python-s-documentation">
-<h1>Welcome to Febio-Python’s documentation!<a class="headerlink" href="#welcome-to-febio-python-s-documentation" title="Permalink to this heading">¶</a></h1>
+<h1>Welcome to FEBio-Python’s documentation!<a class="headerlink" href="#welcome-to-febio-python-s-documentation" title="Link to this heading">¶</a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This project is under active development.</p>
 </div>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h2>
+<p>Welcome to <strong>FEBio-Python</strong>, an open-source toolkit designed to bridge the gap between the FEBio software suite and Python.
+This project extends the functionality of FEBio by allowing users to interact with FEBio input and output files through Python scripts.
+With FEBio-Python, users can create and modify mesh structures, assign loads and boundary conditions, run batch simulations,
+and much more, all within an intuitive Python environment.</p>
+<p>FEBio-Python facilitates the rapid configuration and execution of simulations, making it an essential tool for performing extensive
+studies involving complex biomechanical models. With features that support the customization of simulation parameters and the
+extraction of valuable data, this tool helps bridge the gap between complex FEA operations and practical, actionable insights.</p>
+<p>FEBio-Python simplifies the manipulation of <cite>.feb</cite> files, offering capabilities to parse these files into structured Python objects,
+manipulate the XML tree directly, and write back modifications with ease.
+Moreover, the toolkit facilitates the reading of FEBio simulation results in <cite>.xplt</cite> format, enabling the extraction of simulation
+states and the conversion of data for visualization and further analysis.</p>
+<p>Whether you are an academic researcher, a professional in biomechanics, or just someone interested in FEA,
+FEBio-Python provides the tools to enhance your workflow and achieve more precise results.</p>
+</section>
+<section id="key-features-of-febio-python">
+<h2>Key Features of FEBio-Python<a class="headerlink" href="#key-features-of-febio-python" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Comprehensive API for `.feb` File Manipulation:</strong> Easily read, modify, and write <cite>.feb</cite> files to customize simulations as per specific requirements.</p></li>
+<li><dl class="simple">
+<dt><strong>Advanced Results Processing and Analysis:</strong> Import FEBio simulation results from <cite>.xplt</cite> files directly into Python, facilitating comprehensive post-processing.</dt><dd><p>Users can export data to <cite>pandas</cite> for structured data analysis, apply <cite>scipy</cite> for scientific computing, and employ other Python libraries to perform detailed
+evaluations and optimizations of simulation outcomes.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>Simulation Management:</strong> Run simulations directly from scripts, managing single or multiple simulation runs efficiently.</p></li>
+<li><p><strong>Results Analysis and Visualization:</strong> Leverage Python’s extensive ecosystem to analyze and visualize results; includes integration with <cite>pyvista</cite> for advanced 3D visualization and <cite>vtk</cite> for exporting data.</p></li>
+<li><p><strong>Extensible and Customizable:</strong> Perfect for developing custom workflows in biomechanics research, including parameter studies and optimization loops.</p></li>
+</ul>
+</section>
+<section id="about-febio">
+<h2>About FEBio<a class="headerlink" href="#about-febio" title="Link to this heading">¶</a></h2>
+<p>[FEBio](<a class="reference external" href="https://febio.org/">https://febio.org/</a>) (Finite Elements for Biomechanics) is a specialized software for nonlinear finite element analysis in biomechanics and biophysics. It is tailored to manage the unique properties of biological materials and interactions. Learn more about FEBio by visiting their [official website](<a class="reference external" href="https://febio.org/">https://febio.org/</a>) or exploring their [GitHub repository](<a class="reference external" href="https://github.com/febiosoftware/FEBio.git">https://github.com/febiosoftware/FEBio.git</a>).</p>
+</section>
+</section>
+<section id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h1>
+<p>To get started with FEBio-Python, please visit our [documentation](<a class="reference external" href="https://nobregaigor.github.io/febio-python/index.html">https://nobregaigor.github.io/febio-python/index.html</a>) for detailed instructions:
+- [Installation Guide](<a class="reference external" href="https://nobregaigor.github.io/febio-python/installation.html">https://nobregaigor.github.io/febio-python/installation.html</a>)
+- [Usage Instructions](<a class="reference external" href="https://nobregaigor.github.io/febio-python/usage.html">https://nobregaigor.github.io/febio-python/usage.html</a>)</p>
+<p>We have some basic examples to help you get started:
+- [Project Examples](<a class="reference external" href="https://github.com/Nobregaigor/febio-python/tree/main/examples">https://github.com/Nobregaigor/febio-python/tree/main/examples</a>)</p>
+</section>
+<section id="contents">
+<h1>Contents<a class="headerlink" href="#contents" title="Link to this heading">¶</a></h1>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -276,12 +349,46 @@
 <li class="toctree-l2"><a class="reference internal" href="usage.html#converting-to-vtk">Converting to <cite>vtk</cite></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started/create_a_simple_simulation.html">Creating a simple simulation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/create_a_simple_simulation.html#Creating-a-new-Feb-object">Creating a new Feb object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/create_a_simple_simulation.html#Running-FEB">Running FEB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/create_a_simple_simulation.html#Reading-XPLT">Reading XPLT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/create_a_simple_simulation.html#FEBio-Container">FEBio Container</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/create_a_simple_simulation.html#Ploting-Feb-or-Xplt">Ploting Feb or Xplt</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/feb/index.html">febio_python.feb</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/feb/feb.html">Feb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/feb/feb25.html">Feb25</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/xplt/index.html">febio_python.xplt</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/xplt/xplt.html">Xplt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/xplt/read_xplt.html">read_xplt</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/container/index.html">febio_python.container</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/container/container.html">FEBioContainer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/utils/index.html">febio_python.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/utils/pyvista_utils.html">pyvista_utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/core/index.html">febio_python.core</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/core/index.html#contents">Contents:</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
 <section id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading">¶</a></h1>
+<h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">¶</a></h1>
 <p>We welcome contributions to Febio-Python. To contribute, follow these steps:
 - Fork the repository on GitHub.
 - Create a new branch from the <cite>main</cite> branch.
@@ -299,7 +406,7 @@ Feel free to make improvements or add new features to the project. All contribut
 <p>If you have any questions or need help, please feel free to reach out to us.</p>
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h1>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">¶</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
@@ -340,15 +447,46 @@ Feel free to make improvements or add new features to the project. All contribut
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Welcome to FEBio-Python’s documentation!</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#key-features-of-febio-python">Key Features of FEBio-Python</a></li>
+<li><a class="reference internal" href="#about-febio">About FEBio</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li><a class="reference internal" href="#contents">Contents</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#contributing">Contributing</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b1f64a84"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+</div><script src="_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=4e2eecee"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

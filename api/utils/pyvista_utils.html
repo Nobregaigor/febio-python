@@ -1,0 +1,681 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="febio_python.core" href="../core/index.html" /><link rel="prev" title="febio_python.utils" href="index.html" />
+
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
+        <title>pyvista_utils - Febio-Python 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=387cc868" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" /
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">Febio-Python 0.2.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  
+  <span class="sidebar-brand-text">Febio-Python 0.2.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/create_a_simple_simulation.html">Creating a simple simulation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../feb/index.html">febio_python.feb</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of febio_python.feb</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../feb/feb.html">Feb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../feb/feb25.html">Feb25</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../xplt/index.html">febio_python.xplt</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of febio_python.xplt</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../xplt/xplt.html">Xplt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../xplt/read_xplt.html">read_xplt</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../container/index.html">febio_python.container</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of febio_python.container</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../container/container.html">FEBioContainer</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">febio_python.utils</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of febio_python.utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pyvista_utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../core/index.html">febio_python.core</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of febio_python.core</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../core/meta_data.html">meta_data (namedtuples)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../core/enums.html">enums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../core/element_types.html">element types</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../_sources/api/utils/pyvista_utils.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-febio_python.utils.pyvista_utils">
+<span id="pyvista-utils"></span><h1>pyvista_utils<a class="headerlink" href="#module-febio_python.utils.pyvista_utils" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_boundary_conditions">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_boundary_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_boundary_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_boundary_conditions" title="Link to this definition">¶</a></dt>
+<dd><p>Adds boundary conditions from the FEBioContainer to the PyVista UnstructuredGrid. This function
+manages two main types of boundary conditions: fixed conditions (FixCondition) and rigid body
+conditions (RigidBodyCondition).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>container</strong> (<a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><em>FEBioContainer</em></a>) – The container containing boundary conditions.</p></li>
+<li><p><strong>grid</strong> (<em>pv.UnstructuredGrid</em>) – The PyVista UnstructuredGrid where boundary conditions
+will be added.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated UnstructuredGrid with processed and added boundary conditions.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pv.UnstructuredGrid</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>After processing, to access the constraints:</p>
+<ul class="simple">
+<li><p>Displacement constraints for a specific mesh block:
+<cite>grid.point_data[‘fix’]</cite>  # Outputs a binary array where 1 indicates a fixed displacement.</p></li>
+<li><p>Shell rotation constraints for the same block:
+<cite>grid.point_data[‘fix_shell’]</cite>  # Outputs a binary array where 1 indicates a fixed shell rotation.</p></li>
+<li><p>For rigid body constraints related to a specific material ID:
+<cite>grid.point_data[‘rigid_body’]</cite>  # Fixed position constraints.
+<cite>grid.point_data[‘rigid_body_rot’]</cite>  # Fixed rotational constraints.</p></li>
+</ul>
+<dl>
+<dt>Fixed Conditions:</dt><dd><p>Applies constraints on node displacements (‘x’, ‘y’, ‘z’) or shell rotations (‘sx’, ‘sy’, ‘sz’) for
+specific node sets. Recorded as binary arrays in <cite>point_data</cite>, each element represents whether
+a node is fixed along a certain axis:</p>
+<ul class="simple">
+<li><p>‘fix’: Binary array of shape [n_points, 3], indicating fixed displacements in X, Y, and Z directions.</p></li>
+<li><p>‘fix_shell’: Binary array of shape [n_points, 3], indicating fixed rotations in X, Y, and Z directions.</p></li>
+</ul>
+<p>Both arrays consolidate all applicable constraints per node, summing constraints where multiple
+conditions affect the same node.</p>
+</dd>
+<dt>Rigid Body Conditions:</dt><dd><p>Restrict the movement or rotation of all nodes associated with a specific material, denoted by:</p>
+<ul class="simple">
+<li><p>‘rigid_body’: Binary array of shape [n_points, 3], indicating fixed positions in X, Y, and Z
+directions for nodes associated with a material.</p></li>
+<li><p>‘rigid_body_rot’: Binary array of shape [n_points, 3], indicating fixed rotations in X, Y, and
+Z directions for nodes associated with a material.</p></li>
+</ul>
+<p>These conditions are labeled with specific material IDs, enhancing traceability and management
+in complex models.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_elementdata">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_elementdata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_elementdata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_elementdata" title="Link to this definition">¶</a></dt>
+<dd><p>Adds element data from the FEBioContainer to the PyVista UnstructuredGrid.
+Element data is stored in the ‘cell_data’ of the appropriate grid.
+NaNs are used to fill the gaps in the data arrays to ensure consistent dimensions across the grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>container</strong> (<a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><em>FEBioContainer</em></a>) – The container containing element data.</p></li>
+<li><p><strong>UnstructuredGrid</strong> (<em>pv.UnstructuredGrid</em>) – The UnstructuredGrid where element data will be added.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated UnstructuredGrid with element data added.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pv.UnstructuredGrid</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function assumes that the element data provided in the FEBioContainer is appropriately formatted and that element
+sets match the indices used in the data. If element sets are not properly aligned or if data is missing, NaNs are used
+to fill the gaps in the data arrays ensuring consistent dimensions across the grid.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_elementsets">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_elementsets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_elementsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_elementsets" title="Link to this definition">¶</a></dt>
+<dd><p>Adds element sets from the FEBioContainer to the PyVista UnstructuredGrid.
+Element sets define specific groups of elements. This function maps these groups to the corresponding elements in the PyVista grids.
+Element sets are converted to binary arrays (masks) where each element represents whether an element is part of the set,
+and these masks are stored in the ‘cell_data’ of the grid. The key for each element set is the name of the set.
+The reason we use binary arrays is to allow for easy visualization and analysis of element sets in PyVista; it also
+allows us to keep data consistent even after we “extract” parts of the mesh or apply filters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>container</strong> (<a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><em>FEBioContainer</em></a>) – The container containing element sets.</p></li>
+<li><p><strong>UnstructuredGrid</strong> (<em>pv.UnstructuredGrid</em>) – The UnstructuredGrid to which the element sets will be added.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated UnstructuredGrid with element sets added.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pv.UnstructuredGrid</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_material">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_material</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_material"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_material" title="Link to this definition">¶</a></dt>
+<dd><p>Adds material properties from the FEBioContainer to the PyVista UnstructuredGrid. Material properties such as Young’s modulus,
+Poisson’s ratio, or any other parameters defined in FEBio are associated with specific elements based on their material IDs.</p>
+<dl class="simple">
+<dt>Material Parameters:</dt><dd><p>These are transferred to PyVista as arrays in <cite>cell_data</cite> under “mat_parameters:{mat_id}”, where each row corresponds to an
+element and each column to a material parameter. The order of parameters is consistent across <cite>cell_data</cite> and <cite>field_data</cite>.</p>
+</dd>
+<dt>Material Type and Name:</dt><dd><p>These are stored in <cite>field_data</cite> under “mat_type:{mat_id}” and “mat_name:{mat_id}”, respectively, providing a reference to
+the type and name of the material used.</p>
+</dd>
+<dt>Parameters Order:</dt><dd><p>The names of the parameters (e.g., ‘Young’s modulus’, ‘Poisson’s ratio’) are stored in <cite>field_data</cite> under “mat_parameters:{mat_id}”
+to maintain an understanding of the data structure in <cite>cell_data</cite>.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>container</strong> (<a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><em>FEBioContainer</em></a>) – The container containing material data.</p></li>
+<li><p><strong>grid</strong> (<em>pv.UnstructuredGrid</em>) – The UnstructuredGrid where material properties will be added.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated UnstructuredGrid with material properties added.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pv.UnstructuredGrid</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>If a material in FEBio with mat_id=1 has a Young’s modulus of 210 GPa and a Poisson’s ratio of 0.3, after running this function,
+the parameters can be accessed in PyVista as follows:</p>
+<ul class="simple">
+<li><p>Access material parameters:
+<cite>grid.cell_data[‘mat_parameters:1’]</cite>  # Array of shape [n_elements, 2]
+where the first column is Young’s modulus and the second is Poisson’s ratio.</p></li>
+<li><p>Access material type and name:
+<cite>grid.field_data[‘mat_type:1’]</cite>  # Returns [‘Elastic’]
+<cite>grid.field_data[‘mat_name:1’]</cite>  # Returns [‘GenericElasticMaterial’]</p></li>
+<li><p>Access the order of parameters:
+<cite>grid.field_data[‘mat_parameters:1’]</cite>  # Returns [‘Young’s modulus’, ‘Poisson’s ratio’]</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_nodaldata">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_nodaldata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_nodaldata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_nodaldata" title="Link to this definition">¶</a></dt>
+<dd><p>Adds nodal data from the FEBioContainer to the PyVista UnstructuredGrid.
+Nodal data is stored in the ‘point_data’ of the grid, where each data field is associated with the corresponding nodes.
+NaNs are used to fill the gaps in the data arrays to ensure consistent dimensions across the grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>container</strong> (<a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><em>FEBioContainer</em></a>) – The container containing nodal data.</p></li>
+<li><p><strong>UnstructuredGrid</strong> (<em>pv.UnstructuredGrid</em>) – The UnstructuredGrid where nodal data will be added.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated UnstructuredGrid with nodal data added.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pv.UnstructuredGrid</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_nodalload">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_nodalload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_nodalload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_nodalload" title="Link to this definition">¶</a></dt>
+<dd><p>Adds nodal force loads from the FEBioContainer to the PyVista UnstructuredGrid. This function interprets force loads applied to specific
+nodes as described in the FEBio model. It processes these loads, assigning them to the correct nodes based on the node sets
+specified in the loads, and stores a resultant vector for each node in point_data under the key “nodal_load”. The resultant
+load vector for each node is calculated by summing all applicable force vectors along the x, y, and z axes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>container</strong> (<a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><em>FEBioContainer</em></a>) – The container containing nodal force load data.</p></li>
+<li><p><strong>UnstructuredGrid</strong> (<em>pv.UnstructuredGrid</em>) – The UnstructuredGrid where nodal loads will be added.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated UnstructuredGrid with nodal force loads aggregated and added.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pv.UnstructuredGrid</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Consider nodal loads specified in FEBio for certain nodes in various directions:
+- 100 N in the X direction for nodes in ‘NodeSet1’
+- 150 N in the Y direction for nodes in ‘NodeSet2’
+After processing by this function, these loads are combined where they overlap and result in a summed force vector for each node.
+The resultant force vectors can be accessed in PyVista as:
+multiblock[‘MeshBlockName’].point_data[‘nodal_load’]  # Array of shape [n_points, 3]
+Each row in the array represents the total force vector for each node, with columns corresponding to forces in the X, Y, and Z directions.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_nodalsets">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_nodalsets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_nodalsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_nodalsets" title="Link to this definition">¶</a></dt>
+<dd><p>Adds nodal sets from the FEBioContainer to the PyVista UnstructuredGrid.
+Nodal sets define specific groups of nodes. This function maps these groups to the corresponding nodes in the PyVista grids.
+Node sets are converted to binary arrays (masks) where each element represents whether a node is part of the set,
+and these masks are stored in the ‘point_data’ of the grid. The key for each nodal set is the name of the set.
+The reason we use binary arrays is to allow for easy visualization and analysis of nodal sets in PyVista; it also
+allows us to keep data consistent even after we “extract” parts of the mesh or apply filters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>container</strong> (<a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><em>FEBioContainer</em></a>) – The container containing nodal sets.</p></li>
+<li><p><strong>grid</strong> (<em>pv.UnstructuredGrid</em>) – The UnstructuredGrid to which the nodal sets will be added.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated UnstructuredGrid with nodal sets added.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pv.UnstructuredGrid</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_pressure_load">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_pressure_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_pressure_load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_pressure_load" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_states_to_grid">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_states_to_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_load_curves</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">UnstructuredGrid</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_states_to_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_states_to_grid" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_surface_data">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_surface_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_surface_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_surface_data" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_surfacesets">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_surfacesets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_surfacesets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_surfacesets" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.create_unstructured_grid_from_febio_container">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">create_unstructured_grid_from_febio_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#create_unstructured_grid_from_febio_container"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.create_unstructured_grid_from_febio_container" title="Link to this definition">¶</a></dt>
+<dd><p>Converts an FEBioContainer object containing mesh data into a PyVista UnstructuredGrid object.
+This function handles the conversion of node coordinates and element connectivity from the FEBio format (1-based indexing)
+to the PyVista format (0-based indexing). For each node set in the container, it creates a corresponding unstructured grid in the UnstructuredGrid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>container</strong> (<a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><em>FEBioContainer</em></a>) – The FEBio container with mesh data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A UnstructuredGrid object containing the mesh data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pv.UnstructuredGrid</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.ensure_febio_container">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">ensure_febio_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../feb/feb25.html#febio_python.feb._feb_25.Feb25" title="febio_python.feb._feb_25.Feb25"><span class="pre">Feb25</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Feb30</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#ensure_febio_container"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.ensure_febio_container" title="Link to this definition">¶</a></dt>
+<dd><p>Ensure the input data is a FEBioContainer object.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.febio_to_pyvista">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">febio_to_pyvista</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../feb/feb25.html#febio_python.feb._feb_25.Feb25" title="febio_python.feb._feb_25.Feb25"><span class="pre">Feb25</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Feb30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_load_curves</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">UnstructuredGrid</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#febio_to_pyvista"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.febio_to_pyvista" title="Link to this definition">¶</a></dt>
+<dd><p>Converts FEBio simulation data into a PyVista MultiBlock structure for advanced visualization and analysis.
+This function orchestrates a series of operations to transfer all pertinent data from FEBio into a structured
+MultiBlock format that PyVista can utilize effectively.</p>
+<p>Steps involved in the conversion include:
+1. Validation of Input: Converts the input data into a FEBioContainer object if not already one.
+2. Creation of MultiBlock: Initializes a MultiBlock from the FEBio container’s mesh data including nodes and elements.
+3. Addition of Sets: Integrates nodal, element, and surface sets, mapping these to the corresponding elements and nodes within the PyVista grids.
+4. Integration of Data: Nodal, element, and surface data are added, ensuring all mesh-related information is transferred.
+5. Inclusion of Material Properties: Material properties defined in the FEBio model are mapped to the respective elements in PyVista.
+6. Application of Loads: Both nodal and pressure loads specified in the FEBio model are applied to the respective nodes and elements.
+7. Implementation of Boundary Conditions: Boundary conditions, both fixed and rigid body, are applied to the nodes as specified.</p>
+<p>Please check the individual helper functions for more details on each step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Union</em><em>[</em><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><em>FEBioContainer</em></a><em>, </em><em>Feb</em><em>]</em>) – Data container from an FEBio simulation.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A fully populated PyVista MultiBlock object representing the entire FEBio model.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pv.MultiBlock</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../core/index.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">febio_python.core</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">febio_python.utils</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Igor A. P. Nobrega
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">pyvista_utils</a><ul>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_boundary_conditions"><code class="docutils literal notranslate"><span class="pre">add_boundary_conditions()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_elementdata"><code class="docutils literal notranslate"><span class="pre">add_elementdata()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_elementsets"><code class="docutils literal notranslate"><span class="pre">add_elementsets()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_material"><code class="docutils literal notranslate"><span class="pre">add_material()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_nodaldata"><code class="docutils literal notranslate"><span class="pre">add_nodaldata()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_nodalload"><code class="docutils literal notranslate"><span class="pre">add_nodalload()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_nodalsets"><code class="docutils literal notranslate"><span class="pre">add_nodalsets()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_pressure_load"><code class="docutils literal notranslate"><span class="pre">add_pressure_load()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_states_to_grid"><code class="docutils literal notranslate"><span class="pre">add_states_to_grid()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_surface_data"><code class="docutils literal notranslate"><span class="pre">add_surface_data()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_surfacesets"><code class="docutils literal notranslate"><span class="pre">add_surfacesets()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.create_unstructured_grid_from_febio_container"><code class="docutils literal notranslate"><span class="pre">create_unstructured_grid_from_febio_container()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.ensure_febio_container"><code class="docutils literal notranslate"><span class="pre">ensure_febio_container()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.febio_to_pyvista"><code class="docutils literal notranslate"><span class="pre">febio_to_pyvista()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=4e2eecee"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    </body>
+</html>

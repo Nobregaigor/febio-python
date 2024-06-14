@@ -1,0 +1,2345 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="&lt;no title&gt;" href="../api/index.html" /><link rel="prev" title="&lt;no title&gt;" href="index.html" />
+
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
+        <title>Creating a simple simulation - Febio-Python 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" /
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">Febio-Python 0.2.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">Febio-Python 0.2.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Creating a simple simulation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/feb/index.html">febio_python.feb</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of febio_python.feb</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/feb/feb.html">Feb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/feb/feb25.html">Feb25</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/xplt/index.html">febio_python.xplt</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of febio_python.xplt</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/xplt/xplt.html">Xplt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/xplt/read_xplt.html">read_xplt</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/container/index.html">febio_python.container</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of febio_python.container</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/container/container.html">FEBioContainer</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/utils/index.html">febio_python.utils</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of febio_python.utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/utils/pyvista_utils.html">pyvista_utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/core/index.html">febio_python.core</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of febio_python.core</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/core/meta_data.html">meta_data (namedtuples)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/core/enums.html">enums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/core/element_types.html">element types</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/getting_started/create_a_simple_simulation.ipynb.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="Creating-a-simple-simulation">
+<h1>Creating a simple simulation<a class="headerlink" href="#Creating-a-simple-simulation" title="Link to this heading">¶</a></h1>
+<section id="Creating-a-new-Feb-object">
+<h2>Creating a new Feb object<a class="headerlink" href="#Creating-a-new-Feb-object" title="Link to this heading">¶</a></h2>
+<section id="The-basics">
+<h3>The basics<a class="headerlink" href="#The-basics" title="Link to this heading">¶</a></h3>
+<p>We can create a new FEB file with basically no information. To do so, we can simply call Feb and provide it a version. Right now, we accept versions 2.5 and 3.0.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">febio_python</span> <span class="kn">import</span> <span class="n">Feb</span>
+
+<span class="n">feb</span> <span class="o">=</span> <span class="n">Feb</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+<span class="n">feb</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Feb25(2.5):
+-&gt; Module: Unknown
+-&gt; Control: 0
+-&gt; Material: 0
+-&gt; Globals: 0
+-&gt; Geometry: 0
+-&gt; Boundary: 0
+-&gt; Loads: 0
+-&gt; Discrete: 0
+-&gt; LoadData: 0
+-&gt; Output: 0
+-&gt; MeshData: 0
+</pre></div></div>
+</div>
+<p>You will notices that all contents of the feb file are zero. This means that there is nothing stored in the feb right now. Let’s start modifying it. We will begin with simple structures, like module, globals and controls:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">feb</span><span class="o">.</span><span class="n">setup_module</span><span class="p">(</span><span class="n">module_type</span><span class="o">=</span><span class="s2">&quot;solid&quot;</span><span class="p">)</span> <span class="c1"># default values</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">setup_globals</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">Fc</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># default values</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">setup_controls</span><span class="p">(</span><span class="n">analysis_type</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">)</span> <span class="c1"># here, you can change basic settings. See docs for more info.</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">setup_output</span><span class="p">(</span><span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;displacement&quot;</span><span class="p">,</span> <span class="s2">&quot;Lagrange strain&quot;</span><span class="p">,</span> <span class="s2">&quot;stress&quot;</span><span class="p">])</span> <span class="c1"># default values</span>
+</pre></div>
+</div>
+</div>
+<p>We can check the FEB object. It now has some data:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">feb</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Feb25(2.5):
+-&gt; Module: solid
+-&gt; Control: 15
+-&gt; Material: 0
+-&gt; Globals: 1
+-&gt; Geometry: 0
+-&gt; Boundary: 0
+-&gt; Loads: 0
+-&gt; Discrete: 0
+-&gt; LoadData: 0
+-&gt; Output: 1
+-&gt; MeshData: 0
+</pre></div></div>
+</div>
+</section>
+<section id="Adding-Mesh">
+<h3>Adding Mesh<a class="headerlink" href="#Adding-Mesh" title="Link to this heading">¶</a></h3>
+<p>We will now add more interestind data to our feb. Let’s start by creating a simple mesh with pyvista:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
+
+<span class="c1"># Create a simple mesh (plane mesh)</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plane</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">i_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">j_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">i_resolution</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">j_resolution</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cast_to_unstructured_grid</span><span class="p">()</span> <span class="c1"># we will be using unstructured grid for FEBio</span>
+<span class="n">mesh</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">400</span><span class="p">),</span> <span class="n">cpos</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "bce030384e6e44a59ca17e82df11c059"}</script></div>
+</div>
+<p>In Pyvista, an unstructured grid is defined as “points” (nodes) and “cells” (elements). We can access them like this:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+pyvista_ndarray([[-1.        , -0.5       ,  0.        ],
+                 [-0.6666667 , -0.5       ,  0.        ],
+                 [-0.33333334, -0.5       ,  0.        ],
+                 [ 0.        , -0.5       ,  0.        ],
+                 [ 0.33333334, -0.5       ,  0.        ],
+                 [ 0.6666667 , -0.5       ,  0.        ],
+                 [ 1.        , -0.5       ,  0.        ],
+                 [-1.        , -0.16666667,  0.        ],
+                 [-0.6666667 , -0.16666667,  0.        ],
+                 [-0.33333334, -0.16666667,  0.        ],
+                 [ 0.        , -0.16666667,  0.        ],
+                 [ 0.33333334, -0.16666667,  0.        ],
+                 [ 0.6666667 , -0.16666667,  0.        ],
+                 [ 1.        , -0.16666667,  0.        ],
+                 [-1.        ,  0.16666667,  0.        ],
+                 [-0.6666667 ,  0.16666667,  0.        ],
+                 [-0.33333334,  0.16666667,  0.        ],
+                 [ 0.        ,  0.16666667,  0.        ],
+                 [ 0.33333334,  0.16666667,  0.        ],
+                 [ 0.6666667 ,  0.16666667,  0.        ],
+                 [ 1.        ,  0.16666667,  0.        ],
+                 [-1.        ,  0.5       ,  0.        ],
+                 [-0.6666667 ,  0.5       ,  0.        ],
+                 [-0.33333334,  0.5       ,  0.        ],
+                 [ 0.        ,  0.5       ,  0.        ],
+                 [ 0.33333334,  0.5       ,  0.        ],
+                 [ 0.6666667 ,  0.5       ,  0.        ],
+                 [ 1.        ,  0.5       ,  0.        ]], dtype=float32)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mesh</span><span class="o">.</span><span class="n">cells_dict</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{9: array([[ 0,  1,  8,  7],
+        [ 1,  2,  9,  8],
+        [ 2,  3, 10,  9],
+        [ 3,  4, 11, 10],
+        [ 4,  5, 12, 11],
+        [ 5,  6, 13, 12],
+        [ 7,  8, 15, 14],
+        [ 8,  9, 16, 15],
+        [ 9, 10, 17, 16],
+        [10, 11, 18, 17],
+        [11, 12, 19, 18],
+        [12, 13, 20, 19],
+        [14, 15, 22, 21],
+        [15, 16, 23, 22],
+        [16, 17, 24, 23],
+        [17, 18, 25, 24],
+        [18, 19, 26, 25],
+        [19, 20, 27, 26]])}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of nodes: </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of elements: </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">cells_dict</span><span class="p">[</span><span class="n">pv</span><span class="o">.</span><span class="n">CellType</span><span class="o">.</span><span class="n">QUAD</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of nodes: 28
+Number of elements: 18
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">febio_python.core</span> <span class="kn">import</span> <span class="n">Nodes</span><span class="p">,</span> <span class="n">Elements</span>
+<span class="c1"># Create nodes</span>
+<span class="n">nodes</span> <span class="o">=</span> <span class="n">Nodes</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;plane&quot;</span><span class="p">,</span> <span class="n">coordinates</span><span class="o">=</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+<span class="c1"># Create elements</span>
+<span class="n">elements</span> <span class="o">=</span> <span class="n">Elements</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;plane_elements&quot;</span><span class="p">,</span>
+                    <span class="n">mat</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+                    <span class="n">part</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;QUAD&quot;</span><span class="p">,</span>
+                    <span class="n">connectivity</span><span class="o">=</span><span class="n">mesh</span><span class="o">.</span><span class="n">cells_dict</span><span class="p">[</span><span class="n">pv</span><span class="o">.</span><span class="n">CellType</span><span class="o">.</span><span class="n">QUAD</span><span class="o">.</span><span class="n">value</span><span class="p">],</span>
+                    <span class="p">)</span>
+<span class="c1"># Add nodes and elements to the feb object (need to be lists)</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">add_nodes</span><span class="p">([</span><span class="n">nodes</span><span class="p">])</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">add_elements</span><span class="p">([</span><span class="n">elements</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<p>We can now see that we have two ‘Geometry’ items:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">feb</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Feb25(2.5):
+-&gt; Module: solid
+-&gt; Control: 15
+-&gt; Material: 0
+-&gt; Globals: 1
+-&gt; Geometry: 2
+-&gt; Boundary: 0
+-&gt; Loads: 0
+-&gt; Discrete: 0
+-&gt; LoadData: 0
+-&gt; Output: 1
+-&gt; MeshData: 0
+</pre></div></div>
+</div>
+<p>We can further inspect them:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">feb</span><span class="o">.</span><span class="n">inspect_nodes_and_elements</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+--&gt; Nodes &#39;plane&#39;: 28
+--&gt; Elements &#39;plane_elements&#39;: 18
+
+</pre></div></div>
+</div>
+</section>
+<section id="Modfying-nodes/elements">
+<h3>Modfying nodes/elements<a class="headerlink" href="#Modfying-nodes/elements" title="Link to this heading">¶</a></h3>
+<p>Oh no! We have defined a too coarse mesh! Let’s create a fine mesh and update our feb.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a simple mesh (plane mesh)</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plane</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">i_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">j_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">i_resolution</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">j_resolution</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cast_to_unstructured_grid</span><span class="p">()</span> <span class="c1"># we will be using unstructured grid for FEBio</span>
+<span class="n">mesh</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">jupyter_backend</span><span class="o">=</span><span class="s1">&#39;client&#39;</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">400</span><span class="p">),</span> <span class="n">cpos</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "12e512e596fb4a9387246e4742ddc789"}</script></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of nodes: </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of elements: </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">cells_dict</span><span class="p">[</span><span class="n">pv</span><span class="o">.</span><span class="n">CellType</span><span class="o">.</span><span class="n">QUAD</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of nodes: 66
+Number of elements: 50
+</pre></div></div>
+</div>
+<p>Note that if we use the function “ADD” again, it will add the new nodes to the existing nodes in the same mesh. This is used when we are creating mesh in an iterative process. Let’s try:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create nodes</span>
+<span class="n">nodes</span> <span class="o">=</span> <span class="n">Nodes</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;plane&quot;</span><span class="p">,</span> <span class="n">coordinates</span><span class="o">=</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+<span class="c1"># Create elements</span>
+<span class="n">elements</span> <span class="o">=</span> <span class="n">Elements</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;plane_elements&quot;</span><span class="p">,</span>
+                    <span class="n">mat</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+                    <span class="n">part</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;QUAD&quot;</span><span class="p">,</span>
+                    <span class="n">connectivity</span><span class="o">=</span><span class="n">mesh</span><span class="o">.</span><span class="n">cells_dict</span><span class="p">[</span><span class="n">pv</span><span class="o">.</span><span class="n">CellType</span><span class="o">.</span><span class="n">QUAD</span><span class="o">.</span><span class="n">value</span><span class="p">],</span>
+                    <span class="p">)</span>
+<span class="c1"># Add nodes and elements to the feb object (need to be lists)</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">add_nodes</span><span class="p">([</span><span class="n">nodes</span><span class="p">])</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">add_elements</span><span class="p">([</span><span class="n">elements</span><span class="p">])</span>
+<span class="c1"># Inspect nodes and elements</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">inspect_nodes_and_elements</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+--&gt; Nodes &#39;plane&#39;: 94
+--&gt; Elements &#39;plane_elements&#39;: 68
+
+</pre></div></div>
+</div>
+<p>You can see that it had inscrease the number of nodes/elements. But this is not what we are looking for. Let’s clean the feb data and add it again:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">feb</span><span class="o">.</span><span class="n">clear_nodes</span><span class="p">()</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">clear_elements</span><span class="p">()</span>
+<span class="n">feb</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Feb25(2.5):
+-&gt; Module: solid
+-&gt; Control: 15
+-&gt; Material: 0
+-&gt; Globals: 1
+-&gt; Geometry: 0
+-&gt; Boundary: 0
+-&gt; Loads: 0
+-&gt; Discrete: 0
+-&gt; LoadData: 0
+-&gt; Output: 1
+-&gt; MeshData: 0
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">feb</span><span class="o">.</span><span class="n">add_nodes</span><span class="p">([</span><span class="n">nodes</span><span class="p">])</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">add_elements</span><span class="p">([</span><span class="n">elements</span><span class="p">])</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">inspect_nodes_and_elements</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+--&gt; Nodes &#39;plane&#39;: 66
+--&gt; Elements &#39;plane_elements&#39;: 50
+
+</pre></div></div>
+</div>
+<p>Is there another method? We need triangle elements!! Also, What if we have multiple nodes or elements and we do not want to delete all of them and just update the existing ones? Let’s create another mesh and update the ‘plane’ mesh in the feb file.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a simple mesh (plane mesh)</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plane</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">i_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">j_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">i_resolution</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">j_resolution</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">triangulate</span><span class="p">()</span> <span class="c1"># we will be using unstructured grid for FEBio</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cast_to_unstructured_grid</span><span class="p">()</span> <span class="c1"># we will be using unstructured grid for FEBio</span>
+<span class="n">mesh</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">jupyter_backend</span><span class="o">=</span><span class="s1">&#39;client&#39;</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">400</span><span class="p">),</span> <span class="n">cpos</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "8678a022f9dc492e94122b2d9c84c84b"}</script></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of nodes: </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of elements: </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">cells_dict</span><span class="p">[</span><span class="n">pv</span><span class="o">.</span><span class="n">CellType</span><span class="o">.</span><span class="n">TRIANGLE</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of nodes: 231
+Number of elements: 400
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create nodes</span>
+<span class="n">nodes</span> <span class="o">=</span> <span class="n">Nodes</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;plane&quot;</span><span class="p">,</span> <span class="n">coordinates</span><span class="o">=</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+<span class="c1"># Create elements</span>
+<span class="n">elements</span> <span class="o">=</span> <span class="n">Elements</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;plane_elements&quot;</span><span class="p">,</span>
+                    <span class="n">mat</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+                    <span class="n">part</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;TRIANGLE&quot;</span><span class="p">,</span>
+                    <span class="n">connectivity</span><span class="o">=</span><span class="n">mesh</span><span class="o">.</span><span class="n">cells_dict</span><span class="p">[</span><span class="n">pv</span><span class="o">.</span><span class="n">CellType</span><span class="o">.</span><span class="n">TRIANGLE</span><span class="o">.</span><span class="n">value</span><span class="p">],</span>
+                    <span class="p">)</span>
+<span class="c1"># Add nodes and elements to the feb object (need to be lists)</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">update_nodes</span><span class="p">([</span><span class="n">nodes</span><span class="p">])</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">update_elements</span><span class="p">([</span><span class="n">elements</span><span class="p">])</span>
+<span class="c1"># Inspect nodes and elements</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">inspect_nodes_and_elements</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+--&gt; Nodes &#39;plane&#39;: 231
+--&gt; Elements &#39;plane_elements&#39;: 400
+
+</pre></div></div>
+</div>
+</section>
+<section id="Adding-Load">
+<h3>Adding Load<a class="headerlink" href="#Adding-Load" title="Link to this heading">¶</a></h3>
+<p>Let’s try adding a shear load to the mesh:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">febio_python.core</span> <span class="kn">import</span> <span class="n">NodalLoad</span><span class="p">,</span> <span class="n">LoadCurve</span><span class="p">,</span> <span class="n">NodeSet</span>
+
+<span class="c1"># First, let&#39;s select the nodeset to apply the load.</span>
+<span class="c1"># we will add load to the nodes at the right edge of the mesh</span>
+<span class="n">x_values</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">selected_nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x_values</span> <span class="o">==</span> <span class="n">x_values</span><span class="o">.</span><span class="n">max</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Create a nodeset</span>
+<span class="n">nodeset</span> <span class="o">=</span> <span class="n">NodeSet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;right_edge&quot;</span><span class="p">,</span> <span class="n">ids</span><span class="o">=</span><span class="n">selected_nodes</span><span class="p">)</span>
+<span class="c1"># Create a nodal load</span>
+<span class="n">shear_load</span> <span class="o">=</span> <span class="n">NodalLoad</span><span class="p">(</span><span class="n">node_set</span><span class="o">=</span><span class="s2">&quot;right_edge&quot;</span><span class="p">,</span>
+                       <span class="n">dof</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span>
+                       <span class="n">scale</span><span class="o">=-</span><span class="mf">25.0</span><span class="p">,</span> <span class="c1"># negative value means force is pointing in the negative direction</span>
+                       <span class="n">load_curve</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                       <span class="p">)</span>
+<span class="c1"># Create a load curve</span>
+<span class="n">load_curve</span> <span class="o">=</span> <span class="n">LoadCurve</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">interpolate_type</span><span class="o">=</span><span class="s2">&quot;smooth&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span>
+
+<span class="c1"># Add nodeset, nodal load and load curve to the feb object</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">add_nodesets</span><span class="p">([</span><span class="n">nodeset</span><span class="p">])</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">add_nodal_loads</span><span class="p">([</span><span class="n">shear_load</span><span class="p">])</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">add_loadcurves</span><span class="p">([</span><span class="n">load_curve</span><span class="p">])</span>
+<span class="n">feb</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Feb25(2.5):
+-&gt; Module: solid
+-&gt; Control: 15
+-&gt; Material: 0
+-&gt; Globals: 1
+-&gt; Geometry: 3
+-&gt; Boundary: 0
+-&gt; Loads: 1
+-&gt; Discrete: 0
+-&gt; LoadData: 1
+-&gt; Output: 1
+-&gt; MeshData: 0
+</pre></div></div>
+</div>
+<p>Let’s try to add a non-linear load now. Pointing in the x-direction</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># first, get the y position of the nodes</span>
+<span class="n">y_values</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">selected_nodes</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="c1"># then, normalize the y values, so that we can use them as &#39;maps&#39;</span>
+<span class="n">y_values</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_values</span> <span class="o">-</span> <span class="n">y_values</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">y_values</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">y_values</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+<span class="c1"># now, create a normal distribution curve using the y values, centered at</span>
+<span class="c1"># middle of the y values (0.5)</span>
+<span class="n">tensile_load_map</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">((</span><span class="n">y_values</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="c1"># plot the load curve</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y_values</span><span class="p">,</span> <span class="n">tensile_load_map</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Normalized y position&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Load curve&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Load curve for the shear load&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Create a nodal load</span>
+<span class="n">tensile_load</span> <span class="o">=</span> <span class="n">NodalLoad</span><span class="p">(</span><span class="n">node_set</span><span class="o">=</span><span class="s2">&quot;right_edge&quot;</span><span class="p">,</span>
+                       <span class="n">dof</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                       <span class="n">scale</span><span class="o">=</span><span class="mf">100.0</span><span class="o">*</span><span class="n">tensile_load_map</span><span class="p">,</span> <span class="c1">#</span>
+                       <span class="n">load_curve</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                       <span class="p">)</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">add_nodal_loads</span><span class="p">([</span><span class="n">tensile_load</span><span class="p">])</span>
+<span class="n">feb</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/getting_started_create_a_simple_simulation_38_0.png" src="../_images/getting_started_create_a_simple_simulation_38_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Feb25(2.5):
+-&gt; Module: solid
+-&gt; Control: 15
+-&gt; Material: 0
+-&gt; Globals: 1
+-&gt; Geometry: 3
+-&gt; Boundary: 0
+-&gt; Loads: 2
+-&gt; Discrete: 0
+-&gt; LoadData: 1
+-&gt; Output: 1
+-&gt; MeshData: 1
+</pre></div></div>
+</div>
+</section>
+<section id="Add-boundary-condition">
+<h3>Add boundary condition<a class="headerlink" href="#Add-boundary-condition" title="Link to this heading">¶</a></h3>
+<p>Now, let’s fix the left boundary of the mesh. We will be applying fixed condition to restrain the mesh in all coordinates. In addition, since this is a simple plane mesh, we will apply constraint in z (for all nodes) and rotation (shell constrain) for all the left nodes.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">febio_python.core</span> <span class="kn">import</span> <span class="n">FixCondition</span>
+
+<span class="c1"># Fix the left edge of the mesh</span>
+<span class="n">x_values</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">selected_nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x_values</span> <span class="o">==</span> <span class="n">x_values</span><span class="o">.</span><span class="n">min</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">all_nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="c1"># used to fix all nodes in the z direction</span>
+<span class="c1"># Create nodesets</span>
+<span class="n">left_nodeset</span> <span class="o">=</span> <span class="n">NodeSet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;left_edge&quot;</span><span class="p">,</span> <span class="n">ids</span><span class="o">=</span><span class="n">selected_nodes</span><span class="p">)</span>
+<span class="n">all_nodeset</span> <span class="o">=</span> <span class="n">NodeSet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;all_nodes&quot;</span><span class="p">,</span> <span class="n">ids</span><span class="o">=</span><span class="n">all_nodes</span><span class="p">)</span>
+<span class="c1"># Create a fix condition</span>
+<span class="n">left_fix_condition</span> <span class="o">=</span> <span class="n">FixCondition</span><span class="p">(</span><span class="n">dof</span><span class="o">=</span><span class="s2">&quot;x,y,z,sx,sy&quot;</span><span class="p">,</span> <span class="n">node_set</span><span class="o">=</span><span class="s2">&quot;left_edge&quot;</span><span class="p">)</span>
+<span class="c1"># we will</span>
+<span class="n">all_fix_condition</span> <span class="o">=</span> <span class="n">FixCondition</span><span class="p">(</span><span class="n">dof</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">node_set</span><span class="o">=</span><span class="s2">&quot;all_nodes&quot;</span><span class="p">)</span>
+
+<span class="c1"># Add nodeset and fix condition to the feb object</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">add_nodesets</span><span class="p">([</span><span class="n">left_nodeset</span><span class="p">,</span> <span class="n">all_nodeset</span><span class="p">])</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">add_boundary_conditions</span><span class="p">([</span><span class="n">left_fix_condition</span><span class="p">,</span> <span class="n">all_fix_condition</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">feb</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Feb25(2.5):
+-&gt; Module: solid
+-&gt; Control: 15
+-&gt; Material: 0
+-&gt; Globals: 1
+-&gt; Geometry: 5
+-&gt; Boundary: 2
+-&gt; Loads: 2
+-&gt; Discrete: 0
+-&gt; LoadData: 1
+-&gt; Output: 1
+-&gt; MeshData: 1
+</pre></div></div>
+</div>
+</section>
+<section id="Adding-Material">
+<h3>Adding Material<a class="headerlink" href="#Adding-Material" title="Link to this heading">¶</a></h3>
+<p>Now, let’s add a material. We will use simple Isotropic-Elastic.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">febio_python.core</span> <span class="kn">import</span> <span class="n">Material</span>
+
+<span class="n">mat</span> <span class="o">=</span> <span class="n">Material</span><span class="p">(</span>
+    <span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;isotropic elastic&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;plane material&quot;</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">E</span><span class="o">=</span><span class="mf">1e6</span><span class="p">,</span>
+        <span class="n">v</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+        <span class="n">density</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">feb</span><span class="o">.</span><span class="n">add_materials</span><span class="p">([</span><span class="n">mat</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Add-Element-data">
+<h3>Add Element data<a class="headerlink" href="#Add-Element-data" title="Link to this heading">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">febio_python.core</span> <span class="kn">import</span> <span class="n">ElementData</span>
+
+<span class="n">shell_thickness</span> <span class="o">=</span> <span class="n">ElementData</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Element thickness&quot;</span><span class="p">,</span>
+    <span class="n">var</span><span class="o">=</span><span class="s2">&quot;shell thickness&quot;</span><span class="p">,</span>
+    <span class="n">elem_set</span><span class="o">=</span><span class="s2">&quot;plane_elements&quot;</span><span class="p">,</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">mesh</span><span class="o">.</span><span class="n">n_cells</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="mf">0.01</span><span class="p">),</span>
+    <span class="n">ids</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">n_cells</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">add_element_data</span><span class="p">([</span><span class="n">shell_thickness</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Running-FEB">
+<h2>Running FEB<a class="headerlink" href="#Running-FEB" title="Link to this heading">¶</a></h2>
+<p>from febio_python.feb import run # Save the FEB file feb.write(“plane_mesh.feb”) run(“plane_mesh.feb”)</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># from febio_python.feb import run</span>
+<span class="c1"># # Save the FEB file</span>
+<span class="c1"># feb.write(&quot;plane_mesh.feb&quot;)</span>
+<span class="c1"># run(&quot;plane_mesh.feb&quot;)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Reading-XPLT">
+<h2>Reading XPLT<a class="headerlink" href="#Reading-XPLT" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">febio_python</span> <span class="kn">import</span> <span class="n">Xplt</span>
+
+<span class="n">xplt</span> <span class="o">=</span> <span class="n">Xplt</span><span class="p">(</span><span class="s2">&quot;plane_mesh.xplt&quot;</span><span class="p">)</span>
+<span class="n">xplt</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Xplt object [140033600302624]:
+=== xplt_mesh: ===
+-Nodes:
+---&gt;None: (231, 3)
+-Elements:
+---&gt;None: (400, 4)
+=== States: ===
+-Nodes:
+---&gt;displacement: (11, 231, 3)
+-Elements:
+---&gt;Lagrange strain: (11, 400, 6)
+---&gt;stress: (11, 400, 6)
+-Surfaces:
+</pre></div></div>
+</div>
+<section id="Example-properties">
+<h3>Example properties<a class="headerlink" href="#Example-properties" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">xplt</span><span class="o">.</span><span class="n">nodes</span> <span class="c1"># list of Nodes objects</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Nodes(name=None, coordinates=array([[-1.        , -0.5       ,  0.        ],
+        [-0.89999998, -0.5       ,  0.        ],
+        [-0.80000001, -0.5       ,  0.        ],
+        [-0.69999999, -0.5       ,  0.        ],
+        [-0.60000002, -0.5       ,  0.        ],
+        [-0.5       , -0.5       ,  0.        ],
+        [-0.40000001, -0.5       ,  0.        ],
+        [-0.30000001, -0.5       ,  0.        ],
+        [-0.2       , -0.5       ,  0.        ],
+        [-0.1       , -0.5       ,  0.        ],
+        [ 0.        , -0.5       ,  0.        ],
+        [ 0.1       , -0.5       ,  0.        ],
+        [ 0.2       , -0.5       ,  0.        ],
+        [ 0.30000001, -0.5       ,  0.        ],
+        [ 0.40000001, -0.5       ,  0.        ],
+        [ 0.5       , -0.5       ,  0.        ],
+        [ 0.60000002, -0.5       ,  0.        ],
+        [ 0.69999999, -0.5       ,  0.        ],
+        [ 0.80000001, -0.5       ,  0.        ],
+        [ 0.89999998, -0.5       ,  0.        ],
+        [ 1.        , -0.5       ,  0.        ],
+        [-1.        , -0.40000001,  0.        ],
+        [-0.89999998, -0.40000001,  0.        ],
+        [-0.80000001, -0.40000001,  0.        ],
+        [-0.69999999, -0.40000001,  0.        ],
+        [-0.60000002, -0.40000001,  0.        ],
+        [-0.5       , -0.40000001,  0.        ],
+        [-0.40000001, -0.40000001,  0.        ],
+        [-0.30000001, -0.40000001,  0.        ],
+        [-0.2       , -0.40000001,  0.        ],
+        [-0.1       , -0.40000001,  0.        ],
+        [ 0.        , -0.40000001,  0.        ],
+        [ 0.1       , -0.40000001,  0.        ],
+        [ 0.2       , -0.40000001,  0.        ],
+        [ 0.30000001, -0.40000001,  0.        ],
+        [ 0.40000001, -0.40000001,  0.        ],
+        [ 0.5       , -0.40000001,  0.        ],
+        [ 0.60000002, -0.40000001,  0.        ],
+        [ 0.69999999, -0.40000001,  0.        ],
+        [ 0.80000001, -0.40000001,  0.        ],
+        [ 0.89999998, -0.40000001,  0.        ],
+        [ 1.        , -0.40000001,  0.        ],
+        [-1.        , -0.30000001,  0.        ],
+        [-0.89999998, -0.30000001,  0.        ],
+        [-0.80000001, -0.30000001,  0.        ],
+        [-0.69999999, -0.30000001,  0.        ],
+        [-0.60000002, -0.30000001,  0.        ],
+        [-0.5       , -0.30000001,  0.        ],
+        [-0.40000001, -0.30000001,  0.        ],
+        [-0.30000001, -0.30000001,  0.        ],
+        [-0.2       , -0.30000001,  0.        ],
+        [-0.1       , -0.30000001,  0.        ],
+        [ 0.        , -0.30000001,  0.        ],
+        [ 0.1       , -0.30000001,  0.        ],
+        [ 0.2       , -0.30000001,  0.        ],
+        [ 0.30000001, -0.30000001,  0.        ],
+        [ 0.40000001, -0.30000001,  0.        ],
+        [ 0.5       , -0.30000001,  0.        ],
+        [ 0.60000002, -0.30000001,  0.        ],
+        [ 0.69999999, -0.30000001,  0.        ],
+        [ 0.80000001, -0.30000001,  0.        ],
+        [ 0.89999998, -0.30000001,  0.        ],
+        [ 1.        , -0.30000001,  0.        ],
+        [-1.        , -0.2       ,  0.        ],
+        [-0.89999998, -0.2       ,  0.        ],
+        [-0.80000001, -0.2       ,  0.        ],
+        [-0.69999999, -0.2       ,  0.        ],
+        [-0.60000002, -0.2       ,  0.        ],
+        [-0.5       , -0.2       ,  0.        ],
+        [-0.40000001, -0.2       ,  0.        ],
+        [-0.30000001, -0.2       ,  0.        ],
+        [-0.2       , -0.2       ,  0.        ],
+        [-0.1       , -0.2       ,  0.        ],
+        [ 0.        , -0.2       ,  0.        ],
+        [ 0.1       , -0.2       ,  0.        ],
+        [ 0.2       , -0.2       ,  0.        ],
+        [ 0.30000001, -0.2       ,  0.        ],
+        [ 0.40000001, -0.2       ,  0.        ],
+        [ 0.5       , -0.2       ,  0.        ],
+        [ 0.60000002, -0.2       ,  0.        ],
+        [ 0.69999999, -0.2       ,  0.        ],
+        [ 0.80000001, -0.2       ,  0.        ],
+        [ 0.89999998, -0.2       ,  0.        ],
+        [ 1.        , -0.2       ,  0.        ],
+        [-1.        , -0.1       ,  0.        ],
+        [-0.89999998, -0.1       ,  0.        ],
+        [-0.80000001, -0.1       ,  0.        ],
+        [-0.69999999, -0.1       ,  0.        ],
+        [-0.60000002, -0.1       ,  0.        ],
+        [-0.5       , -0.1       ,  0.        ],
+        [-0.40000001, -0.1       ,  0.        ],
+        [-0.30000001, -0.1       ,  0.        ],
+        [-0.2       , -0.1       ,  0.        ],
+        [-0.1       , -0.1       ,  0.        ],
+        [ 0.        , -0.1       ,  0.        ],
+        [ 0.1       , -0.1       ,  0.        ],
+        [ 0.2       , -0.1       ,  0.        ],
+        [ 0.30000001, -0.1       ,  0.        ],
+        [ 0.40000001, -0.1       ,  0.        ],
+        [ 0.5       , -0.1       ,  0.        ],
+        [ 0.60000002, -0.1       ,  0.        ],
+        [ 0.69999999, -0.1       ,  0.        ],
+        [ 0.80000001, -0.1       ,  0.        ],
+        [ 0.89999998, -0.1       ,  0.        ],
+        [ 1.        , -0.1       ,  0.        ],
+        [-1.        ,  0.        ,  0.        ],
+        [-0.89999998,  0.        ,  0.        ],
+        [-0.80000001,  0.        ,  0.        ],
+        [-0.69999999,  0.        ,  0.        ],
+        [-0.60000002,  0.        ,  0.        ],
+        [-0.5       ,  0.        ,  0.        ],
+        [-0.40000001,  0.        ,  0.        ],
+        [-0.30000001,  0.        ,  0.        ],
+        [-0.2       ,  0.        ,  0.        ],
+        [-0.1       ,  0.        ,  0.        ],
+        [ 0.        ,  0.        ,  0.        ],
+        [ 0.1       ,  0.        ,  0.        ],
+        [ 0.2       ,  0.        ,  0.        ],
+        [ 0.30000001,  0.        ,  0.        ],
+        [ 0.40000001,  0.        ,  0.        ],
+        [ 0.5       ,  0.        ,  0.        ],
+        [ 0.60000002,  0.        ,  0.        ],
+        [ 0.69999999,  0.        ,  0.        ],
+        [ 0.80000001,  0.        ,  0.        ],
+        [ 0.89999998,  0.        ,  0.        ],
+        [ 1.        ,  0.        ,  0.        ],
+        [-1.        ,  0.1       ,  0.        ],
+        [-0.89999998,  0.1       ,  0.        ],
+        [-0.80000001,  0.1       ,  0.        ],
+        [-0.69999999,  0.1       ,  0.        ],
+        [-0.60000002,  0.1       ,  0.        ],
+        [-0.5       ,  0.1       ,  0.        ],
+        [-0.40000001,  0.1       ,  0.        ],
+        [-0.30000001,  0.1       ,  0.        ],
+        [-0.2       ,  0.1       ,  0.        ],
+        [-0.1       ,  0.1       ,  0.        ],
+        [ 0.        ,  0.1       ,  0.        ],
+        [ 0.1       ,  0.1       ,  0.        ],
+        [ 0.2       ,  0.1       ,  0.        ],
+        [ 0.30000001,  0.1       ,  0.        ],
+        [ 0.40000001,  0.1       ,  0.        ],
+        [ 0.5       ,  0.1       ,  0.        ],
+        [ 0.60000002,  0.1       ,  0.        ],
+        [ 0.69999999,  0.1       ,  0.        ],
+        [ 0.80000001,  0.1       ,  0.        ],
+        [ 0.89999998,  0.1       ,  0.        ],
+        [ 1.        ,  0.1       ,  0.        ],
+        [-1.        ,  0.2       ,  0.        ],
+        [-0.89999998,  0.2       ,  0.        ],
+        [-0.80000001,  0.2       ,  0.        ],
+        [-0.69999999,  0.2       ,  0.        ],
+        [-0.60000002,  0.2       ,  0.        ],
+        [-0.5       ,  0.2       ,  0.        ],
+        [-0.40000001,  0.2       ,  0.        ],
+        [-0.30000001,  0.2       ,  0.        ],
+        [-0.2       ,  0.2       ,  0.        ],
+        [-0.1       ,  0.2       ,  0.        ],
+        [ 0.        ,  0.2       ,  0.        ],
+        [ 0.1       ,  0.2       ,  0.        ],
+        [ 0.2       ,  0.2       ,  0.        ],
+        [ 0.30000001,  0.2       ,  0.        ],
+        [ 0.40000001,  0.2       ,  0.        ],
+        [ 0.5       ,  0.2       ,  0.        ],
+        [ 0.60000002,  0.2       ,  0.        ],
+        [ 0.69999999,  0.2       ,  0.        ],
+        [ 0.80000001,  0.2       ,  0.        ],
+        [ 0.89999998,  0.2       ,  0.        ],
+        [ 1.        ,  0.2       ,  0.        ],
+        [-1.        ,  0.30000001,  0.        ],
+        [-0.89999998,  0.30000001,  0.        ],
+        [-0.80000001,  0.30000001,  0.        ],
+        [-0.69999999,  0.30000001,  0.        ],
+        [-0.60000002,  0.30000001,  0.        ],
+        [-0.5       ,  0.30000001,  0.        ],
+        [-0.40000001,  0.30000001,  0.        ],
+        [-0.30000001,  0.30000001,  0.        ],
+        [-0.2       ,  0.30000001,  0.        ],
+        [-0.1       ,  0.30000001,  0.        ],
+        [ 0.        ,  0.30000001,  0.        ],
+        [ 0.1       ,  0.30000001,  0.        ],
+        [ 0.2       ,  0.30000001,  0.        ],
+        [ 0.30000001,  0.30000001,  0.        ],
+        [ 0.40000001,  0.30000001,  0.        ],
+        [ 0.5       ,  0.30000001,  0.        ],
+        [ 0.60000002,  0.30000001,  0.        ],
+        [ 0.69999999,  0.30000001,  0.        ],
+        [ 0.80000001,  0.30000001,  0.        ],
+        [ 0.89999998,  0.30000001,  0.        ],
+        [ 1.        ,  0.30000001,  0.        ],
+        [-1.        ,  0.40000001,  0.        ],
+        [-0.89999998,  0.40000001,  0.        ],
+        [-0.80000001,  0.40000001,  0.        ],
+        [-0.69999999,  0.40000001,  0.        ],
+        [-0.60000002,  0.40000001,  0.        ],
+        [-0.5       ,  0.40000001,  0.        ],
+        [-0.40000001,  0.40000001,  0.        ],
+        [-0.30000001,  0.40000001,  0.        ],
+        [-0.2       ,  0.40000001,  0.        ],
+        [-0.1       ,  0.40000001,  0.        ],
+        [ 0.        ,  0.40000001,  0.        ],
+        [ 0.1       ,  0.40000001,  0.        ],
+        [ 0.2       ,  0.40000001,  0.        ],
+        [ 0.30000001,  0.40000001,  0.        ],
+        [ 0.40000001,  0.40000001,  0.        ],
+        [ 0.5       ,  0.40000001,  0.        ],
+        [ 0.60000002,  0.40000001,  0.        ],
+        [ 0.69999999,  0.40000001,  0.        ],
+        [ 0.80000001,  0.40000001,  0.        ],
+        [ 0.89999998,  0.40000001,  0.        ],
+        [ 1.        ,  0.40000001,  0.        ],
+        [-1.        ,  0.5       ,  0.        ],
+        [-0.89999998,  0.5       ,  0.        ],
+        [-0.80000001,  0.5       ,  0.        ],
+        [-0.69999999,  0.5       ,  0.        ],
+        [-0.60000002,  0.5       ,  0.        ],
+        [-0.5       ,  0.5       ,  0.        ],
+        [-0.40000001,  0.5       ,  0.        ],
+        [-0.30000001,  0.5       ,  0.        ],
+        [-0.2       ,  0.5       ,  0.        ],
+        [-0.1       ,  0.5       ,  0.        ],
+        [ 0.        ,  0.5       ,  0.        ],
+        [ 0.1       ,  0.5       ,  0.        ],
+        [ 0.2       ,  0.5       ,  0.        ],
+        [ 0.30000001,  0.5       ,  0.        ],
+        [ 0.40000001,  0.5       ,  0.        ],
+        [ 0.5       ,  0.5       ,  0.        ],
+        [ 0.60000002,  0.5       ,  0.        ],
+        [ 0.69999999,  0.5       ,  0.        ],
+        [ 0.80000001,  0.5       ,  0.        ],
+        [ 0.89999998,  0.5       ,  0.        ],
+        [ 1.        ,  0.5       ,  0.        ]]), ids=array([  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,
+         13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,
+         26,  27,  28,  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,
+         39,  40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  50,  51,
+         52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,  64,
+         65,  66,  67,  68,  69,  70,  71,  72,  73,  74,  75,  76,  77,
+         78,  79,  80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  90,
+         91,  92,  93,  94,  95,  96,  97,  98,  99, 100, 101, 102, 103,
+        104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116,
+        117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129,
+        130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142,
+        143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155,
+        156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168,
+        169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181,
+        182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194,
+        195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207,
+        208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220,
+        221, 222, 223, 224, 225, 226, 227, 228, 229, 230]))]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">xplt</span><span class="o">.</span><span class="n">elements</span> <span class="c1"># list of Elements objects</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Elements(name=None, mat=None, part=1, type=&#39;TRIANGLE&#39;, connectivity=array([[  1,   0,   1,  21],
+        [  2,  22,  21,   1],
+        [  3,   1,   2,  22],
+        ...,
+        [398, 229, 228, 208],
+        [399, 208, 209, 229],
+        [400, 230, 229, 209]]), ids=array([  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,
+         13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,
+         26,  27,  28,  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,
+         39,  40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  50,  51,
+         52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,  64,
+         65,  66,  67,  68,  69,  70,  71,  72,  73,  74,  75,  76,  77,
+         78,  79,  80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  90,
+         91,  92,  93,  94,  95,  96,  97,  98,  99, 100, 101, 102, 103,
+        104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116,
+        117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129,
+        130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142,
+        143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155,
+        156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168,
+        169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181,
+        182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194,
+        195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207,
+        208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220,
+        221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233,
+        234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246,
+        247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259,
+        260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272,
+        273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285,
+        286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298,
+        299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311,
+        312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324,
+        325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337,
+        338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350,
+        351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363,
+        364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376,
+        377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389,
+        390, 391, 392, 393, 394, 395, 396, 397, 398, 399]))]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">xplt</span><span class="o">.</span><span class="n">states</span> <span class="c1"># list of States objects</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+States(nodes=[StateData(name=&#39;displacement&#39;, dom=0, data=array([[[ 0.        ,  0.        ,  0.        ],
+        [ 0.        ,  0.        ,  0.        ],
+        [ 0.        ,  0.        ,  0.        ],
+        ...,
+        [ 0.        ,  0.        ,  0.        ],
+        [ 0.        ,  0.        ,  0.        ],
+        [ 0.        ,  0.        ,  0.        ]],
+
+       [[ 0.        ,  0.        ,  0.        ],
+        [-0.00241185, -0.00141284,  0.        ],
+        [-0.00460829, -0.00296836,  0.        ],
+        ...,
+        [ 0.03514386, -0.07879543,  0.        ],
+        [ 0.03548158, -0.08488715,  0.        ],
+        [ 0.03574249, -0.09127856,  0.        ]],
+
+       [[ 0.        ,  0.        ,  0.        ],
+        [-0.00438763, -0.00255033,  0.        ],
+        [-0.00835898, -0.00537066,  0.        ],
+        ...,
+        [ 0.06173341, -0.1440275 ,  0.        ],
+        [ 0.06217256, -0.154956  ,  0.        ],
+        [ 0.06246274, -0.16649833,  0.        ]],
+
+       ...,
+
+       [[ 0.        ,  0.        ,  0.        ],
+        [-0.01119141, -0.00654127,  0.        ],
+        [-0.02091032, -0.0140982 ,  0.        ],
+        ...,
+        [ 0.14965743, -0.3825299 ,  0.        ],
+        [ 0.14999932, -0.40942118,  0.        ],
+        [ 0.14971283, -0.4390082 ,  0.        ]],
+
+       [[ 0.        ,  0.        ,  0.        ],
+        [-0.01183677, -0.00695707,  0.        ],
+        [-0.02204275, -0.01506192,  0.        ],
+        ...,
+        [ 0.15935734, -0.40824923,  0.        ],
+        [ 0.15973683, -0.43669814,  0.        ],
+        [ 0.15939233, -0.46821073,  0.        ]],
+
+       [[ 0.        ,  0.        ,  0.        ],
+        [-0.01239656, -0.00733244,  0.        ],
+        [-0.02300878, -0.01594689,  0.        ],
+        ...,
+        [ 0.16844292, -0.43168595,  0.        ],
+        [ 0.16888118, -0.4615291 ,  0.        ],
+        [ 0.1684947 , -0.49480793,  0.        ]]], dtype=float32))], elements=[StateData(name=&#39;Lagrange strain&#39;, dom=1, data=array([[[ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00],
+        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00],
+        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00],
+        ...,
+        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00],
+        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00],
+        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00]],
+
+       [[-2.37153228e-02,  4.96507617e-08,  9.25132260e-03,
+         -7.05668749e-03,  8.77791172e-05,  8.75434343e-05],
+        [-1.55513035e-02,  4.19573579e-03,  6.64580334e-03,
+         -8.76835082e-04, -4.10028315e-06,  3.52151233e-06],
+        [-2.16151774e-02,  4.19573579e-03,  6.46888278e-03,
+         -3.71682271e-03, -1.87471978e-05, -3.00115735e-05],
+        ...,
+        [ 5.26419561e-03, -1.79060502e-03, -1.32319576e-03,
+         -1.09630043e-03,  1.35697308e-04, -9.22947293e-05],
+        [ 3.76348314e-03, -1.79060502e-03, -6.20446925e-04,
+         -1.20302581e-03,  3.88543667e-05,  1.51752083e-05],
+        [ 4.56833979e-03, -4.31854278e-03, -2.29850310e-04,
+         -2.06456636e-03, -6.20934181e-04,  2.85940798e-04]],
+
+       [[-4.25659008e-02,  1.59901958e-07,  1.65927690e-02,
+         -1.27380788e-02,  1.59318617e-04,  1.58670024e-04],
+        [-2.77379584e-02,  7.46000186e-03,  1.18833957e-02,
+         -1.59418711e-03, -7.71454506e-06,  5.81513541e-06],
+        [-3.85503881e-02,  7.46000186e-03,  1.15433391e-02,
+         -6.74896734e-03, -3.39396829e-05, -5.31097103e-05],
+        ...,
+        [ 1.04284454e-02, -3.59612191e-03, -2.62235897e-03,
+         -1.94375543e-03,  2.62485846e-04, -1.94640495e-04],
+        [ 7.60030141e-03, -3.59612191e-03, -1.25896640e-03,
+         -2.19966378e-03,  7.99982663e-05,  2.65306644e-05],
+        [ 9.37342457e-03, -8.74353014e-03, -5.09420410e-04,
+         -3.88680655e-03, -1.21673197e-03,  6.25563203e-04]],
+
+       ...,
+
+       [[-1.03454977e-01,  1.02291756e-06,  4.00860123e-02,
+         -3.26714478e-02,  4.17361414e-04,  4.09782020e-04],
+        [-6.36420026e-02,  1.68143846e-02,  2.79301554e-02,
+         -4.35827812e-03, -2.22580402e-05,  9.12787800e-06],
+        [-8.96661356e-02,  1.68143846e-02,  2.68445406e-02,
+         -1.82178933e-02, -8.80838707e-05, -1.21186145e-04],
+        ...,
+        [ 3.98490652e-02, -1.43709024e-02, -9.90649406e-03,
+         -4.42765653e-03,  9.21171857e-04, -8.83480243e-04],
+        [ 3.06131430e-02, -1.43709024e-02, -5.02734119e-03,
+         -6.15815260e-03,  3.49141104e-04,  5.58151733e-05],
+        [ 3.98919024e-02, -3.57674919e-02, -2.53269938e-03,
+         -1.22170681e-02, -4.47947998e-03,  3.11689964e-03]],
+
+       [[-1.08881332e-01,  1.15577188e-06,  4.21402082e-02,
+         -3.47481929e-02,  4.44912352e-04,  4.35584836e-04],
+        [-6.61997572e-02,  1.74349323e-02,  2.92007625e-02,
+         -4.69052047e-03, -2.38736247e-05,  8.95932772e-06],
+        [-9.36254486e-02,  1.74349323e-02,  2.80210096e-02,
+         -1.95591226e-02, -9.38163721e-05, -1.26437721e-04],
+        ...,
+        [ 4.45734523e-02, -1.61647107e-02, -1.10511193e-02,
+         -4.62550670e-03,  1.02171360e-03, -1.00175163e-03],
+        [ 3.43595631e-02, -1.61647107e-02, -5.62138064e-03,
+         -6.66673388e-03,  3.96208838e-04,  5.73999459e-05],
+        [ 4.50464040e-02, -4.02821973e-02, -2.88027129e-03,
+         -1.33820577e-02, -4.99419915e-03,  3.56116169e-03]],
+
+       [[-1.13529623e-01,  1.28303191e-06,  4.38876860e-02,
+         -3.66229638e-02,  4.69880557e-04,  4.58679424e-04],
+        [-6.81892633e-02,  1.79007482e-02,  3.02395485e-02,
+         -5.00305137e-03, -2.53279559e-05,  8.70800432e-06],
+        [-9.68414694e-02,  1.79007482e-02,  2.89726872e-02,
+         -2.08097380e-02, -9.90094777e-05, -1.30736560e-04],
+        ...,
+        [ 4.92642596e-02, -1.79609023e-02, -1.21797724e-02,
+         -4.79171658e-03,  1.12077757e-03, -1.11997582e-03],
+        [ 3.80752347e-02, -1.79609023e-02, -6.20363094e-03,
+         -7.15704774e-03,  4.43766272e-04,  5.84696500e-05],
+        [ 5.01992963e-02, -4.47962992e-02, -3.22508742e-03,
+         -1.45127149e-02, -5.50433807e-03,  4.00813343e-03]]],
+      dtype=float32)), StateData(name=&#39;stress&#39;, dom=1, data=array([[[ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00],
+        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00],
+        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00],
+        ...,
+        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00],
+        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00],
+        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00]],
+
+       [[-2.57104258e+04, -8.32338770e+03, -1.26783472e+03,
+         -5.00688428e+03,  6.47943573e+01,  5.92901344e+01],
+        [-1.43045918e+04,  5.29054504e+02,  2.43950635e+03,
+         -5.20961426e+02, -3.57376099e+00,  6.30108118e-01],
+        [-2.22493047e+04, -3.06733716e+03, -1.37425366e+03,
+         -2.51297241e+03, -1.46889915e+01, -2.43459587e+01],
+        ...,
+        [ 5.21573779e+03, -1.35725298e+01,  2.21767639e+02,
+         -1.16937219e+03,  1.08122086e+02, -6.51837006e+01],
+        [ 3.57415332e+03, -4.65898315e+02,  3.02325745e+02,
+         -1.17880908e+03,  2.89701767e+01,  1.33194933e+01],
+        [ 3.34443286e+03, -3.05312988e+03, -1.65135666e+02,
+         -1.99652502e+03, -4.88636292e+02,  1.92099396e+02]],
+
+       [[-4.48986719e+04, -1.49390605e+04, -2.35327466e+03,
+         -8.44365625e+03,  1.14041161e+02,  9.63064270e+01],
+        [-2.49900234e+04,  9.53104980e+02,  4.44329688e+03,
+         -7.30678345e+02, -7.26328564e+00, -2.20842171e+00],
+        [-3.87194727e+04, -5.47384131e+03, -2.50470239e+03,
+         -4.08328662e+03, -2.69665909e+01, -4.50076408e+01],
+        ...,
+        [ 1.01858477e+04,  1.17725616e+02,  4.08006592e+02,
+         -2.64370044e+03,  2.15578400e+02, -1.29467834e+02],
+        [ 7.06949512e+03, -7.02262695e+02,  6.12641724e+02,
+         -2.59109229e+03,  5.83572578e+01,  2.63640137e+01],
+        [ 6.61690186e+03, -5.68505859e+03, -3.21698456e+02,
+         -4.45147803e+03, -9.77332092e+02,  3.83120911e+02]],
+
+       ...,
+
+       [[-9.92679531e+04, -3.66051602e+04, -6.64452246e+03,
+         -1.68790059e+04,  2.73736389e+02,  1.60902344e+02],
+        [-5.36645586e+04,  2.33872754e+03,  1.14601699e+04,
+         -3.11623627e+02, -2.48822613e+01, -3.28758545e+01],
+        [-8.36302812e+04, -1.31645332e+04, -6.56354932e+03,
+         -7.30365869e+03, -7.28974838e+01, -1.22733002e+02],
+        ...,
+        [ 3.75855078e+04,  2.70891431e+03,  1.32031433e+03,
+         -1.40452988e+04,  8.46112244e+02, -5.05644989e+02],
+        [ 2.67828867e+04,  4.67094666e+02,  2.55825366e+03,
+         -1.31989033e+04,  2.39480713e+02,  1.01752251e+02],
+        [ 2.51069902e+04, -1.50549033e+04, -1.02165302e+03,
+         -2.35506895e+04, -3.90820166e+03,  1.51560632e+03]],
+
+       [[-1.03544789e+05, -3.85584258e+04, -7.13044482e+03,
+         -1.75093594e+04,  2.89711700e+02,  1.62880554e+02],
+        [-5.55197031e+04,  2.46515479e+03,  1.21460254e+04,
+         -2.14675766e+02, -2.70178871e+01, -3.74516640e+01],
+        [-8.68775391e+04, -1.38355576e+04, -6.98250635e+03,
+         -7.54512988e+03, -7.78906708e+01, -1.31013916e+02],
+        ...,
+        [ 4.19955117e+04,  3.29983154e+03,  1.46036755e+03,
+         -1.61555713e+04,  9.49114014e+02, -5.67525269e+02],
+        [ 2.99045957e+04,  8.80143616e+02,  2.87391748e+03,
+         -1.51469600e+04,  2.70181335e+02,  1.13927521e+02],
+        [ 2.80805938e+04, -1.58543672e+04, -1.11878113e+03,
+         -2.71071465e+04, -4.39746387e+03,  1.70316260e+03]],
+
+       [[-1.07134500e+05, -4.02281328e+04, -7.57302295e+03,
+         -1.80556445e+04,  3.04073822e+02,  1.64106705e+02],
+        [-5.69336562e+04,  2.57574097e+03,  1.27474004e+04,
+         -1.31921478e+02, -2.89687786e+01, -4.16831512e+01],
+        [-8.95182266e+04, -1.44029912e+04, -7.35732373e+03,
+         -7.77286230e+03, -8.24211807e+01, -1.38445099e+02],
+        ...,
+        [ 4.63999648e+04,  3.91850513e+03,  1.60029834e+03,
+         -1.83055371e+04,  1.05160632e+03, -6.29289734e+02],
+        [ 3.29913398e+04,  1.32787097e+03,  3.18541235e+03,
+         -1.71267695e+04,  3.01004028e+02,  1.25993431e+02],
+        [ 3.10444766e+04, -1.64842617e+04, -1.21277368e+03,
+         -3.07300488e+04, -4.88736279e+03,  1.89061377e+03]]],
+      dtype=float32))], surfaces=[], timesteps=array([0. , 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1. ],
+      dtype=float32))
+</pre></div></div>
+</div>
+</section>
+<section id="States-data:">
+<h3>States data:<a class="headerlink" href="#States-data:" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">xplt</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+StateData(name=&#39;displacement&#39;, dom=0, data=array([[[ 0.        ,  0.        ,  0.        ],
+        [ 0.        ,  0.        ,  0.        ],
+        [ 0.        ,  0.        ,  0.        ],
+        ...,
+        [ 0.        ,  0.        ,  0.        ],
+        [ 0.        ,  0.        ,  0.        ],
+        [ 0.        ,  0.        ,  0.        ]],
+
+       [[ 0.        ,  0.        ,  0.        ],
+        [-0.00241185, -0.00141284,  0.        ],
+        [-0.00460829, -0.00296836,  0.        ],
+        ...,
+        [ 0.03514386, -0.07879543,  0.        ],
+        [ 0.03548158, -0.08488715,  0.        ],
+        [ 0.03574249, -0.09127856,  0.        ]],
+
+       [[ 0.        ,  0.        ,  0.        ],
+        [-0.00438763, -0.00255033,  0.        ],
+        [-0.00835898, -0.00537066,  0.        ],
+        ...,
+        [ 0.06173341, -0.1440275 ,  0.        ],
+        [ 0.06217256, -0.154956  ,  0.        ],
+        [ 0.06246274, -0.16649833,  0.        ]],
+
+       ...,
+
+       [[ 0.        ,  0.        ,  0.        ],
+        [-0.01119141, -0.00654127,  0.        ],
+        [-0.02091032, -0.0140982 ,  0.        ],
+        ...,
+        [ 0.14965743, -0.3825299 ,  0.        ],
+        [ 0.14999932, -0.40942118,  0.        ],
+        [ 0.14971283, -0.4390082 ,  0.        ]],
+
+       [[ 0.        ,  0.        ,  0.        ],
+        [-0.01183677, -0.00695707,  0.        ],
+        [-0.02204275, -0.01506192,  0.        ],
+        ...,
+        [ 0.15935734, -0.40824923,  0.        ],
+        [ 0.15973683, -0.43669814,  0.        ],
+        [ 0.15939233, -0.46821073,  0.        ]],
+
+       [[ 0.        ,  0.        ,  0.        ],
+        [-0.01239656, -0.00733244,  0.        ],
+        [-0.02300878, -0.01594689,  0.        ],
+        ...,
+        [ 0.16844292, -0.43168595,  0.        ],
+        [ 0.16888118, -0.4615291 ,  0.        ],
+        [ 0.1684947 , -0.49480793,  0.        ]]], dtype=float32))
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">xplt</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+StateData(name=&#39;Lagrange strain&#39;, dom=1, data=array([[[ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00],
+        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00],
+        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00],
+        ...,
+        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00],
+        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00],
+        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+          0.00000000e+00,  0.00000000e+00,  0.00000000e+00]],
+
+       [[-2.37153228e-02,  4.96507617e-08,  9.25132260e-03,
+         -7.05668749e-03,  8.77791172e-05,  8.75434343e-05],
+        [-1.55513035e-02,  4.19573579e-03,  6.64580334e-03,
+         -8.76835082e-04, -4.10028315e-06,  3.52151233e-06],
+        [-2.16151774e-02,  4.19573579e-03,  6.46888278e-03,
+         -3.71682271e-03, -1.87471978e-05, -3.00115735e-05],
+        ...,
+        [ 5.26419561e-03, -1.79060502e-03, -1.32319576e-03,
+         -1.09630043e-03,  1.35697308e-04, -9.22947293e-05],
+        [ 3.76348314e-03, -1.79060502e-03, -6.20446925e-04,
+         -1.20302581e-03,  3.88543667e-05,  1.51752083e-05],
+        [ 4.56833979e-03, -4.31854278e-03, -2.29850310e-04,
+         -2.06456636e-03, -6.20934181e-04,  2.85940798e-04]],
+
+       [[-4.25659008e-02,  1.59901958e-07,  1.65927690e-02,
+         -1.27380788e-02,  1.59318617e-04,  1.58670024e-04],
+        [-2.77379584e-02,  7.46000186e-03,  1.18833957e-02,
+         -1.59418711e-03, -7.71454506e-06,  5.81513541e-06],
+        [-3.85503881e-02,  7.46000186e-03,  1.15433391e-02,
+         -6.74896734e-03, -3.39396829e-05, -5.31097103e-05],
+        ...,
+        [ 1.04284454e-02, -3.59612191e-03, -2.62235897e-03,
+         -1.94375543e-03,  2.62485846e-04, -1.94640495e-04],
+        [ 7.60030141e-03, -3.59612191e-03, -1.25896640e-03,
+         -2.19966378e-03,  7.99982663e-05,  2.65306644e-05],
+        [ 9.37342457e-03, -8.74353014e-03, -5.09420410e-04,
+         -3.88680655e-03, -1.21673197e-03,  6.25563203e-04]],
+
+       ...,
+
+       [[-1.03454977e-01,  1.02291756e-06,  4.00860123e-02,
+         -3.26714478e-02,  4.17361414e-04,  4.09782020e-04],
+        [-6.36420026e-02,  1.68143846e-02,  2.79301554e-02,
+         -4.35827812e-03, -2.22580402e-05,  9.12787800e-06],
+        [-8.96661356e-02,  1.68143846e-02,  2.68445406e-02,
+         -1.82178933e-02, -8.80838707e-05, -1.21186145e-04],
+        ...,
+        [ 3.98490652e-02, -1.43709024e-02, -9.90649406e-03,
+         -4.42765653e-03,  9.21171857e-04, -8.83480243e-04],
+        [ 3.06131430e-02, -1.43709024e-02, -5.02734119e-03,
+         -6.15815260e-03,  3.49141104e-04,  5.58151733e-05],
+        [ 3.98919024e-02, -3.57674919e-02, -2.53269938e-03,
+         -1.22170681e-02, -4.47947998e-03,  3.11689964e-03]],
+
+       [[-1.08881332e-01,  1.15577188e-06,  4.21402082e-02,
+         -3.47481929e-02,  4.44912352e-04,  4.35584836e-04],
+        [-6.61997572e-02,  1.74349323e-02,  2.92007625e-02,
+         -4.69052047e-03, -2.38736247e-05,  8.95932772e-06],
+        [-9.36254486e-02,  1.74349323e-02,  2.80210096e-02,
+         -1.95591226e-02, -9.38163721e-05, -1.26437721e-04],
+        ...,
+        [ 4.45734523e-02, -1.61647107e-02, -1.10511193e-02,
+         -4.62550670e-03,  1.02171360e-03, -1.00175163e-03],
+        [ 3.43595631e-02, -1.61647107e-02, -5.62138064e-03,
+         -6.66673388e-03,  3.96208838e-04,  5.73999459e-05],
+        [ 4.50464040e-02, -4.02821973e-02, -2.88027129e-03,
+         -1.33820577e-02, -4.99419915e-03,  3.56116169e-03]],
+
+       [[-1.13529623e-01,  1.28303191e-06,  4.38876860e-02,
+         -3.66229638e-02,  4.69880557e-04,  4.58679424e-04],
+        [-6.81892633e-02,  1.79007482e-02,  3.02395485e-02,
+         -5.00305137e-03, -2.53279559e-05,  8.70800432e-06],
+        [-9.68414694e-02,  1.79007482e-02,  2.89726872e-02,
+         -2.08097380e-02, -9.90094777e-05, -1.30736560e-04],
+        ...,
+        [ 4.92642596e-02, -1.79609023e-02, -1.21797724e-02,
+         -4.79171658e-03,  1.12077757e-03, -1.11997582e-03],
+        [ 3.80752347e-02, -1.79609023e-02, -6.20363094e-03,
+         -7.15704774e-03,  4.43766272e-04,  5.84696500e-05],
+        [ 5.01992963e-02, -4.47962992e-02, -3.22508742e-03,
+         -1.45127149e-02, -5.50433807e-03,  4.00813343e-03]]],
+      dtype=float32))
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="FEBio-Container">
+<h2>FEBio Container<a class="headerlink" href="#FEBio-Container" title="Link to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">febio_python</span> <span class="kn">import</span> <span class="n">FEBioContainer</span>
+
+<span class="n">container</span> <span class="o">=</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">feb</span><span class="o">=</span><span class="n">feb</span><span class="p">,</span>
+                           <span class="n">xplt</span><span class="o">=</span><span class="n">xplt</span>
+                           <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Can also load from a file directly:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">container</span> <span class="o">=</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">feb</span><span class="o">=</span><span class="s2">&quot;plane_mesh.feb&quot;</span><span class="p">,</span>
+                           <span class="n">xplt</span><span class="o">=</span><span class="s2">&quot;plane_mesh.xplt&quot;</span>
+                           <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">container</span><span class="o">.</span><span class="n">feb</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Feb25(2.5):
+-&gt; Module: solid
+-&gt; Control: 15
+-&gt; Material: 1
+-&gt; Globals: 1
+-&gt; Geometry: 5
+-&gt; Boundary: 2
+-&gt; Loads: 2
+-&gt; Discrete: 0
+-&gt; LoadData: 1
+-&gt; Output: 1
+-&gt; MeshData: 2
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">container</span><span class="o">.</span><span class="n">xplt</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Xplt object [140033113144576]:
+=== xplt_mesh: ===
+-Nodes:
+---&gt;None: (231, 3)
+-Elements:
+---&gt;None: (400, 4)
+=== States: ===
+-Nodes:
+---&gt;displacement: (11, 231, 3)
+-Elements:
+---&gt;Lagrange strain: (11, 400, 6)
+---&gt;stress: (11, 400, 6)
+-Surfaces:
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">container</span><span class="o">.</span><span class="n">nodes</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Nodes(name=&#39;plane&#39;, coordinates=array([[-1. , -0.5,  0. ],
+        [-0.9, -0.5,  0. ],
+        [-0.8, -0.5,  0. ],
+        [-0.7, -0.5,  0. ],
+        [-0.6, -0.5,  0. ],
+        [-0.5, -0.5,  0. ],
+        [-0.4, -0.5,  0. ],
+        [-0.3, -0.5,  0. ],
+        [-0.2, -0.5,  0. ],
+        [-0.1, -0.5,  0. ],
+        [ 0. , -0.5,  0. ],
+        [ 0.1, -0.5,  0. ],
+        [ 0.2, -0.5,  0. ],
+        [ 0.3, -0.5,  0. ],
+        [ 0.4, -0.5,  0. ],
+        [ 0.5, -0.5,  0. ],
+        [ 0.6, -0.5,  0. ],
+        [ 0.7, -0.5,  0. ],
+        [ 0.8, -0.5,  0. ],
+        [ 0.9, -0.5,  0. ],
+        [ 1. , -0.5,  0. ],
+        [-1. , -0.4,  0. ],
+        [-0.9, -0.4,  0. ],
+        [-0.8, -0.4,  0. ],
+        [-0.7, -0.4,  0. ],
+        [-0.6, -0.4,  0. ],
+        [-0.5, -0.4,  0. ],
+        [-0.4, -0.4,  0. ],
+        [-0.3, -0.4,  0. ],
+        [-0.2, -0.4,  0. ],
+        [-0.1, -0.4,  0. ],
+        [ 0. , -0.4,  0. ],
+        [ 0.1, -0.4,  0. ],
+        [ 0.2, -0.4,  0. ],
+        [ 0.3, -0.4,  0. ],
+        [ 0.4, -0.4,  0. ],
+        [ 0.5, -0.4,  0. ],
+        [ 0.6, -0.4,  0. ],
+        [ 0.7, -0.4,  0. ],
+        [ 0.8, -0.4,  0. ],
+        [ 0.9, -0.4,  0. ],
+        [ 1. , -0.4,  0. ],
+        [-1. , -0.3,  0. ],
+        [-0.9, -0.3,  0. ],
+        [-0.8, -0.3,  0. ],
+        [-0.7, -0.3,  0. ],
+        [-0.6, -0.3,  0. ],
+        [-0.5, -0.3,  0. ],
+        [-0.4, -0.3,  0. ],
+        [-0.3, -0.3,  0. ],
+        [-0.2, -0.3,  0. ],
+        [-0.1, -0.3,  0. ],
+        [ 0. , -0.3,  0. ],
+        [ 0.1, -0.3,  0. ],
+        [ 0.2, -0.3,  0. ],
+        [ 0.3, -0.3,  0. ],
+        [ 0.4, -0.3,  0. ],
+        [ 0.5, -0.3,  0. ],
+        [ 0.6, -0.3,  0. ],
+        [ 0.7, -0.3,  0. ],
+        [ 0.8, -0.3,  0. ],
+        [ 0.9, -0.3,  0. ],
+        [ 1. , -0.3,  0. ],
+        [-1. , -0.2,  0. ],
+        [-0.9, -0.2,  0. ],
+        [-0.8, -0.2,  0. ],
+        [-0.7, -0.2,  0. ],
+        [-0.6, -0.2,  0. ],
+        [-0.5, -0.2,  0. ],
+        [-0.4, -0.2,  0. ],
+        [-0.3, -0.2,  0. ],
+        [-0.2, -0.2,  0. ],
+        [-0.1, -0.2,  0. ],
+        [ 0. , -0.2,  0. ],
+        [ 0.1, -0.2,  0. ],
+        [ 0.2, -0.2,  0. ],
+        [ 0.3, -0.2,  0. ],
+        [ 0.4, -0.2,  0. ],
+        [ 0.5, -0.2,  0. ],
+        [ 0.6, -0.2,  0. ],
+        [ 0.7, -0.2,  0. ],
+        [ 0.8, -0.2,  0. ],
+        [ 0.9, -0.2,  0. ],
+        [ 1. , -0.2,  0. ],
+        [-1. , -0.1,  0. ],
+        [-0.9, -0.1,  0. ],
+        [-0.8, -0.1,  0. ],
+        [-0.7, -0.1,  0. ],
+        [-0.6, -0.1,  0. ],
+        [-0.5, -0.1,  0. ],
+        [-0.4, -0.1,  0. ],
+        [-0.3, -0.1,  0. ],
+        [-0.2, -0.1,  0. ],
+        [-0.1, -0.1,  0. ],
+        [ 0. , -0.1,  0. ],
+        [ 0.1, -0.1,  0. ],
+        [ 0.2, -0.1,  0. ],
+        [ 0.3, -0.1,  0. ],
+        [ 0.4, -0.1,  0. ],
+        [ 0.5, -0.1,  0. ],
+        [ 0.6, -0.1,  0. ],
+        [ 0.7, -0.1,  0. ],
+        [ 0.8, -0.1,  0. ],
+        [ 0.9, -0.1,  0. ],
+        [ 1. , -0.1,  0. ],
+        [-1. ,  0. ,  0. ],
+        [-0.9,  0. ,  0. ],
+        [-0.8,  0. ,  0. ],
+        [-0.7,  0. ,  0. ],
+        [-0.6,  0. ,  0. ],
+        [-0.5,  0. ,  0. ],
+        [-0.4,  0. ,  0. ],
+        [-0.3,  0. ,  0. ],
+        [-0.2,  0. ,  0. ],
+        [-0.1,  0. ,  0. ],
+        [ 0. ,  0. ,  0. ],
+        [ 0.1,  0. ,  0. ],
+        [ 0.2,  0. ,  0. ],
+        [ 0.3,  0. ,  0. ],
+        [ 0.4,  0. ,  0. ],
+        [ 0.5,  0. ,  0. ],
+        [ 0.6,  0. ,  0. ],
+        [ 0.7,  0. ,  0. ],
+        [ 0.8,  0. ,  0. ],
+        [ 0.9,  0. ,  0. ],
+        [ 1. ,  0. ,  0. ],
+        [-1. ,  0.1,  0. ],
+        [-0.9,  0.1,  0. ],
+        [-0.8,  0.1,  0. ],
+        [-0.7,  0.1,  0. ],
+        [-0.6,  0.1,  0. ],
+        [-0.5,  0.1,  0. ],
+        [-0.4,  0.1,  0. ],
+        [-0.3,  0.1,  0. ],
+        [-0.2,  0.1,  0. ],
+        [-0.1,  0.1,  0. ],
+        [ 0. ,  0.1,  0. ],
+        [ 0.1,  0.1,  0. ],
+        [ 0.2,  0.1,  0. ],
+        [ 0.3,  0.1,  0. ],
+        [ 0.4,  0.1,  0. ],
+        [ 0.5,  0.1,  0. ],
+        [ 0.6,  0.1,  0. ],
+        [ 0.7,  0.1,  0. ],
+        [ 0.8,  0.1,  0. ],
+        [ 0.9,  0.1,  0. ],
+        [ 1. ,  0.1,  0. ],
+        [-1. ,  0.2,  0. ],
+        [-0.9,  0.2,  0. ],
+        [-0.8,  0.2,  0. ],
+        [-0.7,  0.2,  0. ],
+        [-0.6,  0.2,  0. ],
+        [-0.5,  0.2,  0. ],
+        [-0.4,  0.2,  0. ],
+        [-0.3,  0.2,  0. ],
+        [-0.2,  0.2,  0. ],
+        [-0.1,  0.2,  0. ],
+        [ 0. ,  0.2,  0. ],
+        [ 0.1,  0.2,  0. ],
+        [ 0.2,  0.2,  0. ],
+        [ 0.3,  0.2,  0. ],
+        [ 0.4,  0.2,  0. ],
+        [ 0.5,  0.2,  0. ],
+        [ 0.6,  0.2,  0. ],
+        [ 0.7,  0.2,  0. ],
+        [ 0.8,  0.2,  0. ],
+        [ 0.9,  0.2,  0. ],
+        [ 1. ,  0.2,  0. ],
+        [-1. ,  0.3,  0. ],
+        [-0.9,  0.3,  0. ],
+        [-0.8,  0.3,  0. ],
+        [-0.7,  0.3,  0. ],
+        [-0.6,  0.3,  0. ],
+        [-0.5,  0.3,  0. ],
+        [-0.4,  0.3,  0. ],
+        [-0.3,  0.3,  0. ],
+        [-0.2,  0.3,  0. ],
+        [-0.1,  0.3,  0. ],
+        [ 0. ,  0.3,  0. ],
+        [ 0.1,  0.3,  0. ],
+        [ 0.2,  0.3,  0. ],
+        [ 0.3,  0.3,  0. ],
+        [ 0.4,  0.3,  0. ],
+        [ 0.5,  0.3,  0. ],
+        [ 0.6,  0.3,  0. ],
+        [ 0.7,  0.3,  0. ],
+        [ 0.8,  0.3,  0. ],
+        [ 0.9,  0.3,  0. ],
+        [ 1. ,  0.3,  0. ],
+        [-1. ,  0.4,  0. ],
+        [-0.9,  0.4,  0. ],
+        [-0.8,  0.4,  0. ],
+        [-0.7,  0.4,  0. ],
+        [-0.6,  0.4,  0. ],
+        [-0.5,  0.4,  0. ],
+        [-0.4,  0.4,  0. ],
+        [-0.3,  0.4,  0. ],
+        [-0.2,  0.4,  0. ],
+        [-0.1,  0.4,  0. ],
+        [ 0. ,  0.4,  0. ],
+        [ 0.1,  0.4,  0. ],
+        [ 0.2,  0.4,  0. ],
+        [ 0.3,  0.4,  0. ],
+        [ 0.4,  0.4,  0. ],
+        [ 0.5,  0.4,  0. ],
+        [ 0.6,  0.4,  0. ],
+        [ 0.7,  0.4,  0. ],
+        [ 0.8,  0.4,  0. ],
+        [ 0.9,  0.4,  0. ],
+        [ 1. ,  0.4,  0. ],
+        [-1. ,  0.5,  0. ],
+        [-0.9,  0.5,  0. ],
+        [-0.8,  0.5,  0. ],
+        [-0.7,  0.5,  0. ],
+        [-0.6,  0.5,  0. ],
+        [-0.5,  0.5,  0. ],
+        [-0.4,  0.5,  0. ],
+        [-0.3,  0.5,  0. ],
+        [-0.2,  0.5,  0. ],
+        [-0.1,  0.5,  0. ],
+        [ 0. ,  0.5,  0. ],
+        [ 0.1,  0.5,  0. ],
+        [ 0.2,  0.5,  0. ],
+        [ 0.3,  0.5,  0. ],
+        [ 0.4,  0.5,  0. ],
+        [ 0.5,  0.5,  0. ],
+        [ 0.6,  0.5,  0. ],
+        [ 0.7,  0.5,  0. ],
+        [ 0.8,  0.5,  0. ],
+        [ 0.9,  0.5,  0. ],
+        [ 1. ,  0.5,  0. ]], dtype=float32), ids=array([  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,
+         13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,
+         26,  27,  28,  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,
+         39,  40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  50,  51,
+         52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,  64,
+         65,  66,  67,  68,  69,  70,  71,  72,  73,  74,  75,  76,  77,
+         78,  79,  80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  90,
+         91,  92,  93,  94,  95,  96,  97,  98,  99, 100, 101, 102, 103,
+        104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116,
+        117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129,
+        130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142,
+        143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155,
+        156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168,
+        169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181,
+        182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194,
+        195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207,
+        208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220,
+        221, 222, 223, 224, 225, 226, 227, 228, 229, 230]))]
+</pre></div></div>
+</div>
+</section>
+<section id="Ploting-Feb-or-Xplt">
+<h2>Ploting Feb or Xplt<a class="headerlink" href="#Ploting-Feb-or-Xplt" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">febio_python.utils.pyvista_utils</span> <span class="kn">import</span> <span class="n">febio_to_pyvista</span>
+
+<span class="n">grids_list</span> <span class="o">=</span> <span class="n">febio_to_pyvista</span><span class="p">(</span><span class="n">container</span><span class="p">)</span>
+<span class="nb">len</span><span class="p">(</span><span class="n">grids_list</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ModuleNotFoundError</span>                       Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[37], line 3</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> <span class="ansi-bold" style="color: rgb(0,0,255)">febio_python</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">utils</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">pyvista_utils</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> febio_to_pyvista
+<span class="ansi-green-fg">----&gt; 3</span> grids_list <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">febio_to_pyvista</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">container</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">      4</span> <span style="color: rgb(0,135,0)">len</span>(grids_list)
+
+File <span class="ansi-green-fg">~/work/febio-python/febio-python/febio_python/utils/pyvista_utils.py:75</span>, in <span class="ansi-cyan-fg">febio_to_pyvista</span><span class="ansi-blue-fg">(data, apply_load_curves)</span>
+<span class="ansi-green-intense-fg ansi-bold">     72</span> grid <span style="color: rgb(98,98,98)">=</span> add_boundary_conditions(container, grid)
+<span class="ansi-green-intense-fg ansi-bold">     74</span> <span style="color: rgb(95,135,135)"># If states data is available, we should create a list of grids for each state</span>
+<span class="ansi-green-fg">---&gt; 75</span> grid_or_list_of_grids <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">add_states_to_grid</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">container</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">grid</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">apply_load_curves</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">apply_load_curves</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     77</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span style="color: rgb(0,135,0)">isinstance</span>(grid_or_list_of_grids, <span style="color: rgb(0,135,0)">list</span>):
+<span class="ansi-green-intense-fg ansi-bold">     78</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> [grid_or_list_of_grids]
+
+File <span class="ansi-green-fg">~/work/febio-python/febio-python/febio_python/utils/pyvista_utils.py:684</span>, in <span class="ansi-cyan-fg">add_states_to_grid</span><span class="ansi-blue-fg">(container, grid, apply_load_curves)</span>
+<span class="ansi-green-intense-fg ansi-bold">    682</span> <span style="color: rgb(95,135,135)"># Now, we need to interpolate the load curves, based on the timesteps</span>
+<span class="ansi-green-intense-fg ansi-bold">    683</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> apply_load_curves:
+<span class="ansi-green-fg">--&gt; 684</span>     interpolators <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">_load_curvers_to_interpolators</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">container</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    685</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> lc_id, interpolator <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> interpolators<span style="color: rgb(98,98,98)">.</span>items():
+<span class="ansi-green-intense-fg ansi-bold">    686</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> i, grid <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">enumerate</span>(state_grids):
+
+File <span class="ansi-green-fg">~/work/febio-python/febio-python/febio_python/utils/pyvista_utils.py:621</span>, in <span class="ansi-cyan-fg">_load_curvers_to_interpolators</span><span class="ansi-blue-fg">(container)</span>
+<span class="ansi-green-intense-fg ansi-bold">    620</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">_load_curvers_to_interpolators</span>(container: FEBioContainer) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span style="color: rgb(0,135,0)">dict</span>:
+<span class="ansi-green-fg">--&gt; 621</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> <span class="ansi-bold" style="color: rgb(0,0,255)">scipy</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> interpolate
+<span class="ansi-green-intense-fg ansi-bold">    622</span>     interpolators <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">dict</span>()
+<span class="ansi-green-intense-fg ansi-bold">    623</span>     loadcurves <span style="color: rgb(98,98,98)">=</span> container<span style="color: rgb(98,98,98)">.</span>load_curves
+
+<span class="ansi-red-fg">ModuleNotFoundError</span>: No module named &#39;scipy&#39;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grids_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cpos</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scalars</span><span class="o">=</span><span class="s2">&quot;stress&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[38], line 1</span>
+<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-yellow-bg">grids_list</span>[<span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">1</span>]<span style="color: rgb(98,98,98)">.</span>plot(cpos<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">xy</span><span style="color: rgb(175,0,0)">&#39;</span>, show_edges<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>, scalars<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">stress</span><span style="color: rgb(175,0,0)">&#34;</span>)
+
+<span class="ansi-red-fg">NameError</span>: name &#39;grids_list&#39; is not defined
+</pre></div></div>
+</div>
+<p>You can also quickly convert all cell data to node data:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">last_grid_as_nodal_data</span> <span class="o">=</span> <span class="n">grids_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cell_data_to_point_data</span><span class="p">()</span>
+<span class="n">last_grid_as_nodal_data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cpos</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scalars</span><span class="o">=</span><span class="s2">&quot;stress&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[39], line 1</span>
+<span class="ansi-green-fg">----&gt; 1</span> last_grid_as_nodal_data <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">grids_list</span>[<span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">1</span>]<span style="color: rgb(98,98,98)">.</span>cell_data_to_point_data()
+<span class="ansi-green-intense-fg ansi-bold">      2</span> last_grid_as_nodal_data<span style="color: rgb(98,98,98)">.</span>plot(cpos<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">xy</span><span style="color: rgb(175,0,0)">&#39;</span>, show_edges<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>, scalars<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">stress</span><span style="color: rgb(175,0,0)">&#34;</span>)
+
+<span class="ansi-red-fg">NameError</span>: name &#39;grids_list&#39; is not defined
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">last_grid_as_nodal_data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[40], line 1</span>
+<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-yellow-bg">last_grid_as_nodal_data</span>
+
+<span class="ansi-red-fg">NameError</span>: name &#39;last_grid_as_nodal_data&#39; is not defined
+</pre></div></div>
+</div>
+<p>When using the FEBio container, we have access to both Feb and Xplt data. This means that we can retrieve nodal load, boundary conditions, etc. Here is a cool plot that we can do:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plotter</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">()</span>
+<span class="n">strain_xx</span> <span class="o">=</span> <span class="n">last_grid_as_nodal_data</span><span class="p">[</span><span class="s2">&quot;Lagrange strain&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">fixed_nodes</span> <span class="o">=</span> <span class="n">last_grid_as_nodal_data</span><span class="p">[</span><span class="s2">&quot;fix&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">plotter</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">last_grid_as_nodal_data</span><span class="p">,</span>
+                 <span class="n">scalars</span><span class="o">=</span><span class="n">strain_xx</span><span class="p">,</span>
+                 <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;coolwarm&quot;</span><span class="p">,</span>
+                 <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">scalar_bar_args</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Strain - XX&quot;</span><span class="p">})</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">last_grid_as_nodal_data</span><span class="o">.</span><span class="n">points</span><span class="p">,</span>
+                 <span class="n">scalars</span><span class="o">=</span><span class="n">fixed_nodes</span><span class="p">,</span>
+                 <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span>
+                 <span class="n">style</span><span class="o">=</span><span class="s2">&quot;points&quot;</span><span class="p">,</span>
+                 <span class="n">point_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                 <span class="n">render_points_as_spheres</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_scalar_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">add_arrows</span><span class="p">(</span><span class="n">last_grid_as_nodal_data</span><span class="o">.</span><span class="n">points</span><span class="p">,</span>
+                   <span class="n">last_grid_as_nodal_data</span><span class="p">[</span><span class="s2">&quot;nodal_load&quot;</span><span class="p">],</span>
+                   <span class="n">mag</span><span class="o">=</span><span class="mf">5e-3</span><span class="p">,</span> <span class="c1"># This controls the mag of the arrows. Not the actual load. There may be a better way to control this.</span>
+                   <span class="n">show_scalar_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">color</span><span class="o">=</span><span class="s2">&quot;orange&quot;</span><span class="p">)</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">cpos</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[41], line 2</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> plotter <span style="color: rgb(98,98,98)">=</span> pv<span style="color: rgb(98,98,98)">.</span>Plotter()
+<span class="ansi-green-fg">----&gt; 2</span> strain_xx <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">last_grid_as_nodal_data</span>[<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Lagrange strain</span><span style="color: rgb(175,0,0)">&#34;</span>][:, <span style="color: rgb(98,98,98)">0</span>]
+<span class="ansi-green-intense-fg ansi-bold">      3</span> fixed_nodes <span style="color: rgb(98,98,98)">=</span> last_grid_as_nodal_data[<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">fix</span><span style="color: rgb(175,0,0)">&#34;</span>]<span style="color: rgb(98,98,98)">.</span>sum(<span style="color: rgb(98,98,98)">1</span>)
+<span class="ansi-green-intense-fg ansi-bold">      5</span> plotter<span style="color: rgb(98,98,98)">.</span>add_mesh(last_grid_as_nodal_data,
+<span class="ansi-green-intense-fg ansi-bold">      6</span>                  scalars<span style="color: rgb(98,98,98)">=</span>strain_xx,
+<span class="ansi-green-intense-fg ansi-bold">      7</span>                  cmap<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">coolwarm</span><span style="color: rgb(175,0,0)">&#34;</span>,
+<span class="ansi-green-intense-fg ansi-bold">      8</span>                  show_edges<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">True</span>,
+<span class="ansi-green-intense-fg ansi-bold">      9</span>                  scalar_bar_args<span style="color: rgb(98,98,98)">=</span>{<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">title</span><span style="color: rgb(175,0,0)">&#34;</span>: <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Strain - XX</span><span style="color: rgb(175,0,0)">&#34;</span>})
+
+<span class="ansi-red-fg">NameError</span>: name &#39;last_grid_as_nodal_data&#39; is not defined
+</pre></div></div>
+</div>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {"ba40ae9d11dd4d64b93ad07b86c5dfcd": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "61d56726101543de807dc8713567a042": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "bce030384e6e44a59ca17e82df11c059": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_ba40ae9d11dd4d64b93ad07b86c5dfcd", "placeholder": "\u200b", "style": "IPY_MODEL_61d56726101543de807dc8713567a042", "tabbable": null, "tooltip": null, "value": "<iframe src=\"http://localhost:36091/index.html?ui=P_0x7f5c1fefd6a0_0&reconnect=auto\" class=\"pyvista\" style=\"width: 800px; height: 400px; border: 1px solid rgb(221,221,221);\"></iframe>"}}, "c6440419a74f4297acd1ec8352eed2b1": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "0462ac6c06274d338a9891d84ea45640": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "12e512e596fb4a9387246e4742ddc789": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_c6440419a74f4297acd1ec8352eed2b1", "placeholder": "\u200b", "style": "IPY_MODEL_0462ac6c06274d338a9891d84ea45640", "tabbable": null, "tooltip": null, "value": "<iframe src=\"http://localhost:36091/index.html?ui=P_0x7f5c1fefddc0_1&reconnect=auto\" class=\"pyvista\" style=\"width: 800px; height: 400px; border: 1px solid rgb(221,221,221);\"></iframe>"}}, "03431bccf31546c6aba5961ab94c7a06": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "ececfcecbd474975a91d53dd3d5b75b4": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "8678a022f9dc492e94122b2d9c84c84b": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_03431bccf31546c6aba5961ab94c7a06", "placeholder": "\u200b", "style": "IPY_MODEL_ececfcecbd474975a91d53dd3d5b75b4", "tabbable": null, "tooltip": null, "value": "<iframe src=\"http://localhost:36091/index.html?ui=P_0x7f5c38d8fee0_2&reconnect=auto\" class=\"pyvista\" style=\"width: 800px; height: 400px; border: 1px solid rgb(221,221,221);\"></iframe>"}}}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../api/index.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">&lt;no title&gt;</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">&lt;no title&gt;</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Igor A. P. Nobrega
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Creating a simple simulation</a><ul>
+<li><a class="reference internal" href="#Creating-a-new-Feb-object">Creating a new Feb object</a><ul>
+<li><a class="reference internal" href="#The-basics">The basics</a></li>
+<li><a class="reference internal" href="#Adding-Mesh">Adding Mesh</a></li>
+<li><a class="reference internal" href="#Modfying-nodes/elements">Modfying nodes/elements</a></li>
+<li><a class="reference internal" href="#Adding-Load">Adding Load</a></li>
+<li><a class="reference internal" href="#Add-boundary-condition">Add boundary condition</a></li>
+<li><a class="reference internal" href="#Adding-Material">Adding Material</a></li>
+<li><a class="reference internal" href="#Add-Element-data">Add Element data</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Running-FEB">Running FEB</a></li>
+<li><a class="reference internal" href="#Reading-XPLT">Reading XPLT</a><ul>
+<li><a class="reference internal" href="#Example-properties">Example properties</a></li>
+<li><a class="reference internal" href="#States-data:">States data:</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#FEBio-Container">FEBio Container</a></li>
+<li><a class="reference internal" href="#Ploting-Feb-or-Xplt">Ploting Feb or Xplt</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=4e2eecee"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>

@@ -1,11 +1,11 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="">
+<html class="no-js" lang="en" data-content_root="./">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="API" href="api.html" /><link rel="prev" title="Installation" href="installation.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="&lt;no title&gt;" href="getting_started/index.html" /><link rel="prev" title="Installation" href="installation.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2024.05.06 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
         <title>Usage - Febio-Python 0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=387cc868" />
@@ -215,7 +215,34 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started/create_a_simple_simulation.html">Creating a simple simulation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/feb/index.html">febio_python.feb</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of febio_python.feb</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/feb/feb.html">Feb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/feb/feb25.html">Feb25</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/xplt/index.html">febio_python.xplt</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of febio_python.xplt</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/xplt/xplt.html">Xplt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/xplt/read_xplt.html">read_xplt</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/container/index.html">febio_python.container</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of febio_python.container</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/container/container.html">FEBioContainer</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/utils/index.html">febio_python.utils</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of febio_python.utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/utils/pyvista_utils.html">pyvista_utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/core/index.html">febio_python.core</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of febio_python.core</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/core/meta_data.html">meta_data (namedtuples)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/core/enums.html">enums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/core/element_types.html">element types</a></li>
+</ul>
+</li>
 </ul>
 
 </div>
@@ -257,13 +284,13 @@
         </div>
         <article role="main" id="furo-main-content">
           <section id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h1>
+<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h1>
 <p>Then, import the package in your Python code:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">febio</span>
 </pre></div>
 </div>
 <section id="reading-a-febio-input-file-feb">
-<h2>Reading a FEBio input file (<cite>.feb</cite>)<a class="headerlink" href="#reading-a-febio-input-file-feb" title="Permalink to this heading">¶</a></h2>
+<h2>Reading a FEBio input file (<cite>.feb</cite>)<a class="headerlink" href="#reading-a-febio-input-file-feb" title="Link to this heading">¶</a></h2>
 <p>To read a FEBio input file, use the <cite>febio.Feb</cite> function.
 This function returns a <cite>Feb</cite> object that can be used to access the contents of the FEBio input file.
 It automatically parses the input file and stores the contents in a structured format using xml.etree.ElementTree.
@@ -296,7 +323,7 @@ For example we can add Nodes to the input file using the <cite>add_node</cite> m
 <p>The <cite>add_node</cite> method takes a list of <cite>Nodes</cite> objects and adds them to the input file. For full documentation on the <cite>Feb</cite> object, see the API documentation.</p>
 </section>
 <section id="writing-a-febio-input-file-feb">
-<h2>Writing a FEBio input file (<cite>.feb</cite>)<a class="headerlink" href="#writing-a-febio-input-file-feb" title="Permalink to this heading">¶</a></h2>
+<h2>Writing a FEBio input file (<cite>.feb</cite>)<a class="headerlink" href="#writing-a-febio-input-file-feb" title="Link to this heading">¶</a></h2>
 <p>To write a FEBio input file, use the <cite>write</cite> method of the <cite>Feb</cite> object. It takes a single argument, the path to the output file:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">feb</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;path/to/output.feb&#39;</span><span class="p">)</span>
 </pre></div>
@@ -304,7 +331,7 @@ For example we can add Nodes to the input file using the <cite>add_node</cite> m
 <p>The <cite>write</cite> method writes the contents of the <cite>Feb</cite> object to the specified output file in FEBio format.</p>
 </section>
 <section id="running-a-febio-simulation">
-<h2>Running a FEBio simulation<a class="headerlink" href="#running-a-febio-simulation" title="Permalink to this heading">¶</a></h2>
+<h2>Running a FEBio simulation<a class="headerlink" href="#running-a-febio-simulation" title="Link to this heading">¶</a></h2>
 <p>To run a FEBio simulation, use the <cite>run</cite> function. You can run a simulation or multiple simulations depending on the input argument.
 If the input is a filepath, it will run the simulation using the specified input file. If the input is a directory, it will run all the simulations in the directory.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">febio_python</span> <span class="kn">import</span> <span class="n">run</span>
@@ -314,7 +341,7 @@ If the input is a filepath, it will run the simulation using the specified input
 </div>
 </section>
 <section id="reading-the-results-of-a-febio-simulation-xplt">
-<h2>Reading the results of a FEBio simulation (<cite>.xplt</cite>)<a class="headerlink" href="#reading-the-results-of-a-febio-simulation-xplt" title="Permalink to this heading">¶</a></h2>
+<h2>Reading the results of a FEBio simulation (<cite>.xplt</cite>)<a class="headerlink" href="#reading-the-results-of-a-febio-simulation-xplt" title="Link to this heading">¶</a></h2>
 <p>To read the results of a FEBio simulation, use the <cite>febio.Xplt</cite> function.
 This function returns an <cite>Xplt</cite> object that can be used to access the contents of the FEBio results file.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">febio_python</span> <span class="kn">import</span> <span class="n">Xplt</span>
@@ -336,7 +363,7 @@ For example, to access the node states of the simulation, use the <cite>states</
 For full documentation on the <cite>Xplt</cite> object, see the API documentation.</p>
 </section>
 <section id="the-febio-container">
-<h2>The FEBio Container<a class="headerlink" href="#the-febio-container" title="Permalink to this heading">¶</a></h2>
+<h2>The FEBio Container<a class="headerlink" href="#the-febio-container" title="Link to this heading">¶</a></h2>
 <p>For convenience, we have a <cite>Container</cite> class that can be used to store both <cite>Feb</cite> and <cite>Xplt</cite> objects. Allowing to access data from both the input
 and output files in a single object. For instance, you may want to access the input conditions (boundary and loads) while accessing the results of the simulation.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">febio_python</span> <span class="kn">import</span> <span class="n">FEBioContainer</span>
@@ -346,7 +373,7 @@ and output files in a single object. For instance, you may want to access the in
 </div>
 </section>
 <section id="converting-to-pyvista">
-<h2>Converting to <cite>pyvista</cite><a class="headerlink" href="#converting-to-pyvista" title="Permalink to this heading">¶</a></h2>
+<h2>Converting to <cite>pyvista</cite><a class="headerlink" href="#converting-to-pyvista" title="Link to this heading">¶</a></h2>
 <p>We have some utility functions to convert the Febio-Python objects to <cite>pyvista</cite> objects. This is useful to visualize the results of the simulation
 or to provide a more interactive way to access the data, such as manipulating the mesh of the input file or plotting the results.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">febio_python.utils.pyvista_utils</span> <span class="kn">import</span> <span class="n">febio_to_pyvista</span>
@@ -364,7 +391,7 @@ To plot the mesh you can simply use:</p>
 <p>For full documentation on the <cite>FEBioContainer</cite> object, see the API documentation.</p>
 </section>
 <section id="converting-to-vtk">
-<h2>Converting to <cite>vtk</cite><a class="headerlink" href="#converting-to-vtk" title="Permalink to this heading">¶</a></h2>
+<h2>Converting to <cite>vtk</cite><a class="headerlink" href="#converting-to-vtk" title="Link to this heading">¶</a></h2>
 <p>For convenience, we have an utility function to convert the Febio-Python objects to <cite>vtk</cite> objects. This is useful to visualize the results of the simulation
 and post-process the data using the <cite>vtk</cite> software. This function will use <cite>febio_to_pyvista</cite> and save each <cite>pyvista.UnstructuredGrid</cite> object to a <cite>.vtk</cite> file.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">febio_python.utils.vtk_utils</span> <span class="kn">import</span> <span class="n">febio_to_vtk</span>
@@ -382,12 +409,12 @@ For full documentation on the <cite>febio_to_vtk</cite> function, see the API do
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="api.html">
+          <a class="next-page" href="getting_started/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">API</div>
+                <div class="title">&lt;no title&gt;</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -451,9 +478,11 @@ For full documentation on the <cite>febio_to_vtk</cite> function, see the API do
       
     </aside>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b1f64a84"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+</div><script src="_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=4e2eecee"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     </body>
 </html>
