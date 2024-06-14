@@ -5,6 +5,7 @@
 
 import os
 import sys
+sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('../../febio_python'))
 # print(os.path.abspath('../../febio_python'))
 # import febio_python.utils
