@@ -28,7 +28,7 @@ jobs:
     - name: Build HTML
       run: |
         pip install -e .
-        python -m sphinx -W --keep-going --color docs/source docs/build/html/
+        xvfb-run -s "-screen 0 1280x1024x24" sphinx-build -W --keep-going --color docs/source docs/build/html/
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
