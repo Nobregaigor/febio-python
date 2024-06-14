@@ -16,8 +16,18 @@ from febio_python.core import (
 )
 
 class Xplt():
-    def __init__(self, filepath: Union[Path, str]=None, xplt_mesh: Union[XpltMesh, None] = None, states: Union[States, None] = None) -> None:
-        
+    """Xplt Object
+
+        Args:
+            filepath (Union[Path, str], optional): _description_. Defaults to None.
+            xplt_mesh (Union[XpltMesh, None], optional): _description_. Defaults to None.
+            states (Union[States, None], optional): _description_. Defaults to None.
+
+        Raises:
+            ValueError: _description_
+            ValueError: _description_
+        """
+    def __init__(self, filepath: Union[Path, str]=None, xplt_mesh: Union[XpltMesh, None] = None, states: Union[States, None] = None) -> None:        
         if filepath is not None:
             xplt_mesh, states = read_xplt(filepath)
             

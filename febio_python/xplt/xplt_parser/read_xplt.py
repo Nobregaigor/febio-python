@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Union
 from febio_python.utils.log import console_log
 from febio_python.core.enums import XPLT_TAGS as TAGS
 from febio_python.core import (
@@ -33,7 +33,16 @@ def check_fileversion(bf, verbose):
             "Incorrect XPLIT file version: {}, expected version: {} or [{} or 49]"
             .format(version, int(TAGS['VERSION_2_5'], base=16), int(TAGS['VERSION_3_0'], base=16))))
 
-def read_xplt(xplit_filepath, verbose=0) -> Tuple[XpltMesh, States]:
+def read_xplt(xplit_filepath: Union[Path, str], verbose: int=0) -> Tuple[XpltMesh, States]:
+    """Reads a XPLT file and returns a XpltMesh and States object.
+
+    Args:
+        xplit_filepath (Union[Path, str]): _description_
+        verbose (int, optional): _description_. Defaults to 0.
+
+    Returns:
+        Tuple[XpltMesh, States]: _description_
+    """
     
     xplit_filepath = Path(xplit_filepath)
     if not xplit_filepath.exists():

@@ -26,6 +26,8 @@ from febio_python.xplt import Xplt
 
 
 class FEBioContainer():
+    """Container class for FEBio files (FEB and XPLT files).
+    """
     def __init__(self, feb: Union[Feb30, Feb25, str, Path] = None, xplt: Union[Xplt, str, Path] = None, auto_find: bool = True) -> None:
         self.feb: Optional[Union[Feb30, Feb25]] = self._load_feb(feb) if feb else None
         self.xplt: Optional[Xplt] = self._load_xplt(xplt) if xplt else None
