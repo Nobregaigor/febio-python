@@ -1,6 +1,9 @@
 furo
 ipykernel
-nbsphinx
+nbsplit
 myst-parser
 pyvista[all,trame]
 jupyterlab>=3
+sphinx
+markupsafe
+jinja2
