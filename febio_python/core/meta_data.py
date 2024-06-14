@@ -14,6 +14,7 @@ ElementSet = namedtuple('ElementSet', ['name', 'ids'])
 # Materials
 # ------------------------------
 Material = namedtuple('Material', ['id', 'type', 'parameters', 'name', 'attributes'])
+Material.__new__.__defaults__ = (None,)  # This sets a default for the last field only
 
 # Loads
 # ------------------------------
@@ -27,6 +28,7 @@ LoadCurve = namedtuple('LoadCurve', ['id', 'interpolate_type', 'data'])
 # ------------------------------
 BoundaryCondition = namedtuple('BoundaryCondition', ['type', 'attributes']) # generic boundary condition
 FixCondition = namedtuple('FixCondition', ['dof', 'node_set', 'name'])
+FixCondition.__new__.__defaults__ = (None,)  # This sets a default for the last field only
 RigidBodyCondition = namedtuple('RigidBodyCondition', ['material', 'dof'])
 
 # Mesh data

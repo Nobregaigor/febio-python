@@ -29,7 +29,6 @@ class FebBaseObject():
             LEAD_TAGS = FEB_2_5_LEAD_TAGS
         else:
             LEAD_TAGS = FEB_3_0_LEAD_TAGS
-            
         # Order in which outer tags should be placed
         self.LEAD_TAGS: FEB_2_5_LEAD_TAGS | FEB_3_0_LEAD_TAGS = LEAD_TAGS
         self.MAJOR_TAGS = FEB_MAJOR_TAGS
@@ -39,7 +38,10 @@ class FebBaseObject():
     def __repr__(self):
         to_print = f"{self.__class__.__name__}({self.version}):\n"
         for el in list(self.root):
-            to_print += "-> {}: {}\n".format(el.tag, len(el))
+            if str(el.tag).lower() == str(self.LEAD_TAGS.MODULE.value).lower():
+                to_print += f"-> {el.tag}: {el.attrib['type'] if 'type' in el.attrib else 'Unknown'}\n"
+            else:
+                to_print += f"-> {el.tag}: {len(el)}\n"
             # print geometry details (nodes and elements)
             # if str(el.tag).lower() == str(self.LEAD_TAGS.GEOMETRY.value).lower() and len(el) > 0:
             #     for geo_el in list(el):
@@ -96,8 +98,12 @@ class FebBaseObject():
             
             # Handle the case in which a tree was not provided: Plant a new tree!
             else:
+                if self.__default_version < 3.0:
+                    LEAD_TAGS = FEB_2_5_LEAD_TAGS
+                else:
+                    LEAD_TAGS = FEB_3_0_LEAD_TAGS
                 root = ET.Element(FEB_ROOT.ROOT.value)
-                for item in self.LEAD_TAGS:
+                for item in LEAD_TAGS:
                     _ = ET.SubElement(root, item.value)
                 tree = ET.ElementTree(root)
                 
@@ -105,6 +111,10 @@ class FebBaseObject():
         # Should not happen, but just in case...
         if tree is None or root is None:
             raise ValueError("Tree and root were not found, please check input parameters.")
+        
+        # Now, if everything is fine, we need to check if the root has the proper version attribute
+        if "version" not in root.attrib:
+            root.attrib["version"] = str(self.__default_version)        
         return tree, root
     
     # ====================================================================================================== #
@@ -208,7 +218,7 @@ class FebBaseObject():
         try:
             self.get_lead_tag(lead_tag)
         except KeyError:
-            tag_name, tag_val = self.check_enum(lead_tag)
+            tag_name, tag_val = eu.check_enum(lead_tag)
             if tag_val not in self.lead_tag_order:
                 raise ValueError(
                     f"Invalid value for 'lead_tag': {tag_name}. Check self.LEAD_TAGS enum for details.")
@@ -322,9 +332,30 @@ class FebBaseObject():
     # ====================================================================================================== #
     
     @property
+    def __default_version(self) -> float:
+        """Return default version of FEBio file."""
+        if not hasattr(self, "_default_version"):
+            raise ValueError("Default version is not set."
+                             "._default_version should be set in the derived class "
+                             "before any initialization is done. "
+                             "e.g. self._default_version = 3.0")
+        return self._default_version
+
+    @property
     def version(self) -> float:
         """Return version of FEBio file."""
-        return float(self.root.attrib.get("version", None))
+        root_version = self.root.attrib.get("version", None)
+        if root_version is None:
+            root_version = self.__default_version
+        return float(root_version)
+    
+    @property
+    def module(self) -> ET.Element:
+        """Returns 'MODULE' tree element within 'febio_spec'."""
+        try:
+            return self.get_lead_tag(self.LEAD_TAGS.MODULE)
+        except KeyError:
+            return self.add_lead_tag(self.LEAD_TAGS.MODULE)
     
     @property
     def control(self) -> ET.Element:
@@ -429,3 +460,23 @@ class FebBaseObject():
             return self.get_lead_tag(self.LEAD_TAGS.MESHDATA)
         except KeyError:
             return self.add_lead_tag(self.LEAD_TAGS.MESHDATA)
+
+    # ====================================================================================================== #
+    # Other utility methods
+    # ====================================================================================================== #
+    
+    def inspect_nodes_and_elements(self) -> None:
+        """Inspect geometry details."""
+        to_print = ""
+        el = self.geometry if self.version < 3.0 else self.mesh
+        for geo_el in list(el):
+            if geo_el.tag == "Nodes" or geo_el.tag == "Elements":
+                if "name" in geo_el.keys():
+                    to_print += "--> {} '{}': {}\n".format(
+                        geo_el.tag, geo_el.attrib["name"], len(geo_el))
+                else:
+                    to_print += "--> {}: {}\n".format(
+                        geo_el.tag, len(geo_el))
+        if len(to_print) == 0:
+            to_print = "No geometry details found. Is the geometry defined?"
+        print(to_print)

@@ -36,7 +36,9 @@ class Feb25(AbstractFebObject):
                  tree: Union[ElementTree, None] = None, 
                  root: Union[Element, None] = None, 
                  filepath: Union[str, Path] = None):
+        self._default_version = 2.5
         super().__init__(tree, root, filepath)
+        
         if self.version != 2.5:
             raise ValueError("This class is only for FEBio 2.5 files"
                              f"Version found: {self.version}")
@@ -533,22 +535,24 @@ class Feb25(AbstractFebObject):
                 # However, user can also use VTK element types as input, but they must be 
                 # converted to FEBio types
                 el_type = element.type
-                if el_type not in FEBioElementType.__members__:
-                    try:
-                        el_type = FEBioElementType[str(el_type)]
-                    except KeyError:
+                # first, check if it is a VTK element type. FEBioElementType names
+                # are the same as VTK element types.
+                if el_type not in FEBioElementType.__members__.values():
+                    if str(el_type).upper() in FEBioElementType.__members__.keys():
+                        el_type = FEBioElementType[el_type].value
+                    else:
                         raise ValueError(f"Element type {el_type} is not a valid FEBio element type.")                        
-                        
+    
                 # Create a new Elements group if no existing one matches the name
                 el_root = ET.Element("Elements")
-                el_root.set("name", element.name)
-                el_root.set("type", element.type)
+                el_root.set("type", el_type)  # TYPE AND MAT MUST BE SET FIRST, OTHERWISE FEBIO WILL NOT RECOGNIZE THE ELEMENTS
                 el_root.set("mat", element.mat)
+                el_root.set("name", element.name)
                 self.geometry.append(el_root)  # Append new "Elements" at the end of the geometry
             for i, connectivity in enumerate(element.connectivity):
                 subel = ET.SubElement(el_root, "elem")
                 subel.set("id", str(i + last_initial_id))
-                subel.text = ",".join(map(str, connectivity))  # Convert connectivity to comma-separated string
+                subel.text = ",".join(map(str, connectivity + 1))  # Convert connectivity to comma-separated string
 
             # Update the last_initial_id for the next element group
             last_initial_id += len(element.connectivity)
@@ -662,13 +666,16 @@ class Feb25(AbstractFebObject):
             else:
                 # Create a new Material element if no existing one matches the ID
                 el_root = ET.Element("material")
-                el_root.set("id", material.id)
+                el_root.set("id", str(material.id))
                 el_root.set("type", material.type)
                 el_root.set("name", material.name)
                 self.material.append(el_root)
 
             # Add parameters as sub-elements
-            for key, value in material.parameters.items():
+            mat_params: dict = material.parameters
+            if not isinstance(mat_params, dict):
+                raise ValueError(f"Material parameters should be a dictionary, not {type(mat_params)}")
+            for key, value in mat_params.items():
                 subel = ET.SubElement(el_root, key)
                 subel.text = str(value)
     
@@ -682,22 +689,47 @@ class Feb25(AbstractFebObject):
         Args:
             nodal_loads (list of NodalLoad): List of NodalLoad namedtuples, each containing a boundary condition, node set, scale, and load curve.
         """
-        existing_nodal_loads = {load.node_set: load for load in self.get_nodal_loads()}
+        # existing_nodal_loads = {load.node_set: load for load in self.get_nodal_loads()}
 
         for load in nodal_loads:
-            if load.node_set in existing_nodal_loads:
-                # Append to existing NodalLoad element
-                el_root = self.loads.find(f".//nodal_load[@node_set='{load.node_set}']")
-            else:
+            # if load.node_set in existing_nodal_loads:
+            #     # Append to existing NodalLoad element
+            #     el_root = self.loads.find(f".//nodal_load[@node_set='{load.node_set}']")
+            # else:
                 # Create a new NodalLoad element if no existing one matches the node set
-                el_root = ET.Element("nodal_load")
-                el_root.set("node_set", load.node_set)
-                self.loads.append(el_root)
+            el_root = ET.Element("nodal_load")
+            el_root.set("node_set", load.node_set)
+            self.loads.append(el_root)
 
             el_root.set("bc", load.dof)
-            el_root.text = str(load.scale)
-            el_root.set("lc", str(load.load_curve))
-    
+            
+            scale_subel = ET.SubElement(el_root, "scale")
+            scale_subel.set("lc", str(load.load_curve))
+            if load.scale is None:
+                scale_subel.text = "1.0" # Default to 1.0 if no scale is provided
+            elif isinstance(load.scale, (str, int, float, np.number)):
+                scale_subel.text = str(load.scale)
+            elif isinstance(load.scale, np.ndarray):
+                # we need to add this as mesh data; and then reference it here
+                ref_data_name = f"nodal_load_{load.node_set}_scale"
+                scale_subel.text = f"1*{ref_data_name}"
+                # we need to retrieve the node ids for this node set
+                nodesets = self.get_nodesets()
+                # find the node set
+                node_set = [ns for ns in nodesets if ns.name == load.node_set]
+                if len(node_set) == 0:
+                    raise ValueError(f"Node set {load.node_set} not found in the geometry."
+                                     "Please, either add 'scale' as an str and manually provide "
+                                     "the scale value as a mesh data and add the node set to the geometry.")
+                node_set = node_set[0]
+                # prepare the nodal data
+                nodal_data = NodalData(node_set=load.node_set, 
+                                       name=ref_data_name, 
+                                       data=load.scale, 
+                                       ids=np.arange(0, len(node_set.ids) +1)) # add_nodal_data will convert to one-based indexing
+                # add the nodal data
+                self.add_nodal_data([nodal_data])
+
     def add_pressure_loads(self, pressure_loads: List[PressureLoad]) -> None:
         """
         Adds pressure loads to Loads, appending to existing pressure loads if they share the same surface.
@@ -755,26 +787,33 @@ class Feb25(AbstractFebObject):
         Args:
             boundary_conditions (list of Union[FixCondition, RigidBodyCondition, BoundaryCondition]): List of boundary condition namedtuples.
         """
-        existing_boundary_conditions = {bc.type: bc for bc in self.get_boundary_conditions()}
+        # existing_boundary_conditions = {bc.type: bc for bc in self.get_boundary_conditions()}
 
         for bc in boundary_conditions:
-            if bc.type in existing_boundary_conditions:
-                # Append to existing BoundaryCondition element
-                el_root = self.boundary.find(f".//{bc.type}")
+            # if bc.type in existing_boundary_conditions:
+            #     # Append to existing BoundaryCondition element
+            #     el_root = self.boundary.find(f".//{bc.type}")
+            # else:
+            # Create a new BoundaryCondition element if no existing one matches the type
+            bc_type = bc.type if hasattr(bc, "type") else bc.__class__.__name__
+            if bc_type == "FixCondition":
+                el_root = ET.Element("fix")
             else:
-                # Create a new BoundaryCondition element if no existing one matches the type
-                el_root = ET.Element(bc.type)
-                self.boundary.append(el_root)
+                el_root = ET.Element(bc_type)
+            self.boundary.append(el_root)
 
-            el_root.set("bc", bc.dof)
+            # el_root.set("bc", bc.dof)
             if hasattr(bc, "node_set"):
                 el_root.set("node_set", bc.node_set)
             if hasattr(bc, "material"):
                 el_root.set("mat", bc.material)
             if hasattr(bc, "dof"):
-                for fixed in bc.dof:
-                    subel = ET.SubElement(el_root, "fixed")
-                    subel.set("bc", fixed)
+                if not bc_type == "RigidBodyCondition":
+                    el_root.set("bc", bc.dof)
+                else:
+                    for fixed in bc.dof.split(","):
+                        subel = ET.SubElement(el_root, "fixed")
+                        subel.set("bc", fixed)
     
     # Mesh data
     # ------------------------------
@@ -803,8 +842,14 @@ class Feb25(AbstractFebObject):
             for i, node_data in enumerate(data.data):
                 subel = ET.SubElement(el_root, "node")
                 subel.set("lid", str(data.ids[i] + 1))  # Convert to one-based indexing
-                subel.text = ",".join(map(str, node_data))
-    
+                if isinstance(node_data, (str, int, float, np.number)):
+                    subel.text = str(node_data)
+                else:
+                    try:
+                        subel.text = ",".join(map(str, node_data))
+                    except TypeError:
+                        raise ValueError(f"Node data for node set {data.node_set} is not in the correct format.")
+                        
     def add_surface_data(self, surface_data: List[SurfaceData]) -> None:
         """
         Adds surface data to MeshData, appending to existing surface data if they share the same surface set.
@@ -837,16 +882,16 @@ class Feb25(AbstractFebObject):
         Args:
             element_data (list of ElementData): List of ElementData namedtuples, each containing an element set, name, and data.
         """
-        existing_element_data = {data.node_set: data for data in self.get_element_data()}
+        existing_element_data = {data.elem_set: data for data in self.get_element_data()}
 
         for data in element_data:
-            if data.node_set in existing_element_data:
+            if data.elem_set in existing_element_data:
                 # Append to existing ElementData element
-                el_root = self.meshdata.find(f".//{self.MAJOR_TAGS.ELEMENTDATA.value}[@elem_set='{data.node_set}']")
+                el_root = self.meshdata.find(f".//{self.MAJOR_TAGS.ELEMENTDATA.value}[@elem_set='{data.elem_set}']")
             else:
                 # Create a new ElementData element if no existing one matches the element set
                 el_root = ET.Element(self.MAJOR_TAGS.ELEMENTDATA.value)
-                el_root.set("elem_set", data.node_set)
+                el_root.set("elem_set", data.elem_set)
                 if data.name is not None:
                     el_root.set("name", data.name)
                 if data.var is not None:
@@ -856,7 +901,10 @@ class Feb25(AbstractFebObject):
             for i, elem_data in enumerate(data.data):
                 subel = ET.SubElement(el_root, "elem")
                 subel.set("lid", str(data.ids[i] + 1)) # Convert to one-based indexing
-                subel.text = ",".join(map(str, elem_data))
+                if isinstance(elem_data, (str, int, float, np.number)):
+                    subel.text = str(elem_data)
+                else:
+                    subel.text = ",".join(map(str, elem_data))
 
     # =========================================================================================================
     # Remove methods
@@ -1426,3 +1474,167 @@ class Feb25(AbstractFebObject):
         """
         self.remove_element_data([data.node_set for data in element_data])
         self.add_element_data(element_data)
+
+
+    # =========================================================================================================
+    # Base control setup methods
+    # =========================================================================================================
+    
+    def setup_module(self, module_type="solid"):
+        self.module.attrib["type"] = module_type
+    
+    def setup_controls(self, 
+                       analysis_type="static",
+                       time_steps=10, 
+                       step_size=0.1, 
+                       max_refs=15, 
+                       max_ups=10,
+                       diverge_reform=1, 
+                       reform_each_time_step=1, 
+                       dtol=0.001, 
+                       etol=0.01,
+                       rtol=0, 
+                       lstol=0.75, 
+                       min_residual=1e-20, 
+                       qnmethod=0, 
+                       rhoi=0,
+                       dtmin=0.01, 
+                       dtmax=0.1, 
+                       max_retries=5, 
+                       opt_iter=10, 
+                       **control_settings):
+        """
+        Set up or replace the control settings in an FEBio .feb file.
+
+        Args:
+            analysis_type (str): Type of analysis (e.g., 'static').
+            time_steps (int): Number of time steps.
+            step_size (float): Time step size.
+            max_refs (int): Maximum number of reformations.
+            max_ups (int): Maximum number of updates.
+            diverge_reform (int): Flag for divergence reform.
+            reform_each_time_step (int): Flag to reform each time step.
+            dtol (float): Displacement tolerance.
+            etol (float): Energy tolerance.
+            rtol (float): Residual tolerance.
+            lstol (float): Line search tolerance.
+            min_residual (float): Minimum residual.
+            qnmethod (int): Quasi-Newton method.
+            rhoi (int): Rhoi parameter.
+            dtmin (float): Minimum time step size.
+            dtmax (float): Maximum time step size.
+            max_retries (int): Maximum retries.
+            opt_iter (int): Optimal iterations.
+            **control_settings: Additional control settings to add to the control element. Any nested elements should be passed as dictionaries.
+        """
+        # Clear any existing control settings
+        if self.control is not None:
+            self.root.remove(self.control)
+
+        # Create new control element
+        self.control # will trigger the creation of the control element
+
+        # Add individual settings
+        settings = {
+            "time_steps": time_steps,
+            "step_size": step_size,
+            "max_refs": max_refs,
+            "max_ups": max_ups,
+            "diverge_reform": diverge_reform,
+            "reform_each_time_step": reform_each_time_step,
+            "dtol": dtol,
+            "etol": etol,
+            "rtol": rtol,
+            "lstol": lstol,
+            "min_residual": min_residual,
+            "qnmethod": qnmethod,
+            "rhoi": rhoi,
+            "time_stepper": {
+                "dtmin": dtmin,
+                "dtmax": dtmax,
+                "max_retries": max_retries,
+                "opt_iter": opt_iter
+            },
+            "analysis": {
+                "type": analysis_type
+            }
+        }
+        settings.update(control_settings)
+        
+        for key, value in settings.items():
+            if key == "analysis":
+                sub_element = ET.SubElement(self.control, key)
+                sub_element.attrib["type"] = value["type"]
+            elif isinstance(value, dict):  # handle nested elements like time_stepper and analysis
+                sub_element = ET.SubElement(self.control, key)
+                for subkey, subvalue in value.items():
+                    subsub_element = ET.SubElement(sub_element, subkey)
+                    subsub_element.text = str(subvalue)
+            else:
+                element = ET.SubElement(self.control, key)
+                element.text = str(value)
+
+    def setup_globals(self, T=0, R=0, Fc=0):
+        """
+        Set up or replace the globals settings in an FEBio .feb file.
+
+        Args:
+            T (float): Temperature constant.
+            R (float): Universal gas constant.
+            Fc (float): Force constant.
+
+        Returns:
+            None
+        """
+        # Clear any existing globals settings
+        globals_tag = self.root.find("Globals")
+        if globals_tag is not None:
+            self.root.remove(globals_tag)
+
+        # Create new Globals element
+        globals_tag = self.globals
+
+        # Create Constants sub-element under Globals
+        constants = ET.SubElement(globals_tag, "Constants")
+
+        # Add individual constants
+        constants_dict = {
+            "T": T,
+            "R": R,
+            "Fc": Fc
+        }
+
+        for key, value in constants_dict.items():
+            element = ET.SubElement(constants, key)
+            element.text = str(value)
+
+    def setup_output(self, variables=None):
+        """
+        Set up or replace the output settings in an FEBio .feb file.
+
+        Args:
+            variables (list of str): List of variables to output. If None, defaults to a predefined set.
+
+        Returns:
+            None
+        """
+        # Default variables if none are provided
+        if variables is None:
+            variables = ["displacement", "element strain energy", "Lagrange strain", "stress"]
+
+        # Clear any existing output settings
+        output_tag = self.root.find("Output")
+        if output_tag is not None:
+            self.root.remove(output_tag)
+
+        # Create new Output element
+        output_tag = self.output # will trigger the creation of the output element
+
+        # Create plotfile sub-element under Output
+        plotfile = ET.SubElement(output_tag, "plotfile")
+        plotfile.set("type", "febio")
+
+        # Add variables
+        for var in variables:
+            var_element = ET.SubElement(plotfile, "var")
+            var_element.set("type", var)

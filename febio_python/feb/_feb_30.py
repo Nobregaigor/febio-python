@@ -37,6 +37,7 @@ class Feb30(AbstractFebObject):
                  tree: Union[ElementTree, None] = None, 
                  root: Union[Element, None] = None, 
                  filepath: Union[str, Path] = None):
+        self._default_version = 3.0
         super().__init__(tree, root, filepath)
         if self.version != 3.0:
             raise ValueError("This class is only for FEBio 3.0 files"
