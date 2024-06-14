@@ -15,6 +15,9 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.9.18'
+    - name: Install pandoc
+      run: |
+        sudo apt-get install -y --no-install-recommends pandoc
     - name: Install docs dependencies
       run: |
         python -m pip install -r docs/requirements.txt
