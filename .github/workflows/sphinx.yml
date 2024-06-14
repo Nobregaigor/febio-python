@@ -9,6 +9,11 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v4
+    - name: Set up Python 3.9.18
+      uses: s-weigand/setup-conda@v1
+      with:
+        python-version: 3.9.18
+        activate-conda: True
     - name: Install febio_python
       run: |
         pip install -e .
