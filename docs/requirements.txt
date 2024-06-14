@@ -1,9 +1,9 @@
-furo==2024.5.6
-sphinx==7.3.7
+furo
+sphinx
 pandoc
 nbsphinx
 jupytext
 myst-parser
-# sphinx-book-theme
+sphinx-book-theme
 ipython
 ipykernel
