@@ -1,6 +1,9 @@
-sphinx_book_theme==1.0.1
+furo==2021.11.16
 sphinx
 pandoc
 nbsphinx
 jupytext
 myst-parser
+sphinx-book-theme
+ipython
+ipykernel
