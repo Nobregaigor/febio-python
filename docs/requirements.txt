@@ -3,3 +3,4 @@ ipykernel
 nbsphinx
 myst-parser
 pyvista[all,trame]
+jupyterlab>=3
