@@ -5,6 +5,8 @@ ipykernel
 nbsphinx
 myst-parser
 pyvista[all,trame]
+tqdm
+numpy
 jupyterlab>=3
 markupsafe==2.1.2
 jinja2==3.1.3
