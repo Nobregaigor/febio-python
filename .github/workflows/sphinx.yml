@@ -9,11 +9,12 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python 3.9.7
-      uses: s-weigand/setup-conda@v1
+    - name: Install Git
+      run: sudo apt-get update && sudo apt-get install git
+    - name: Set up Python
+      uses: actions/setup-python@v2
       with:
-        python-version: 3.9.7
-        activate-conda: True
+        python-version: '3.9.18'
     - name: Install febio_python
       run: |
         pip install -e .
