@@ -299,32 +299,39 @@ def add_material(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.Uns
     Adds material properties from the FEBioContainer to the PyVista UnstructuredGrid. Material properties such as Young's modulus,
     Poisson's ratio, or any other parameters defined in FEBio are associated with specific elements based on their material IDs.
 
-    - `Material Parameters`: These are transferred to PyVista as arrays in `cell_data` under "mat_parameters:{mat_id}",
-      where each row corresponds to an element and each column to a material parameter. The order of parameters is consistent
-      across `cell_data` and `field_data`.
-    - `Material Type and Name`: These are stored in `field_data` under "mat_type:{mat_id}" and "mat_name:{mat_id}", respectively,
-      providing a reference to the type and name of the material used.
-    - `Parameters Order`: The names of the parameters (e.g., 'Young's modulus', 'Poisson's ratio') are stored in `field_data`
-      under "mat_parameters:{mat_id}" to maintain an understanding of the data structure in `cell_data`.
+    Material Parameters:
+        These are transferred to PyVista as arrays in `cell_data` under "mat_parameters:{mat_id}", where each row corresponds to an
+        element and each column to a material parameter. The order of parameters is consistent across `cell_data` and `field_data`.
 
-    Parameters:
+    Material Type and Name:
+        These are stored in `field_data` under "mat_type:{mat_id}" and "mat_name:{mat_id}", respectively, providing a reference to
+        the type and name of the material used.
+
+    Parameters Order:
+        The names of the parameters (e.g., 'Young's modulus', 'Poisson's ratio') are stored in `field_data` under "mat_parameters:{mat_id}"
+        to maintain an understanding of the data structure in `cell_data`.
+
+    Args:
         container (FEBioContainer): The container containing material data.
-        UnstructuredGrid (pv.UnstructuredGrid): The UnstructuredGrid where material properties will be added.
+        grid (pv.UnstructuredGrid): The UnstructuredGrid where material properties will be added.
 
     Returns:
         pv.UnstructuredGrid: The updated UnstructuredGrid with material properties added.
 
     Example:
-        If a material in FEBio with mat_id=1 has a Young's modulus of 210 GPa and a Poisson's ratio of 0.3, after
-        running this function, the parameters can be accessed in PyVista as follows:
+        If a material in FEBio with mat_id=1 has a Young's modulus of 210 GPa and a Poisson's ratio of 0.3, after running this function,
+        the parameters can be accessed in PyVista as follows:
+        
         - Access material parameters:
-          grid.cell_data['mat_parameters:1']  # Array of shape [n_elements, 2]
+          `grid.cell_data['mat_parameters:1']`  # Array of shape [n_elements, 2]
           where the first column is Young's modulus and the second is Poisson's ratio.
+        
         - Access material type and name:
-          grid.field_data['mat_type:1']  # Returns ['Elastic']
-          grid.field_data['mat_name:1']  # Returns ['GenericElasticMaterial']
+          `grid.field_data['mat_type:1']`  # Returns ['Elastic']
+          `grid.field_data['mat_name:1']`  # Returns ['GenericElasticMaterial']
+        
         - Access the order of parameters:
-          grid.field_data['mat_parameters:1']  # Returns ['Young's modulus', 'Poisson's ratio']
+          `grid.field_data['mat_parameters:1']`  # Returns ['Young's modulus', 'Poisson's ratio']
     """
     elements = container.elements
     materials = container.materials
@@ -457,37 +464,52 @@ def add_pressure_load(container: FEBioContainer, grid: pv.UnstructuredGrid) -> p
 
 def add_boundary_conditions(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     """
-    Adds boundary conditions from the FEBioContainer to the PyVista UnstructuredGrid. This function handles two main types of boundary 
-    conditions: fixed conditions (FixCondition) and rigid body conditions (RigidBodyCondition):
+    Adds boundary conditions from the FEBioContainer to the PyVista UnstructuredGrid. This function
+    manages two main types of boundary conditions: fixed conditions (FixCondition) and rigid body
+    conditions (RigidBodyCondition).
 
-    - `Fixed Conditions`: These apply constraints on node displacements ('x', 'y', 'z') or shell rotations ('sx', 'sy', 'sz') for 
-      specific node sets. They are recorded as binary arrays in `point_data`, where each element represents whether a node is fixed 
-      along a certain axis:
-        - 'fix': Binary array of shape [n_points, 3], indicating fixed displacements in X, Y, and Z directions.
-        - 'fix_shell': Binary array of shape [n_points, 3], indicating fixed rotations in X, Y, and Z directions.
-      Both arrays consolidate all applicable constraints per node, summing constraints where multiple conditions affect the same node.
-
-    - `Rigid Body Conditions`: These restrict the movement or rotation of all nodes associated with a specific material, denoted by:
-        - 'rigid_body': Binary array of shape [n_points, 3], indicating fixed positions in X, Y, and Z directions for nodes associated with a material.
-        - 'rigid_body_rot': Binary array of shape [n_points, 3], indicating fixed rotations in X, Y, and Z directions for nodes associated with a material.
-      These conditions are labeled with specific material IDs, enhancing traceability and management in complex models.
-
-    Parameters:
+    Args:
         container (FEBioContainer): The container containing boundary conditions.
-        UnstructuredGrid (pv.UnstructuredGrid): The UnstructuredGrid where boundary conditions will be added.
+        grid (pv.UnstructuredGrid): The PyVista UnstructuredGrid where boundary conditions
+            will be added.
 
     Returns:
-        pv.UnstructuredGrid: The updated UnstructuredGrid with boundary conditions processed and added.
+        pv.UnstructuredGrid: The updated UnstructuredGrid with processed and added boundary conditions.
 
     Example:
         After processing, to access the constraints:
+        
         - Displacement constraints for a specific mesh block:
-          grid.point_data['fix']  # Outputs a binary array where 1 indicates a fixed displacement.
+          `grid.point_data['fix']`  # Outputs a binary array where 1 indicates a fixed displacement.
+          
         - Shell rotation constraints for the same block:
-          grid.point_data['fix_shell']  # Outputs a binary array where 1 indicates a fixed shell rotation.
+          `grid.point_data['fix_shell']`  # Outputs a binary array where 1 indicates a fixed shell rotation.
+          
         - For rigid body constraints related to a specific material ID:
-          grid.point_data['rigid_body']  # Fixed position constraints.
-          grid.point_data['rigid_body_rot']  # Fixed rotational constraints.
+          `grid.point_data['rigid_body']`  # Fixed position constraints.
+          `grid.point_data['rigid_body_rot']`  # Fixed rotational constraints.
+
+    Fixed Conditions:
+        Applies constraints on node displacements ('x', 'y', 'z') or shell rotations ('sx', 'sy', 'sz') for
+        specific node sets. Recorded as binary arrays in `point_data`, each element represents whether
+        a node is fixed along a certain axis:
+
+        - 'fix': Binary array of shape [n_points, 3], indicating fixed displacements in X, Y, and Z directions.
+        - 'fix_shell': Binary array of shape [n_points, 3], indicating fixed rotations in X, Y, and Z directions.
+        
+        Both arrays consolidate all applicable constraints per node, summing constraints where multiple
+        conditions affect the same node.
+
+    Rigid Body Conditions:
+        Restrict the movement or rotation of all nodes associated with a specific material, denoted by:
+        
+        - 'rigid_body': Binary array of shape [n_points, 3], indicating fixed positions in X, Y, and Z
+          directions for nodes associated with a material.
+        - 'rigid_body_rot': Binary array of shape [n_points, 3], indicating fixed rotations in X, Y, and
+          Z directions for nodes associated with a material.
+        
+        These conditions are labeled with specific material IDs, enhancing traceability and management
+        in complex models.
     """
 
     for bc in container.boundary_conditions:
