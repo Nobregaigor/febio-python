@@ -25,30 +25,35 @@ def check_fileversion(bf, verbose):
         console_log('Current version is: %d' % version, 2, verbose)
     elif (version == 49):
         console_log('Current spec version is: 3.0 -> %d | WARNING: Docs say version should be 8, but it is 49.' % version, 2, verbose)
+    elif (version == 52):
+        console_log(f'Current spec version is: 3.0 -> %d | WARNING: Possible new spec_version (4.0), but missing Xplt reader for 4.0', 2, verbose)
+        return 3.0
     else:
-        raise(ValueError("Incorrect XPLIT file version: {} | expected {} (from docs) or 49 ('0x00031')"
-                         .format(version, TAGS.VERSION_3_0.value)))
+        raise ValueError(
+            f"Incorrect XPLIT file version: {version}, expected version: {TAGS.VERSION_2_5} or [{TAGS.VERSION_3_0} or 49]"
+            # .format(version, int(TAGS.VERSION_2_5, base=16), int(TAGS.VERSION_3_0, base=16)))
+        )
 
 def read_spec30(filepath: Path, verbose=0) -> Tuple[XpltMesh, States]:
-    
+
     with open(filepath, "rb") as bf:
-        
+
         # Part 1: check file size
         # ------------------------------------
         # - get file size and check if its not empty
         filesize = bf_helpers.get_file_size(bf)
         if filesize == 0:
             raise(ValueError("Input xplit file size is zero. Check file."))
-        
+
         # Part 2: check file format
         # ------------------------------------
         # - check if file format meets requirement
         check_fileformat(bf, TAGS.FEBIO, verbose=verbose)
-        
+
         # Part 3: Read header
         # ------------------------------------
         console_log("Reading header...", 1, verbose, header=True)
-        
+
         # move cursor to "ROOT"
         search_block(bf, TAGS.ROOT, verbose=verbose)
         # move cursor to "HEADER"
@@ -61,22 +66,22 @@ def read_spec30(filepath: Path, verbose=0) -> Tuple[XpltMesh, States]:
         a = search_block(bf, TAGS.HDR_COMPRESSION, verbose=verbose)
         file_is_compressed = read_bytes(bf, nb=a)
         console_log(f"Compression: {file_is_compressed}", 2, verbose)
-        
+
         # Part 4: Read dictionary
         # ------------------------------------
         console_log("Reading dictionary...", 1, verbose, header=True)
         states_dict: StatesDict = read_dictionary(bf, verbose=verbose)
-        
+
         # Part 5: Read mesh
         # ------------------------------------
         console_log("Reading mesh...", 1, verbose, header=True)
         mesh: XpltMesh = read_mesh(bf, verbose=verbose)
-        
+
         # Part 6: Read Parts (skip for now)
         # ------------------------------------
-        
+
         # Part 7: Read States
         # ------------------------------------
         states: States = read_state(bf, states_dict, verbose=verbose)
-        
+
     return mesh, states
