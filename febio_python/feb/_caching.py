@@ -1,7 +1,7 @@
-from functools import lru_cache, wraps
+from functools import wraps
 from .bases import FebBaseObject
-import xml.etree.ElementTree as ET
 import hashlib
+
 
 def feb_instance_cache(func):
     """ Cache decorator that uses a hash of the string representation of instance data to generate cache keys. """

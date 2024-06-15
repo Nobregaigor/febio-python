@@ -33,15 +33,15 @@ from febio_python.core import (
 from ._caching import feb_instance_cache
 
 
-class Feb30(AbstractFebObject):
+class Feb40(AbstractFebObject):
     def __init__(self,
                  tree: Union[ElementTree, None] = None,
                  root: Union[Element, None] = None,
                  filepath: Union[str, Path] = None):
-        self._default_version = 3.0
+        self._default_version = 4.0
         super().__init__(tree, root, filepath)
-        if self.version != 3.0:
-            raise ValueError("This class is only for FEBio 3.0 files"
+        if self.version != 4.0:
+            raise ValueError("This class is only for FEBio 4.0 files"
                              f"Version found: {self.version}")
 
     # =========================================================================================================
@@ -138,11 +138,13 @@ class Feb30(AbstractFebObject):
             list: [Nodeset(name, node_ids)]
         """
         # Extract the nodesets dictionary from the .feb file
-        nodesets: dict = self.get_tag_data(self.LEAD_TAGS.MESH, self.MAJOR_TAGS.NODESET, content_type="id", dtype=dtype)
+        nodesets = self.mesh.findall(self.MAJOR_TAGS.NODESET.value)
         # Convert the nodesets dictionary to a list of Nodeset named tuples
         nodeset_list = list()
-        for key, value in nodesets.items():
-            # correct value to zero-based indexing
+        for item in nodesets:
+            key = item.attrib.get("name")
+            value = np.fromstring(item.text, sep=",", dtype=dtype)
+            # convert value text to numpy array
             value -= 1
             nodeset_list.append(NodeSet(name=key, ids=value))
         return nodeset_list
@@ -159,15 +161,17 @@ class Feb30(AbstractFebObject):
         Returns:
             list: [SurfaceSet(name, node_ids)]
         """
-        # Extract the surfacesets dictionary from the .feb file
-        surfacesets: dict = self.get_tag_data(self.LEAD_TAGS.MESH, self.MAJOR_TAGS.SURFACESET, content_type="id", dtype=dtype)
+        # Extract the nodesets dictionary from the .feb file
+        surfacesets = self.mesh.findall(self.MAJOR_TAGS.SURFACESET.value)
         # Convert the surfacesets dictionary to a list of Nodeset named tuples
-        surfaceset_list = list()
-        for key, value in surfacesets.items():
-            # correct value to zero-based indexing
+        surfset_list = list()
+        for item in surfacesets:
+            key = item.attrib.get("name")
+            value = np.fromstring(item.text, sep=",", dtype=dtype)
+            # convert value text to numpy array
             value -= 1
-            surfaceset_list.append(SurfaceSet(name=key, node_ids=value))
-        return surfaceset_list
+            surfset_list.append(SurfaceSet(name=key, ids=value))
+        return surfset_list
 
     @feb_instance_cache
     def get_elementsets(self, dtype=np.int64) -> List[ElementSet]:
@@ -181,12 +185,14 @@ class Feb30(AbstractFebObject):
         Returns:
             list: [ElementSet(name, node_ids)]
         """
-        # Extract the elementsets dictionary from the .feb file
-        elementsets: dict = self.get_tag_data(self.LEAD_TAGS.MESH, self.MAJOR_TAGS.ELEMENTSET, content_type="id", dtype=dtype)
-        # Convert the elementsets dictionary to a list of Nodeset named tuples
+        # Extract the nodesets dictionary from the .feb file
+        elemesets = self.mesh.findall(self.MAJOR_TAGS.ELEMENTSET.value)
+        # Convert the elemesets dictionary to a list of Nodeset named tuples
         elementset_list = list()
-        for key, value in elementsets.items():
-            # correct value to zero-based indexing
+        for item in elemesets:
+            key = item.attrib.get("name")
+            value = np.fromstring(item.text, sep=",", dtype=dtype)
+            # convert value text to numpy array
             value -= 1
             elementset_list.append(ElementSet(name=key, ids=value))
         return elementset_list
@@ -203,15 +209,19 @@ class Feb30(AbstractFebObject):
 
             name = domain.attrib.get("name", f"UnnamedDomain{i}")
             mat = domain.attrib.get("mat", None)
+            type = domain.attrib.get("type", None)
 
             if domain.tag.upper() == "SHELLDOMAIN":
                 # get shell_normal_nodal child element
                 shell_normal_nodal = float(domain.find("shell_normal_nodal").text)
+                shell_thickness = float(domain.find("shell_thickness").text)
                 new_domain = ShellDomain(
                     id=i,
                     name=name,
                     mat=mat,
-                    shell_normal_nodal=shell_normal_nodal
+                    type=type,
+                    shell_normal_nodal=shell_normal_nodal,
+                    shell_thickness=shell_thickness
                 )
 
             else:
@@ -267,28 +277,53 @@ class Feb30(AbstractFebObject):
     @feb_instance_cache
     def get_nodal_loads(self) -> List[NodalLoad]:
         nodal_loads = []
-        for i, load in enumerate(self.loads.findall(self.MAJOR_TAGS.NODALLOAD.value)):
-            scale_data = load.find("scale")
+        for i, load in enumerate(self.loads.findall(".//nodal_load")):  # Update to find 'nodal_load' elements
+            value_data = load.find("value")
 
-            # Convert scale text to float if possible, maintain as text if not
+            # Convert value text to float if possible, maintain as text if not
             try:
-                scale_value = float(scale_data.text)
-            except ValueError:
-                scale_value = scale_data.text  # Keep as text if not convertible
+                scale_value = float(value_data.text)
+            except (ValueError, TypeError):
+                scale_value = value_data.text  # Keep as text if not convertible
+
+            # in ths new version, scale is a "tuple" -> text separated by commas
+            if ',' in scale_value:
+                scale_value = tuple(map(float, scale_value.split(',')))
 
             # Extracting the load curve id, default to 'NoCurve'
-            lc_curve = scale_data.attrib.get("lc", "NoCurve")
+            lc_curve = value_data.attrib.get("lc", None)
             try:
                 lc_curve = int(lc_curve)
-            except ValueError:
+            except (ValueError, TypeError):
+                pass
+
+            # Extract the shell_bottom tag value (if it exists)
+            shell_bottom = load.find("shell_bottom")
+            if shell_bottom is not None:
+                shell_bottom = shell_bottom.text
+            try:
+                shell_bottom = float(shell_bottom)
+            except (ValueError, TypeError):
+                pass
+
+            # Extract relative tag value (if it exists)
+            relative = load.find("relative")
+            if relative is not None:
+                relative = relative.text
+            try:
+                relative = bool(relative)
+            except (ValueError, TypeError):
                 pass
 
             # Create a NodalLoad named tuple for the current load
             current_load = NodalLoad(
-                dof=load.find("dof").text if load.find("dof") is not None else "UndefinedBC",  # Handling missing dof element
-                node_set=load.attrib.get("node_set", f"UnnamedNodeSet{i}"),  # Default to an indexed name if not specified
+                dof=load.attrib.get("bc", None),
+                node_set=load.attrib.get("node_set", None),
+                type=load.attrib.get("type", None),
+                relative=relative,
                 scale=scale_value,
-                load_curve=lc_curve
+                load_curve=lc_curve,
+                shell_bottom=shell_bottom
             )
 
             # Add the new NodalLoad to the list
@@ -361,12 +396,18 @@ class Feb30(AbstractFebObject):
 
         boundary_conditions_list = []
         for elem in self.boundary.findall(".//bc"):  # Update to find 'bc' elements
-            if elem.attrib.get('type') == 'fix':
-                # Create an instance of FixCondition for each 'fix' element
+            if elem.attrib.get('type') == 'zero displacement':
+                # Extract DOFs
+                dof = {
+                    "x_dof": elem.find("x_dof").text if elem.find("x_dof") is not None else "0",
+                    "y_dof": elem.find("y_dof").text if elem.find("y_dof") is not None else "0",
+                    "z_dof": elem.find("z_dof").text if elem.find("z_dof") is not None else "0"
+                }
+                # Create an instance of FixCondition for each 'zero displacement' element
                 fix_condition = FixCondition(
-                    dof=elem.find("dofs").text if elem.find("dofs") is not None else "UndefinedDOFs",
+                    dof=dof,
                     node_set=elem.attrib['node_set'],
-                    name=elem.attrib['name'] if 'name' in elem.attrib else None
+                    name=elem.attrib.get('name')
                 )
                 boundary_conditions_list.append(fix_condition)
 
@@ -380,7 +421,8 @@ class Feb30(AbstractFebObject):
 
             else:
                 # Fallback to a generic BoundaryCondition for unrecognized types
-                generic_condition = BoundaryCondition(type=elem.tag, attributes=elem.attrib)
+                tags = {child.tag: child.text for child in elem}
+                generic_condition = BoundaryCondition(type=elem.tag, attributes=elem.attrib, tags=tags)
                 boundary_conditions_list.append(generic_condition)
 
         return boundary_conditions_list
@@ -405,15 +447,29 @@ class Feb30(AbstractFebObject):
                     # Add non-numeric strings as is
                     _this_data.append(x.text)
                 _these_ids.append(int(x.attrib["lid"]))
+
+            # Convert the lists to numpy arrays
+            _this_data = np.array(_this_data, dtype=dtype)
+            _these_ids = np.array(_these_ids, dtype=np.int64) - 1
+
             ref = data.attrib["node_set"]
             name = data.attrib["name"]
+            data_type = data.attrib.get("type", None)
+            if data_type is None:
+                if _this_data.ndim == 1:
+                    data_type = "scalar"
+                elif _this_data.shape[1] == 3:
+                    data_type = "vector"
+                else:
+                    data_type = "tensor"
 
             # Create a NodalData instance
             current_data = NodalData(
                 node_set=ref,
                 name=name,
-                data=np.array(_this_data, dtype=dtype),  # Ensure data is in the correct dtype
-                ids=np.array(_these_ids, dtype=np.int64) - 1  # Correct ids to zero-based indexing
+                data=_this_data,  # Ensure data is in the correct dtype
+                ids=_these_ids,  # Correct ids to zero-based indexing
+                data_type=data_type,
             )
 
             # Add the NodalData instance to the list
@@ -460,7 +516,7 @@ class Feb30(AbstractFebObject):
         for data in self.meshdata.findall(self.MAJOR_TAGS.ELEMENTDATA.value):
             _this_data = deque()
             _these_ids = deque()
-            for x in data.findall("elem"):
+            for x in data.findall("e"):
                 if ',' in x.text:
                     # Split the string by commas and convert each to float
                     _this_data.append([float(num) for num in x.text.split(',')])
@@ -475,14 +531,16 @@ class Feb30(AbstractFebObject):
             ref = data.attrib["elem_set"]
             name = data.attrib.get("name", None)
             var = data.attrib.get("var", None)
+            data_type = data.attrib.get("type", None)
 
             # Create a ElementData instance
             current_data = ElementData(
                 elem_set=ref,
+                data=np.array(_this_data, dtype=dtype),  # Ensure data is in the correct dtype
+                ids=np.array(_these_ids, dtype=np.int64) - 1,  # Correct ids to zero-based indexing
                 name=name,
                 var=var,
-                data=np.array(_this_data, dtype=dtype),  # Ensure data is in the correct dtype
-                ids=np.array(_these_ids, dtype=np.int64) - 1  # Correct ids to zero-based indexing
+                type=data_type,
             )
 
             # Add the ElementData instance to the list
@@ -1647,45 +1705,113 @@ class Feb30(AbstractFebObject):
                        analysis="STATIC",
                        time_steps=10,
                        step_size=0.1,
+                       plot_zero_state: bool = True,
+                       plot_range=(0, 1),
+                       plot_level="PLOT_MAJOR_ITRS",
+                       output_level="OUTPUT_MAJOR_ITRS",
+                       plot_stride=1,
+                       output_stride=1,
+                       adaptor_re_solve=1,
+                       # solver settings
+                       solver_type="solid",
+                       symmetric_stiffness="symmetric",
+                       equation_scheme="staggered",
+                       equation_order="default",
+                       optimize_bw=0,
+                       lstol=0.75,
+                       lsmin=0.01,
+                       lsiter=5,
                        max_refs=15,
-                       max_ups=10,
-                       diverge_reform=1,
+                       check_zero_diagonal=0,
+                       zero_diagonal_tol=0,
+                       force_partition=0,
                        reform_each_time_step=1,
+                       reform_augment=0,
+                       diverge_reform=1,
+                       min_residual=1e-20,
+                       max_residual=0,
                        dtol=0.001,
                        etol=0.01,
                        rtol=0,
-                       lstol=0.75,
-                       min_residual=1e-20,
+                       alpha=1,
+                       beta=0.25,
+                       gamma=0.5,
+                       logSolve=0,
+                       arc_length=0,
+                       arc_length_scale=0,
+                       qn_method_type="BFGS",
+                       max_ups=10,
+                       max_buffer_size=0,
+                       cycle_buffer=1,
+                       cmax=100000,
                        qnmethod=0,
                        rhoi=0,
-                       dtmin=0.01,
-                       dtmax=0.1,
+                       # time stepper settings
+                       time_stepper_type="default",
                        max_retries=5,
                        opt_iter=10,
+                       dtmin=0.01,
+                       dtmax=0.1,
+                       aggressiveness=0,
+                       cutback=0.5,
+                       dtforce=0,
                        **control_settings):
         """
-        Set up or replace the control settings in an FEBio .feb file.
+        Set up control settings in an FEBio .feb file.
 
         Args:
-            analysis (str): Type of analysis (e.g., 'static').
+            analysis (str): Analysis type.
             time_steps (int): Number of time steps.
-            step_size (float): Time step size.
-            max_refs (int): Maximum number of reformations.
-            max_ups (int): Maximum number of updates.
-            diverge_reform (int): Flag for divergence reform.
-            reform_each_time_step (int): Flag to reform each time step.
+            step_size (float): Size of each time step.
+            plot_zero_state (bool): Whether to plot zero state.
+            plot_range (tuple): Range of plot.
+            plot_level (str): Level of plot.
+            output_level (str): Level of output.
+            plot_stride (int): Plot stride.
+            output_stride (int): Output stride.
+            adaptor_re_solve (int): Adaptor resolve setting.
+            solver_type (str): Type of solver.
+            symmetric_stiffness (str): Symmetric stiffness setting.
+            equation_scheme (str): Equation scheme.
+            equation_order (str): Equation order.
+            optimize_bw (int): Optimize bandwidth.
+            lstol (float): Line search tolerance.
+            lsmin (float): Minimum line search.
+            lsiter (int): Line search iterations.
+            max_refs (int): Maximum refinements.
+            check_zero_diagonal (int): Check zero diagonal.
+            zero_diagonal_tol (int): Zero diagonal tolerance.
+            force_partition (int): Force partition.
+            reform_each_time_step (int): Reform each time step.
+            reform_augment (int): Reform augment.
+            diverge_reform (int): Diverge reform.
+            min_residual (float): Minimum residual.
+            max_residual (int): Maximum residual.
             dtol (float): Displacement tolerance.
             etol (float): Energy tolerance.
-            rtol (float): Residual tolerance.
-            lstol (float): Line search tolerance.
-            min_residual (float): Minimum residual.
+            rtol (int): Residual tolerance.
+            alpha (int): Alpha value.
+            beta (float): Beta value.
+            gamma (float): Gamma value.
+            logSolve (int): Log solve setting.
+            arc_length (int): Arc length.
+            arc_length_scale (int): Arc length scale.
+            qn_method_type (str): Quasi-Newton method type.
+            max_ups (int): Maximum ups.
+            max_buffer_size (int): Maximum buffer size.
+            cycle_buffer (int): Cycle buffer.
+            cmax (int): Maximum cycles.
             qnmethod (int): Quasi-Newton method.
-            rhoi (int): Rhoi parameter.
-            dtmin (float): Minimum time step size.
-            dtmax (float): Maximum time step size.
+            rhoi (int): Rho I.
+            time_stepper_type (str): Time stepper type.
             max_retries (int): Maximum retries.
-            opt_iter (int): Optimal iterations.
-            **control_settings: Additional control settings to add to the control element. Any nested elements should be passed as dictionaries.
+            opt_iter (int): Optimizer iterations.
+            dtmin (float): Minimum time step.
+            dtmax (float): Maximum time step.
+            aggressiveness (int): Aggressiveness level.
+            cutback (float): Cutback value.
+            dtforce (int): Force time step.
+            control_settings (dict): Additional control settings.
         """
         # Clear any existing control settings
         if self.control is not None:
@@ -1695,29 +1821,63 @@ class Feb30(AbstractFebObject):
         self.control  # will trigger the creation of the control element
 
         # Add individual settings
+        # Add individual settings
         settings = {
-            "analysis": str(analysis).upper(),
+            "analysis": analysis,
             "time_steps": time_steps,
             "step_size": step_size,
+            "plot_zero_state": int(plot_zero_state),
+            "plot_range": f"{plot_range[0]},{plot_range[1]}",
+            "plot_level": plot_level,
+            "output_level": output_level,
+            "plot_stride": plot_stride,
+            "output_stride": output_stride,
+            "adaptor_re_solve": adaptor_re_solve,
             "solver": {
+                "type": solver_type,
+                "symmetric_stiffness": symmetric_stiffness,
+                "equation_scheme": equation_scheme,
+                "equation_order": equation_order,
+                "optimize_bw": optimize_bw,
+                "lstol": lstol,
+                "lsmin": lsmin,
+                "lsiter": lsiter,
                 "max_refs": max_refs,
-                "max_ups": max_ups,
-                "diverge_reform": diverge_reform,
+                "check_zero_diagonal": check_zero_diagonal,
+                "zero_diagonal_tol": zero_diagonal_tol,
+                "force_partition": force_partition,
                 "reform_each_time_step": reform_each_time_step,
+                "reform_augment": reform_augment,
+                "diverge_reform": diverge_reform,
+                "min_residual": min_residual,
+                "max_residual": max_residual,
                 "dtol": dtol,
                 "etol": etol,
                 "rtol": rtol,
-                "lstol": lstol,
-                "min_residual": min_residual,
-                "qnmethod": qnmethod,
-                "rhoi": rhoi,
+                "alpha": alpha,
+                "beta": beta,
+                "gamma": gamma,
+                "logSolve": logSolve,
+                "arc_length": arc_length,
+                "arc_length_scale": arc_length_scale,
+                "qn_method": {
+                    "type": qn_method_type,
+                    "max_ups": max_ups,
+                    "max_buffer_size": max_buffer_size,
+                    "cycle_buffer": cycle_buffer,
+                    "cmax": cmax,
+                },
             },
             "time_stepper": {
+                "type": time_stepper_type,
+                "max_retries": max_retries,
+                "opt_iter": opt_iter,
                 "dtmin": dtmin,
                 "dtmax": dtmax,
-                "max_retries": max_retries,
-                "opt_iter": opt_iter
-            },
+                "aggressiveness": aggressiveness,
+                "cutback": cutback,
+                "dtforce": dtforce,
+            }
         }
         settings.update(control_settings)
 

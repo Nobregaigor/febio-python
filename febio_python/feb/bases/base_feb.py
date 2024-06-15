@@ -1,8 +1,8 @@
 # from tkinter import E
 import xml.etree.ElementTree as ET
-from os.path import isfile, join
+from os.path import isfile
 # from .. logger import console_log as log
-from febio_python.core.enums import FEB_2_5_LEAD_TAGS, FEB_3_0_LEAD_TAGS
+from febio_python.core.enums import FEB_2_5_LEAD_TAGS, FEB_3_0_LEAD_TAGS, FEB_4_0_LEAD_TAGS
 from febio_python.core.enums import FEB_ROOT, FEB_MAJOR_TAGS
 from pathlib import Path
 import numpy as np
@@ -12,29 +12,31 @@ from collections import OrderedDict
 
 
 class FebBaseObject():
-    def __init__(self, 
-                 tree: Union[ET.ElementTree, None] = None, 
-                 root: Union[ET.Element, None] = None, 
+    def __init__(self,
+                 tree: Union[ET.ElementTree, None] = None,
+                 root: Union[ET.Element, None] = None,
                  filepath: Union[str, Path] = None):
         self.path_to_file = filepath
 
         # Handle initialization of tree and root
         tree, root = self._handle_initialization(tree, root, filepath)
-        
+
         # Set tree and root attributes
         self.tree: ET.ElementTree = tree
         self.root: ET.Element = root
         # Set some enums as attributes
-        if self.version < 3.0:
-            LEAD_TAGS = FEB_2_5_LEAD_TAGS
-        else:
+        if self.version == 4.0:
+            LEAD_TAGS = FEB_4_0_LEAD_TAGS
+        elif self.version == 3.0:
             LEAD_TAGS = FEB_3_0_LEAD_TAGS
+        else:
+            LEAD_TAGS = FEB_2_5_LEAD_TAGS
         # Order in which outer tags should be placed
-        self.LEAD_TAGS: FEB_2_5_LEAD_TAGS | FEB_3_0_LEAD_TAGS = LEAD_TAGS
+        self.LEAD_TAGS: FEB_2_5_LEAD_TAGS | FEB_3_0_LEAD_TAGS | FEB_4_0_LEAD_TAGS = LEAD_TAGS
         self.MAJOR_TAGS = FEB_MAJOR_TAGS
-        
+
         self.lead_tag_order = [item.value for item in list(LEAD_TAGS)]
-    
+
     def __repr__(self):
         to_print = f"{self.__class__.__name__}({self.version}):\n"
         for el in list(self.root):
@@ -42,43 +44,24 @@ class FebBaseObject():
                 to_print += f"-> {el.tag}: {el.attrib['type'] if 'type' in el.attrib else 'Unknown'}\n"
             else:
                 to_print += f"-> {el.tag}: {len(el)}\n"
-            # print geometry details (nodes and elements)
-            # if str(el.tag).lower() == str(self.LEAD_TAGS.GEOMETRY.value).lower() and len(el) > 0:
-            #     for geo_el in list(el):
-            #         if geo_el.tag == "Nodes" or geo_el.tag == "Elements":
-            #             if "name" in geo_el.keys():
-            #                 to_print += "--> {} '{}': {}\n".format(
-            #                     geo_el.tag, geo_el.attrib["name"], len(geo_el))
-            #             else:
-            #                 to_print += "--> {}: {}\n".format(
-            #                     geo_el.tag, len(geo_el))
 
-            # print material details
-            # if str(el.tag).lower() == str(self.LEAD_TAGS.MATERIAL.value).lower() and len(el) > 0:
-            #     for geo_el in list(el):
-            #         if "type" in geo_el.keys():
-            #             to_print += "--> {} '{}': {}\n".format(
-            #                 geo_el.tag, geo_el.attrib["type"], len(geo_el))
-            #         else:
-            #             to_print += "--> {}: {}\n".format(
-            #                 geo_el.tag, len(geo_el))
         return to_print
-    
+
     def __len__(self):
         return len(self.root)
-    
+
     # ====================================================================================================== #
     # Initialization methods
     # ====================================================================================================== #
 
-    def _handle_initialization(self, 
-                               tree: Union[ET.ElementTree, None] = None, 
-                               root: Union[ET.Element, None] = None, 
+    def _handle_initialization(self,
+                               tree: Union[ET.ElementTree, None] = None,
+                               root: Union[ET.Element, None] = None,
                                filepath: Union[str, Path] = None) -> Tuple[ET.ElementTree, ET.Element]:
         # Handle the case in which a filepath is provided -> parse and get tree and root
         if filepath is not None:
             tree, root = FebBaseObject.parse(filepath)
-        
+
         # If no filepath is provided, proceed with other cases
         else:
             # Handle the case in which a tree what provided
@@ -87,7 +70,7 @@ class FebBaseObject():
                 if not isinstance(tree, ET.ElementTree):
                     raise ValueError("Tree must be an ElementTree.ElementTree object."
                                     f"Received: {type(tree)}")
-                
+
                 # Tree root reference for paesed xml file
                 if root is not None:
                     if not isinstance(root, ET.ElementTree):
@@ -95,34 +78,36 @@ class FebBaseObject():
                                         f"Received: {type(root)}")
                 else:
                     root: ET.Element = tree.getroot()
-            
+
             # Handle the case in which a tree was not provided: Plant a new tree!
             else:
-                if self.__default_version < 3.0:
+                if self.__default_version == 2.5:
                     LEAD_TAGS = FEB_2_5_LEAD_TAGS
-                else:
+                elif self.__default_version == 3.0:
                     LEAD_TAGS = FEB_3_0_LEAD_TAGS
+                else:
+                    LEAD_TAGS = FEB_4_0_LEAD_TAGS
                 root = ET.Element(FEB_ROOT.ROOT.value)
                 for item in LEAD_TAGS:
                     _ = ET.SubElement(root, item.value)
                 tree = ET.ElementTree(root)
-                
+
         # If for some reason tree and root are still None, raise an error
         # Should not happen, but just in case...
         if tree is None or root is None:
             raise ValueError("Tree and root were not found, please check input parameters.")
-        
+
         # Now, if everything is fine, we need to check if the root has the proper version attribute
         if "version" not in root.attrib:
-            root.attrib["version"] = str(self.__default_version)        
+            root.attrib["version"] = str(self.__default_version)
         return tree, root
-    
+
     # ====================================================================================================== #
     # Static methods
     # ====================================================================================================== #
-    
+
     @staticmethod
-    def parse(content: Union[str, Path, ET.ElementTree, ET.Element] ) -> tuple:
+    def parse(content: Union[str, Path, ET.ElementTree, ET.Element]) -> tuple:
         """Parse some content into 'ET' tree and root elements.
 
         Args:
@@ -139,35 +124,35 @@ class FebBaseObject():
                 try:
                     tree = ET.fromstring(content)
                     root = tree.getroot()
-                except:
-                    raise(ValueError(
-                        "Content was identified as string, but could not be parsed. Please, verify."))
+                except Exception as e:
+                    raise ValueError("Content was identified as string, but could not be parsed. "
+                                     "Please, verify.") from e
         elif isinstance(content, ET.ElementTree):
             try:
                 tree = content
                 root = tree.getroot()
-            except:
-                raise(ValueError(
-                    "Content was identified as ElementTree object, but could not get its root. Please, verify."))
+            except Exception as e:
+                raise ValueError("Content was identified as ElementTree object, "
+                                 "but could not get its root. Please, verify.") from e
         elif isinstance(content, ET.Element):
             tree = None
             root = content
         else:
-            raise(ValueError("Content is not file, string or xml tree. Please, verify."))
+            raise ValueError("Content is not file, string or xml tree. Please, verify.")
 
         return tree, root
-    
+
     @classmethod
     def from_file(cls, filename) -> object:
         if not isfile(filename):
             raise ValueError("Input file does not exist.")
         tree, root = cls.parse(filename)
         return cls(tree, root=root, filepath=filename)
-    
+
     # ====================================================================================================== #
     # Helper methods
     # ====================================================================================================== #
-    
+
     def clean(self) -> None:
         """Remore all root children that are empty."
         """
@@ -184,7 +169,7 @@ class FebBaseObject():
     # ====================================================================================================== #
     # Writing methods
     # ====================================================================================================== #
-    
+
     def write(self, filepath, clean=False, encoding="ISO-8859-1") -> None:
         if clean:
             self.clean()
@@ -193,16 +178,16 @@ class FebBaseObject():
         out_dir = os.path.dirname(os.path.abspath(filepath))
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
-        
+
         self.tree.write(filepath, encoding=encoding)
-        
+
     # ====================================================================================================== #
     # Helper Methods to handle tags
     # ====================================================================================================== #
-    
+
     # Lead tags
     # ----------------
-    
+
     def add_lead_tag(self, lead_tag: str) -> ET.Element:
         """Tries to add lead tag at proper position according to 'lead_tag_order'.
 
@@ -211,7 +196,7 @@ class FebBaseObject():
 
         Raises:
             ValueError: If lead_tag is invalid.
-        
+
         Returns:
             ET.Element: Element added.
         """
@@ -227,7 +212,7 @@ class FebBaseObject():
             if len(self.root) == 0 or idx == 0:
                 self.root.insert(0, ET.Element(tag_val))
             elif idx == len(self.root):
-                self.root.insert(idx-1, ET.Element(tag_val))
+                self.root.insert(idx - 1, ET.Element(tag_val))
             elif idx < len(self.root):
                 self.root.insert(idx, ET.Element(tag_val))
             else:
@@ -238,12 +223,12 @@ class FebBaseObject():
                         self.root.insert(-1, ET.Element(tag_val))
                         added = True
                         break
-                if added == False:
+                if added is False:
                     self.root.insert(idx, ET.Element(tag_val))
-        
+
         # return element added
         return self.get_lead_tag(lead_tag)
-        
+
     def get_lead_tag(self, tag: str) -> ET.Element:
         """Return ET element corresponding to given tag. Lead tags are defined \
             as 'root' tags contained within 'febio_spec'.
@@ -263,10 +248,10 @@ class FebBaseObject():
             raise KeyError(
                 f"Tag '{tag_name}' not found. Are you sure it is valid? Check self.LEAD_TAGS enums for details.")
         return el
-    
+
     # Sub-tags
     # ----------------
-    
+
     def get_tag(self, lead_tag: str, tag: str) -> ET.Element:
         """Return ET element corresponding to given tag contained within 'lead_tag'. \
             Lead tags are defined as 'root' tags contained within 'febio_spec'. \
@@ -294,7 +279,7 @@ class FebBaseObject():
             raise KeyError(
                 f"Tag '{tag_name}' not found within {lead_tag_name}.")
         return el
-    
+
     def find_tags(self, lead_tag: str, tag: str) -> List[ET.Element]:
         """Helper function to find all tags within a lead_tag and handle exceptions if not found."""
         lead_element = self.get_lead_tag(lead_tag)
@@ -304,7 +289,7 @@ class FebBaseObject():
             # raise KeyError(f"Tag '{tag_name}' not found within '{eu.check_enum(lead_tag)[0]}'.")
             return []
         return tags
-    
+
     def get_tag_data(self, lead_tag: str, tag: str, content_type='text', dtype=np.float32) -> OrderedDict:
         """
         General function to extract data from repeated tags based on content type (text or attribute).
@@ -326,11 +311,11 @@ class FebBaseObject():
             else:
                 data[name] = np.array([sub_el.attrib[content_type] for sub_el in item], dtype=dtype)
         return data
-        
+
     # ====================================================================================================== #
     # Properties
     # ====================================================================================================== #
-    
+
     @property
     def __default_version(self) -> float:
         """Return default version of FEBio file."""
@@ -348,7 +333,7 @@ class FebBaseObject():
         if root_version is None:
             root_version = self.__default_version
         return float(root_version)
-    
+
     @property
     def module(self) -> ET.Element:
         """Returns 'MODULE' tree element within 'febio_spec'."""
@@ -356,7 +341,7 @@ class FebBaseObject():
             return self.get_lead_tag(self.LEAD_TAGS.MODULE)
         except KeyError:
             return self.add_lead_tag(self.LEAD_TAGS.MODULE)
-    
+
     @property
     def control(self) -> ET.Element:
         """Returns 'CONTROL' tree element within 'febio_spec'."""
@@ -402,7 +387,7 @@ class FebBaseObject():
             return self.get_lead_tag(self.LEAD_TAGS.MESH)
         except KeyError:
             return self.add_lead_tag(self.LEAD_TAGS.MESH)
-    
+
     @property
     def meshdomains(self) -> ET.Element:
         """Returns 'MESHDOMAINS' tree element within 'febio_spec'."""
@@ -412,7 +397,7 @@ class FebBaseObject():
             return self.get_lead_tag(self.LEAD_TAGS.MESHDOMAINS)
         except KeyError:
             return self.add_lead_tag(self.LEAD_TAGS.MESHDOMAINS)
-    
+
     @property
     def boundary(self) -> ET.Element:
         """Returns 'BOUNDARY' tree element within 'febio_spec'."""
@@ -464,7 +449,7 @@ class FebBaseObject():
     # ====================================================================================================== #
     # Other utility methods
     # ====================================================================================================== #
-    
+
     def inspect_nodes_and_elements(self) -> None:
         """Inspect geometry details."""
         to_print = ""
