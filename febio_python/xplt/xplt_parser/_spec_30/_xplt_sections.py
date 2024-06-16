@@ -201,13 +201,17 @@ def _read_domain_section(bf, verbose=0) -> List[Elements]:
         # domains.append(domain_info)
         console_log("--elements shape: {}".format(elements.shape), 3, verbose)
 
+        # get element IDs
+        elem_ids = elements[:, 0]  # First column is element IDs (according to FEBio docs)
+        elements = elements[:, 1:]
+
         new_elements = Elements(
             name=None,
             mat=None,
             part=part_id,
             type=elem_type_name,
             connectivity=elements,
-            ids=np.arange(previous_id, previous_id + num_elems)
+            ids=elem_ids
         )
         previous_id += num_elems
         domains.append(new_elements)
@@ -449,7 +453,7 @@ def _process_state_var(bf, filesize: int, states_dict: StatesDict, offset=0, ver
         # move pointer to actual data
         a = search_block(bf, TAGS.STATE_VAR_DATA, verbose=verbose)
         # read domain id -> not used in this package (for now)
-        domain_id = int(read_bytes(bf))
+        domain_id = int(read_bytes(bf)) - 1  # 0-based index
         # read data size
         data_size = read_bytes(bf)
         # read data
@@ -458,7 +462,7 @@ def _process_state_var(bf, filesize: int, states_dict: StatesDict, offset=0, ver
             var_data = read_bytes(bf, nb=data_size, format='f' * (n_data * var_dim))
             var_data = np.array(var_data, dtype="float32")
             var_data = var_data.reshape((n_data, var_dim))
-
+            # create new state variable
             new_variable = StateVariable(
                 name=var_name,
                 dim=var_dim,
