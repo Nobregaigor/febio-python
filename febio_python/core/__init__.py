@@ -19,18 +19,19 @@ from .meta_data import (
     LoadCurve,
     BoundaryCondition,
     FixCondition,
+    ZeroDisplacementCondition,
+    ZeroShellDisplacementCondition,
     RigidBodyCondition,
     NodalData,
     SurfaceData,
     ElementData,
     # Xplt data
-    XpltMesh, 
+    XpltMesh,
     XpltMeshPart,
     StatesDict,
     StateVariable,
-    StateData, 
+    StateData,
     States,
-    
     # Mesh Domains
     GenericDomain,
     ShellDomain,
