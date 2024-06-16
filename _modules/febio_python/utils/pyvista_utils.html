@@ -214,7 +214,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation.html">Creating a simple simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v25.html">Creating a simple simulation (v2.5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v30.html">Creating a simple simulation (v3.0)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v40.html">Creating a simple simulation (v4.0)</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
@@ -284,6 +286,8 @@
 <span class="kn">from</span> <span class="nn">febio_python</span> <span class="kn">import</span> <span class="n">FEBioContainer</span>
 <span class="kn">from</span> <span class="nn">febio_python.feb._feb_25</span> <span class="kn">import</span> <span class="n">Feb25</span>
 <span class="kn">from</span> <span class="nn">febio_python.feb._feb_30</span> <span class="kn">import</span> <span class="n">Feb30</span>
+<span class="kn">from</span> <span class="nn">febio_python.feb._feb_40</span> <span class="kn">import</span> <span class="n">Feb40</span>
+
 
 <span class="c1"># from febio_python.feb import Feb</span>
 <span class="kn">from</span> <span class="nn">febio_python.core</span> <span class="kn">import</span> <span class="p">(</span>
@@ -300,12 +304,13 @@
 <span class="c1"># from copy import deepcopy</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 
+
 <div class="viewcode-block" id="febio_to_pyvista">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.febio_to_pyvista">[docs]</a>
 <span class="k">def</span> <span class="nf">febio_to_pyvista</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">],</span> <span class="n">apply_load_curves</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Converts FEBio simulation data into a PyVista MultiBlock structure for advanced visualization and analysis. </span>
-<span class="sd">    This function orchestrates a series of operations to transfer all pertinent data from FEBio into a structured </span>
+<span class="sd">    Converts FEBio simulation data into a PyVista MultiBlock structure for advanced visualization and analysis.</span>
+<span class="sd">    This function orchestrates a series of operations to transfer all pertinent data from FEBio into a structured</span>
 <span class="sd">    MultiBlock format that PyVista can utilize effectively.</span>
 
 <span class="sd">    Steps involved in the conversion include:</span>
@@ -325,39 +330,39 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        pv.MultiBlock: A fully populated PyVista MultiBlock object representing the entire FEBio model.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="c1"># Make sure we have a FEBioContainer object</span>
     <span class="n">container</span><span class="p">:</span> <span class="n">FEBioContainer</span> <span class="o">=</span> <span class="n">ensure_febio_container</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    
+
     <span class="c1"># Create a multiblock object from the FEBioContainer (nodes, elements, etc.)</span>
     <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span> <span class="o">=</span> <span class="n">create_unstructured_grid_from_febio_container</span><span class="p">(</span><span class="n">container</span><span class="p">)</span>
-    
+
     <span class="c1"># Add nodal sets, element sets, and surface sets</span>
     <span class="n">grid</span> <span class="o">=</span> <span class="n">add_nodalsets</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
     <span class="n">grid</span> <span class="o">=</span> <span class="n">add_elementsets</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
     <span class="n">grid</span> <span class="o">=</span> <span class="n">add_surfacesets</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
-    
+
     <span class="c1"># Add mesh data -&gt; point data, cell data</span>
     <span class="n">grid</span> <span class="o">=</span> <span class="n">add_nodaldata</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
     <span class="n">grid</span> <span class="o">=</span> <span class="n">add_elementdata</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
     <span class="n">grid</span> <span class="o">=</span> <span class="n">add_surface_data</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
-    
+
     <span class="c1"># Add materials -&gt; cell data (parameters), field data (parameter names, type, material name)</span>
     <span class="n">grid</span> <span class="o">=</span> <span class="n">add_material</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
-    
+
     <span class="c1"># Add loads -&gt; point data (resultant nodal load), cell data (resultant pressure load)</span>
     <span class="n">grid</span> <span class="o">=</span> <span class="n">add_nodalload</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
     <span class="n">grid</span> <span class="o">=</span> <span class="n">add_pressure_load</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
-    
+
     <span class="c1"># Add boundary conditions -&gt; point data (fixed boundary conditions), cell data (rigid body boundary conditions</span>
     <span class="n">grid</span> <span class="o">=</span> <span class="n">add_boundary_conditions</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
-    
+
     <span class="c1"># If states data is available, we should create a list of grids for each state</span>
     <span class="n">grid_or_list_of_grids</span> <span class="o">=</span> <span class="n">add_states_to_grid</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">apply_load_curves</span><span class="o">=</span><span class="n">apply_load_curves</span><span class="p">)</span>
-    
+
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">grid_or_list_of_grids</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">grid_or_list_of_grids</span><span class="p">]</span>
-    
+
     <span class="k">return</span> <span class="n">grid_or_list_of_grids</span></div>
 
 
@@ -365,11 +370,12 @@
 <span class="c1"># Validation functions</span>
 <span class="c1"># =============================================================================</span>
 
+
 <div class="viewcode-block" id="ensure_febio_container">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.ensure_febio_container">[docs]</a>
-<span class="k">def</span> <span class="nf">ensure_febio_container</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FEBioContainer</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">ensure_febio_container</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb40</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FEBioContainer</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure the input data is a FEBioContainer object.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb40</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">feb</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">FEBioContainer</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">data</span>
@@ -380,6 +386,7 @@
 <span class="c1"># =============================================================================</span>
 <span class="c1"># Create mesh (multiblock) from FEBioContainer</span>
 <span class="c1"># =============================================================================</span>
+
 
 <div class="viewcode-block" id="create_unstructured_grid_from_febio_container">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.create_unstructured_grid_from_febio_container">[docs]</a>
@@ -398,42 +405,43 @@
     <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Nodes</span><span class="p">]</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">nodes</span>
     <span class="n">volumes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Elements</span><span class="p">]</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">volumes</span>
     <span class="n">surfaces</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Elements</span><span class="p">]</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">surfaces</span>
-    
-    <span class="n">elements</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">volumes</span><span class="p">)</span> <span class="o">+</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">surfaces</span><span class="p">)</span> <span class="c1"># deep copy to avoid modifying the original data</span>
-    
+
+    <span class="n">elements</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">volumes</span><span class="p">)</span> <span class="o">+</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">surfaces</span><span class="p">)</span>  <span class="c1"># deep copy to avoid modifying the original data</span>
+
     <span class="c1"># create a MultiBlock object</span>
     <span class="c1"># multiblock = pv.MultiBlock()</span>
-    
+
     <span class="c1"># First, stack all the node coordinates; this will be the points of the mesh</span>
     <span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">coordinates</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">])</span>
-    
+
     <span class="c1"># Next, create a cells_dict.</span>
     <span class="c1"># This is a dictionary that maps the element type to the connectivity</span>
     <span class="n">cells_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
         <span class="n">el_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">type</span>
-        <span class="n">connectivity</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">connectivity</span> <span class="c1"># FEBio uses 1-based indexing</span>
+        <span class="n">connectivity</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">connectivity</span>  <span class="c1"># FEBio uses 1-based indexing</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">elem_type</span> <span class="o">=</span> <span class="n">FebioElementTypeToVTKElementType</span><span class="p">[</span><span class="n">el_type</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
             <span class="n">elem_type</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">CellType</span><span class="p">[</span><span class="n">elem_type</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Element type </span><span class="si">{</span><span class="n">el_type</span><span class="si">}</span><span class="s2"> is not supported. &quot;</span>
                                 <span class="s2">&quot;Please add it to the FebioElementTypeToVTKElementType enum.&quot;</span><span class="p">)</span>
-        
+
         <span class="c1"># if the element type already exists in the cells_dict, append the connectivity</span>
         <span class="k">if</span> <span class="n">el_type</span> <span class="ow">in</span> <span class="n">cells_dict</span><span class="p">:</span>
             <span class="n">cells_dict</span><span class="p">[</span><span class="n">elem_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">cells_dict</span><span class="p">[</span><span class="n">elem_type</span><span class="p">],</span> <span class="n">connectivity</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">cells_dict</span><span class="p">[</span><span class="n">elem_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">connectivity</span>      
+            <span class="n">cells_dict</span><span class="p">[</span><span class="n">elem_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">connectivity</span>
     <span class="c1"># print(cells_dict)</span>
     <span class="n">grid</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">(</span><span class="n">cells_dict</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">)</span>
-    
+
     <span class="k">return</span> <span class="n">grid</span></div>
 
 
 <span class="c1"># =============================================================================</span>
 <span class="c1"># Helper functions related to mesh data</span>
 <span class="c1"># =============================================================================</span>
+
 
 <div class="viewcode-block" id="add_nodalsets">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_nodalsets">[docs]</a>
@@ -462,6 +470,7 @@
         <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask</span>
         <span class="c1"># print(f&quot;Added nodal set {name} to the grid.&quot;)</span>
     <span class="k">return</span> <span class="n">grid</span></div>
+
 
 
 <div class="viewcode-block" id="add_elementsets">
@@ -494,6 +503,7 @@
     <span class="k">return</span> <span class="n">grid</span></div>
 
 
+
 <div class="viewcode-block" id="add_surfacesets">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_surfacesets">[docs]</a>
 <span class="k">def</span> <span class="nf">add_surfacesets</span><span class="p">(</span><span class="n">container</span><span class="p">:</span> <span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">:</span>
@@ -504,6 +514,7 @@
 
 <span class="c1"># Data</span>
 <span class="c1"># -----------------------------------------------------------------------------</span>
+
 
 <div class="viewcode-block" id="add_nodaldata">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_nodaldata">[docs]</a>
@@ -543,6 +554,7 @@
     <span class="k">return</span> <span class="n">grid</span></div>
 
 
+
 <div class="viewcode-block" id="add_elementdata">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_elementdata">[docs]</a>
 <span class="k">def</span> <span class="nf">add_elementdata</span><span class="p">(</span><span class="n">container</span><span class="p">:</span> <span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">:</span>
@@ -557,7 +569,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        pv.UnstructuredGrid: The updated UnstructuredGrid with element data added.</span>
-<span class="sd">        </span>
+
 <span class="sd">    Notes:</span>
 <span class="sd">        This function assumes that the element data provided in the FEBioContainer is appropriately formatted and that element</span>
 <span class="sd">        sets match the indices used in the data. If element sets are not properly aligned or if data is missing, NaNs are used</span>
@@ -588,6 +600,7 @@
     <span class="k">return</span> <span class="n">grid</span></div>
 
 
+
 <div class="viewcode-block" id="add_surface_data">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_surface_data">[docs]</a>
 <span class="k">def</span> <span class="nf">add_surface_data</span><span class="p">(</span><span class="n">container</span><span class="p">:</span> <span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">:</span>
@@ -599,6 +612,7 @@
 <span class="c1"># =============================================================================</span>
 <span class="c1"># Material helper functions</span>
 <span class="c1"># =============================================================================</span>
+
 
 <div class="viewcode-block" id="add_material">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_material">[docs]</a>
@@ -629,47 +643,62 @@
 <span class="sd">    Example:</span>
 <span class="sd">        If a material in FEBio with mat_id=1 has a Young&#39;s modulus of 210 GPa and a Poisson&#39;s ratio of 0.3, after running this function,</span>
 <span class="sd">        the parameters can be accessed in PyVista as follows:</span>
-<span class="sd">        </span>
+
 <span class="sd">        - Access material parameters:</span>
 <span class="sd">          `grid.cell_data[&#39;mat_parameters:1&#39;]`  # Array of shape [n_elements, 2]</span>
 <span class="sd">          where the first column is Young&#39;s modulus and the second is Poisson&#39;s ratio.</span>
-<span class="sd">        </span>
+
 <span class="sd">        - Access material type and name:</span>
 <span class="sd">          `grid.field_data[&#39;mat_type:1&#39;]`  # Returns [&#39;Elastic&#39;]</span>
 <span class="sd">          `grid.field_data[&#39;mat_name:1&#39;]`  # Returns [&#39;GenericElasticMaterial&#39;]</span>
-<span class="sd">        </span>
+
 <span class="sd">        - Access the order of parameters:</span>
 <span class="sd">          `grid.field_data[&#39;mat_parameters:1&#39;]`  # Returns [&#39;Young&#39;s modulus&#39;, &#39;Poisson&#39;s ratio&#39;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">elements</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">elements</span>
+    <span class="c1"># elements = container.elements</span>
     <span class="n">materials</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">materials</span>
-    
+    <span class="c1"># domains = container.mesh_domains</span>
+
+    <span class="c1"># match materials to elements based on domains</span>
+    <span class="c1"># mat_elems_by_domain = dict()</span>
+    <span class="c1"># if domains is not None and len(domains) &gt; 0:</span>
+
     <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">materials</span><span class="p">:</span>
         <span class="n">mat_name</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">name</span>
         <span class="n">mat_type</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">type</span>
         <span class="n">mat_id</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">id</span>
         <span class="n">parameters</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
 
+        <span class="c1"># get domains ()</span>
         <span class="c1"># Find the corresponding element for the material</span>
-        <span class="n">target_element</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">elem</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">elements</span> <span class="k">if</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">mat</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">mat_id</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="n">mat_name</span><span class="p">)),</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">target_element</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find the proper element for material </span><span class="si">{</span><span class="n">mat_name</span><span class="si">}</span><span class="s2"> &quot;</span>
-                             <span class="s2">&quot;Currently, the material ID must match the element material ID or the element name.&quot;</span>
-                             <span class="s2">&quot;e.g.:</span><span class="se">\n</span><span class="s2">&quot;</span>
-                             <span class="s1">&#39;&lt;material id=&quot;1&quot; name=&quot;MESH1&quot; type=&quot;isotropic elastic&quot;&gt;</span><span class="se">\n</span><span class="s1">&#39;</span>
-                             <span class="s1">&#39;...</span><span class="se">\n</span><span class="s1">&#39;</span>
-                             <span class="s1">&#39;&lt;Elements type=&quot;tri3&quot; name=&quot;MESH1&quot;&gt;</span><span class="se">\n</span><span class="s1">&#39;</span>
-                             <span class="s1">&#39;or</span><span class="se">\n</span><span class="s1">&#39;</span>
-                             <span class="s1">&#39;&lt;Elements type=&quot;tri3&quot; name=&quot;MESH1&quot;, mat=&quot;1&quot;&gt;</span><span class="se">\n</span><span class="s1">&#39;</span>
-                             <span class="p">)</span>
-        
+        <span class="c1"># if domains is None or len(domains) == 0:</span>
+        <span class="c1">#     target_element = next((elem for elem in elements if (str(elem.mat) == str(mat_id) or (elem.name) == mat_name)), None)</span>
+        <span class="c1"># else:</span>
+        <span class="c1">#     target_element = next((elem for elem in elements if (str(elem.mat) == str(mat_id) or (elem.name) == mat_name)), None)</span>
+        <span class="c1"># if not target_element:</span>
+        <span class="c1">#     raise ValueError(f&quot;Could not find the proper element for material {mat_name} &quot;</span>
+        <span class="c1">#                      &quot;Currently, the material ID must match the element material ID or the element name.&quot;</span>
+        <span class="c1">#                      &quot;e.g.:\n&quot;</span>
+        <span class="c1">#                      &#39;&lt;material id=&quot;1&quot; name=&quot;MESH1&quot; type=&quot;isotropic elastic&quot;&gt;\n&#39;</span>
+        <span class="c1">#                      &#39;...\n&#39;</span>
+        <span class="c1">#                      &#39;&lt;Elements type=&quot;tri3&quot; name=&quot;MESH1&quot;&gt;\n&#39;</span>
+        <span class="c1">#                      &#39;or\n&#39;</span>
+        <span class="c1">#                      &#39;&lt;Elements type=&quot;tri3&quot; name=&quot;MESH1&quot;, mat=&quot;1&quot;&gt;\n&#39;</span>
+        <span class="c1">#                      &quot;Alternatively, if a domain is specified, the domain name must match the elements material name &quot;</span>
+        <span class="c1">#                      &quot;and the domain mat must match the material name.&quot;</span>
+        <span class="c1">#                      &quot;e.g.:\n&quot;</span>
+        <span class="c1">#                         &#39;&lt;material id=&quot;1&quot; name=&quot;MESH1&quot; type=&quot;isotropic elastic&quot;&gt;\n&#39;</span>
+        <span class="c1">#                         &#39;...\n&#39;</span>
+        <span class="c1">#                         &#39;&lt;Domains mat=&quot;MESH1&quot; ...&gt;\n&#39;</span>
+        <span class="c1">#                      )</span>
+
         <span class="n">num_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
         <span class="n">params_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="n">params_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
         <span class="c1"># Initialize parameter array with NaNs</span>
         <span class="n">params_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="p">,</span> <span class="n">num_params</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-        
+
         <span class="c1"># Assign values to the parameter array</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params_values</span><span class="p">):</span>
             <span class="c1"># Directly assign scalar values</span>
@@ -696,6 +725,7 @@
 <span class="c1"># =============================================================================</span>
 <span class="c1"># Load helper functions</span>
 <span class="c1"># =============================================================================</span>
+
 
 <div class="viewcode-block" id="add_nodalload">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_nodalload">[docs]</a>
@@ -726,9 +756,8 @@
     <span class="n">nodal_loads</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">nodal_loads</span>
 
     <span class="k">for</span> <span class="n">nodal_load</span> <span class="ow">in</span> <span class="n">nodal_loads</span><span class="p">:</span>
-        <span class="n">bc</span> <span class="o">=</span> <span class="n">nodal_load</span><span class="o">.</span><span class="n">dof</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>  <span class="c1"># &#39;x&#39;, &#39;y&#39;, or &#39;z&#39; axis</span>
         <span class="n">node_set</span> <span class="o">=</span> <span class="n">nodal_load</span><span class="o">.</span><span class="n">node_set</span>
-        <span class="n">scale</span> <span class="o">=</span> <span class="n">nodal_load</span><span class="o">.</span><span class="n">scale</span>  <span class="c1"># scale can be numeric or a reference to another data field</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">nodal_load</span><span class="o">.</span><span class="n">scale</span>  <span class="c1"># scale can be a tuple of length 3 or a numeric value</span>
 
         <span class="n">related_nodeset</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">ns</span> <span class="k">for</span> <span class="n">ns</span> <span class="ow">in</span> <span class="n">nodesets</span> <span class="k">if</span> <span class="n">ns</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">node_set</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">related_nodeset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -736,33 +765,62 @@
 
         <span class="k">if</span> <span class="s2">&quot;nodal_load&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">:</span>
             <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;nodal_load&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">grid</span><span class="o">.</span><span class="n">n_points</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-        
-        <span class="n">axis_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
-        <span class="n">axis_index</span> <span class="o">=</span> <span class="n">axis_map</span><span class="p">[</span><span class="n">bc</span><span class="p">]</span>
+
         <span class="n">load_indices</span> <span class="o">=</span> <span class="n">related_nodeset</span><span class="o">.</span><span class="n">ids</span>  <span class="c1"># Adjust indices for zero-based indexing</span>
 
-        <span class="c1"># Handle scale being a reference to other data fields or a numeric scale</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">scale</span><span class="p">:</span>
-            <span class="n">parts</span> <span class="o">=</span> <span class="n">scale</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
-            <span class="n">scale_factor</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">data_field</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Handle scale being a tuple of length 3 (new version) or a string/numeric (old version)</span>
+        <span class="k">if</span> <span class="n">container</span><span class="o">.</span><span class="n">feb</span><span class="o">.</span><span class="n">version</span> <span class="o">&gt;=</span> <span class="mf">4.0</span><span class="p">:</span>
+            <span class="c1"># New version: scale is a tuple representing (scale_x, scale_y, scale_z)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">axis_scale</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">scale</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">axis_scale</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axis_scale</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">axis_scale</span><span class="p">:</span>
+                        <span class="n">parts</span> <span class="o">=</span> <span class="n">axis_scale</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+                        <span class="n">scale_factor</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="n">data_field</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-            <span class="k">if</span> <span class="n">data_field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Referenced data field &#39;</span><span class="si">{</span><span class="n">data_field</span><span class="si">}</span><span class="s2">&#39; not found in grid point data.&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">data_field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Referenced data field &#39;</span><span class="si">{</span><span class="n">data_field</span><span class="si">}</span><span class="s2">&#39; not found in grid point data.&quot;</span><span class="p">)</span>
 
-            <span class="c1"># Extract only the relevant scale data for the specified indices</span>
-            <span class="n">scale_data</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">data_field</span><span class="p">][</span><span class="n">load_indices</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale_factor</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">scale</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Referenced data field &#39;</span><span class="si">{</span><span class="n">scale</span><span class="si">}</span><span class="s2">&#39; not found in grid point data.&quot;</span><span class="p">)</span>
-            <span class="n">scale_data</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">scale</span><span class="p">][</span><span class="n">load_indices</span><span class="p">]</span>
+                        <span class="c1"># Extract only the relevant scale data for the specified indices</span>
+                        <span class="n">scale_data</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">data_field</span><span class="p">][</span><span class="n">load_indices</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale_factor</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axis_scale</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">axis_scale</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Referenced data field &#39;</span><span class="si">{</span><span class="n">axis_scale</span><span class="si">}</span><span class="s2">&#39; not found in grid point data.&quot;</span><span class="p">)</span>
+                        <span class="n">scale_data</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">axis_scale</span><span class="p">][</span><span class="n">load_indices</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">scale_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">load_indices</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">axis_scale</span><span class="p">))</span>  <span class="c1"># Create a full array of the scale value</span>
+
+                    <span class="c1"># Update the nodal load data</span>
+                    <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;nodal_load&quot;</span><span class="p">][</span><span class="n">load_indices</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">scale_data</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">scale_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">load_indices</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">))</span>  <span class="c1"># Create a full array of the scale value</span>
+            <span class="c1"># Old version: scale is a single value, and nodal_load.dof determines the direction</span>
+            <span class="n">bc</span> <span class="o">=</span> <span class="n">nodal_load</span><span class="o">.</span><span class="n">dof</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>  <span class="c1"># &#39;x&#39;, &#39;y&#39;, or &#39;z&#39; axis</span>
+            <span class="n">axis_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+            <span class="n">axis_index</span> <span class="o">=</span> <span class="n">axis_map</span><span class="p">[</span><span class="n">bc</span><span class="p">]</span>
 
-        <span class="c1"># Update the nodal load data</span>
-        <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;nodal_load&quot;</span><span class="p">][</span><span class="n">load_indices</span><span class="p">,</span> <span class="n">axis_index</span><span class="p">]</span> <span class="o">+=</span> <span class="n">scale_data</span>
+            <span class="c1"># Handle scale being a reference to other data fields or a numeric scale</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">scale</span><span class="p">:</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">scale</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+                <span class="n">scale_factor</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">data_field</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">data_field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Referenced data field &#39;</span><span class="si">{</span><span class="n">data_field</span><span class="si">}</span><span class="s2">&#39; not found in grid point data.&quot;</span><span class="p">)</span>
+
+                <span class="c1"># Extract only the relevant scale data for the specified indices</span>
+                <span class="n">scale_data</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">data_field</span><span class="p">][</span><span class="n">load_indices</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale_factor</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">scale</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Referenced data field &#39;</span><span class="si">{</span><span class="n">scale</span><span class="si">}</span><span class="s2">&#39; not found in grid point data.&quot;</span><span class="p">)</span>
+                <span class="n">scale_data</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">scale</span><span class="p">][</span><span class="n">load_indices</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">scale_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">load_indices</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">))</span>  <span class="c1"># Create a full array of the scale value</span>
+
+            <span class="c1"># Update the nodal load data</span>
+            <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;nodal_load&quot;</span><span class="p">][</span><span class="n">load_indices</span><span class="p">,</span> <span class="n">axis_index</span><span class="p">]</span> <span class="o">+=</span> <span class="n">scale_data</span>
 
     <span class="k">return</span> <span class="n">grid</span></div>
+
 
 
 <div class="viewcode-block" id="add_pressure_load">
@@ -776,6 +834,7 @@
 <span class="c1"># =============================================================================</span>
 <span class="c1"># Boundary condition helper functions</span>
 <span class="c1"># =============================================================================</span>
+
 
 <div class="viewcode-block" id="add_boundary_conditions">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_boundary_conditions">[docs]</a>
@@ -795,13 +854,13 @@
 
 <span class="sd">    Example:</span>
 <span class="sd">        After processing, to access the constraints:</span>
-<span class="sd">        </span>
+
 <span class="sd">        - Displacement constraints for a specific mesh block:</span>
 <span class="sd">          `grid.point_data[&#39;fix&#39;]`  # Outputs a binary array where 1 indicates a fixed displacement.</span>
-<span class="sd">          </span>
+
 <span class="sd">        - Shell rotation constraints for the same block:</span>
 <span class="sd">          `grid.point_data[&#39;fix_shell&#39;]`  # Outputs a binary array where 1 indicates a fixed shell rotation.</span>
-<span class="sd">          </span>
+
 <span class="sd">        - For rigid body constraints related to a specific material ID:</span>
 <span class="sd">          `grid.point_data[&#39;rigid_body&#39;]`  # Fixed position constraints.</span>
 <span class="sd">          `grid.point_data[&#39;rigid_body_rot&#39;]`  # Fixed rotational constraints.</span>
@@ -813,18 +872,18 @@
 
 <span class="sd">        - &#39;fix&#39;: Binary array of shape [n_points, 3], indicating fixed displacements in X, Y, and Z directions.</span>
 <span class="sd">        - &#39;fix_shell&#39;: Binary array of shape [n_points, 3], indicating fixed rotations in X, Y, and Z directions.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Both arrays consolidate all applicable constraints per node, summing constraints where multiple</span>
 <span class="sd">        conditions affect the same node.</span>
 
 <span class="sd">    Rigid Body Conditions:</span>
 <span class="sd">        Restrict the movement or rotation of all nodes associated with a specific material, denoted by:</span>
-<span class="sd">        </span>
+
 <span class="sd">        - &#39;rigid_body&#39;: Binary array of shape [n_points, 3], indicating fixed positions in X, Y, and Z</span>
 <span class="sd">          directions for nodes associated with a material.</span>
 <span class="sd">        - &#39;rigid_body_rot&#39;: Binary array of shape [n_points, 3], indicating fixed rotations in X, Y, and</span>
 <span class="sd">          Z directions for nodes associated with a material.</span>
-<span class="sd">        </span>
+
 <span class="sd">        These conditions are labeled with specific material IDs, enhancing traceability and management</span>
 <span class="sd">        in complex models.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -834,12 +893,12 @@
             <span class="n">node_set</span> <span class="o">=</span> <span class="n">bc</span><span class="o">.</span><span class="n">node_set</span>
             <span class="k">if</span> <span class="n">node_set</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Node set </span><span class="si">{</span><span class="n">node_set</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
-            
+
             <span class="c1"># grid, indices = grid[node_set]</span>
-            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">node_set</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># Get the indices of the nodes in the node set</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">node_set</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Get the indices of the nodes in the node set</span>
             <span class="n">fixed_axes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">grid</span><span class="o">.</span><span class="n">n_points</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>  <span class="c1"># For &#39;x&#39;, &#39;y&#39;, &#39;z&#39;</span>
             <span class="n">fixed_shells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">grid</span><span class="o">.</span><span class="n">n_points</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>  <span class="c1"># For &#39;sx&#39;, &#39;sy&#39;, &#39;sz&#39;</span>
-            
+
             <span class="c1"># Apply constraints to axes</span>
             <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">bc</span><span class="o">.</span><span class="n">dof</span><span class="p">:</span>
@@ -847,18 +906,18 @@
             <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;sx&#39;</span><span class="p">,</span> <span class="s1">&#39;sy&#39;</span><span class="p">,</span> <span class="s1">&#39;sz&#39;</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">bc</span><span class="o">.</span><span class="n">dof</span><span class="p">:</span>
                     <span class="n">fixed_shells</span><span class="p">[</span><span class="n">indices</span><span class="p">,</span> <span class="s1">&#39;xyz&#39;</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">axis</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])]</span> <span class="o">=</span> <span class="mi">1</span>
-            
+
             <span class="c1"># Update or initialize &#39;fix&#39; and &#39;fix_shell&#39; arrays in grid&#39;s point_data</span>
             <span class="k">if</span> <span class="s2">&quot;fix&quot;</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">:</span>
                 <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;fix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;fix&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">|</span> <span class="n">fixed_axes</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;fix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fixed_axes</span>
-            
+
             <span class="k">if</span> <span class="s2">&quot;fix_shell&quot;</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">:</span>
                 <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;fix_shell&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;fix_shell&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">|</span> <span class="n">fixed_shells</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;fix_shell&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fixed_shells</span>
-        
+
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bc</span><span class="p">,</span> <span class="n">RigidBodyCondition</span><span class="p">):</span>
             <span class="c1"># material = bc.material</span>
             <span class="c1"># if grid.material == material:</span>
@@ -866,7 +925,7 @@
                 <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;rigid_body&quot;</span> <span class="k">if</span> <span class="s1">&#39;R&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">axis</span> <span class="k">else</span> <span class="s2">&quot;rigid_body_rot&quot;</span>
                 <span class="n">rigid_body_axes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">grid</span><span class="o">.</span><span class="n">n_points</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
                 <span class="n">rigid_body_axes</span><span class="p">[:,</span> <span class="s1">&#39;xyz&#39;</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">axis</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])]</span> <span class="o">=</span> <span class="mi">1</span>
-                
+
                 <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">:</span>
                     <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">|</span> <span class="n">rigid_body_axes</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -880,22 +939,22 @@
 <span class="c1"># =============================================================================</span>
 
 <span class="c1"># def break_grid_into_domains(container: FEBioContainer, grid: pv.UnstructuredGrid) -&gt; pv.MultiBlock:</span>
-        
+
 <span class="c1">#     # get domains:</span>
 <span class="c1">#     domains = container.mesh_domains # List[Union[GenericDomain, ShellDomain]]</span>
-    
+
 <span class="c1">#     elems_by_name = {elem.name: elem for elem in container.elements}</span>
 <span class="c1">#     nodes_by_name = {node.name: node for node in container.nodes}</span>
 <span class="c1">#     materials_by_name = {mat.name: mat for mat in container.materials}</span>
-    
+
 <span class="c1">#     node_names = [node.name for node in container.nodes]</span>
 <span class="c1">#     elem_names = [elem.name for elem in container.elements]</span>
-    
+
 <span class="c1">#     # selected_domains and</span>
 <span class="c1">#     selected_domains = []</span>
 <span class="c1">#     selected_materials = []</span>
 <span class="c1">#     for dom in domains:</span>
-<span class="c1">#         part = dom.name        </span>
+<span class="c1">#         part = dom.name</span>
 <span class="c1">#         selected_materials.append(dom.mat)</span>
 <span class="c1">#         if part in elem_names:</span>
 <span class="c1">#             selected_domains.append((&quot;elements&quot;, part))</span>
@@ -903,7 +962,7 @@
 <span class="c1">#             selected_domains.append((&quot;nodes&quot;, part))</span>
 <span class="c1">#         else:</span>
 <span class="c1">#             print(f&quot;Domain {part} not found in the mesh.&quot;)</span>
-    
+
 <span class="c1">#     # Extract the selected domains</span>
 <span class="c1">#     mb = pv.MultiBlock()</span>
 <span class="c1">#     for domain_type, domain_name in selected_domains:</span>
@@ -920,14 +979,14 @@
 <span class="c1">#             if len(indices) == 0:</span>
 <span class="c1">#                 raise ValueError(f&quot;Node domain {domain_name} not found.&quot;)</span>
 <span class="c1">#             grid_part = grid.extract_points(indices)</span>
-        
+
 <span class="c1">#         # Copy correspondind material data (from field_data) to the grid_part</span>
 <span class="c1">#         mat_type_key = f&quot;mat_type:{mat_id}&quot;</span>
 <span class="c1">#         mat_name_key = f&quot;mat_name:{mat_id}&quot;</span>
 <span class="c1">#         grid_part.field_data[mat_type_key] = grid.field_data[mat_type_key]</span>
 <span class="c1">#         grid_part.field_data[mat_name_key] = grid.field_data[mat_name_key]</span>
 <span class="c1">#         mb[domain_name] = grid_part</span>
-    
+
 <span class="c1">#     return mb</span>
 
 
@@ -941,7 +1000,7 @@
     <span class="n">loadcurves</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">load_curves</span>
     <span class="k">for</span> <span class="n">lc</span> <span class="ow">in</span> <span class="n">loadcurves</span><span class="p">:</span>
         <span class="n">lc_id</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">id</span>
-        <span class="n">lc_type</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">interpolate_type</span>
+        <span class="c1"># lc_type = lc.interpolate_type</span>
         <span class="n">lc_data</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">data</span>
         <span class="c1"># if lc_type == &quot;linear&quot;:</span>
         <span class="c1">#     this_interpolator = interpolate.interp1d(lc_data[:, 0], lc_data[:, 1], kind=&#39;linear&#39;, fill_value=&quot;extrapolate&quot;)</span>
@@ -953,28 +1012,29 @@
         <span class="n">interpolators</span><span class="p">[</span><span class="n">lc_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">this_interpolator</span>
     <span class="k">return</span> <span class="n">interpolators</span>
 
+
 <div class="viewcode-block" id="add_states_to_grid">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_states_to_grid">[docs]</a>
-<span class="k">def</span> <span class="nf">add_states_to_grid</span><span class="p">(</span><span class="n">container</span><span class="p">:</span> <span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span><span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">,</span> <span class="n">apply_load_curves</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">]:</span>
-    
+<span class="k">def</span> <span class="nf">add_states_to_grid</span><span class="p">(</span><span class="n">container</span><span class="p">:</span> <span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">,</span> <span class="n">apply_load_curves</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">]:</span>
+
     <span class="c1"># First, check if .xplt is provided</span>
     <span class="k">if</span> <span class="n">container</span><span class="o">.</span><span class="n">xplt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">grid</span> <span class="c1"># No states to add</span>
-    
+        <span class="k">return</span> <span class="n">grid</span>  <span class="c1"># No states to add</span>
+
     <span class="c1"># Otherwise, we can extract the states</span>
     <span class="n">states</span><span class="p">:</span> <span class="n">States</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">states</span>
-    
+
     <span class="n">node_states</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">StateData</span><span class="p">]</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">nodes</span>
     <span class="n">element_states</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">StateData</span><span class="p">]</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">elements</span>
     <span class="n">surface_states</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">StateData</span><span class="p">]</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">surfaces</span>
     <span class="n">timesteps</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">timesteps</span>
-    
+
     <span class="c1"># First, create a list of grids for each state</span>
     <span class="n">state_grids</span> <span class="o">=</span> <span class="p">[</span><span class="n">grid</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">timesteps</span><span class="p">))]</span>
     <span class="c1"># Add timestep to each field_data</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">grid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">state_grids</span><span class="p">):</span>
         <span class="n">grid</span><span class="o">.</span><span class="n">field_data</span><span class="p">[</span><span class="s2">&quot;timestep&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">timesteps</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
-        
+
     <span class="c1"># Add node states</span>
     <span class="k">for</span> <span class="n">node_state</span> <span class="ow">in</span> <span class="n">node_states</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">node_state</span><span class="o">.</span><span class="n">name</span>
@@ -984,33 +1044,33 @@
             <span class="c1"># special case: displacement</span>
             <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;displacement&quot;</span><span class="p">:</span>
                 <span class="n">grid</span><span class="o">.</span><span class="n">points</span> <span class="o">+=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-    
+
     <span class="c1"># Add element states</span>
     <span class="k">for</span> <span class="n">elem_state</span> <span class="ow">in</span> <span class="n">element_states</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">elem_state</span><span class="o">.</span><span class="n">name</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">elem_state</span><span class="o">.</span><span class="n">data</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">grid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">state_grids</span><span class="p">):</span>
             <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-    
+
     <span class="c1"># Add surface states</span>
     <span class="k">for</span> <span class="n">surf_state</span> <span class="ow">in</span> <span class="n">surface_states</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">surf_state</span><span class="o">.</span><span class="n">name</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">surf_state</span><span class="o">.</span><span class="n">data</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">grid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">state_grids</span><span class="p">):</span>
             <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-    
+
     <span class="c1"># Now, we need to interpolate the load curves, based on the timesteps</span>
     <span class="k">if</span> <span class="n">apply_load_curves</span><span class="p">:</span>
         <span class="n">interpolators</span> <span class="o">=</span> <span class="n">_load_curvers_to_interpolators</span><span class="p">(</span><span class="n">container</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">lc_id</span><span class="p">,</span> <span class="n">interpolator</span> <span class="ow">in</span> <span class="n">interpolators</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">grid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">state_grids</span><span class="p">):</span>
                 <span class="n">grid</span><span class="o">.</span><span class="n">field_data</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;lc_</span><span class="si">{</span><span class="n">lc_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">interpolator</span><span class="p">(</span><span class="n">timesteps</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span>
-        
+
         <span class="c1"># Additionally, we should also interpolate some Input data;</span>
-        <span class="c1"># for default we interpolate: </span>
+        <span class="c1"># for default we interpolate:</span>
         <span class="c1"># - nodal_load</span>
         <span class="c1"># - pressure_load</span>
-        
+
         <span class="c1"># handle nodal loads</span>
         <span class="c1"># get nodal loads</span>
         <span class="n">nodal_loads</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">nodal_loads</span>
@@ -1030,13 +1090,12 @@
                 <span class="n">current_data</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;nodal_load&quot;</span><span class="p">][</span><span class="n">node_indices</span><span class="p">,</span> <span class="n">axis</span><span class="p">]</span>
                 <span class="n">new_data</span> <span class="o">=</span> <span class="n">current_data</span> <span class="o">*</span> <span class="n">time_scale</span>
                 <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;nodal_load&quot;</span><span class="p">][</span><span class="n">node_indices</span><span class="p">,</span> <span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_data</span>
-        
+
         <span class="c1"># handle pressure loads</span>
         <span class="c1"># NOTE: NOT YET IMPLEMENTED</span>
 
     <span class="k">return</span> <span class="n">state_grids</span></div>
 
-    
 </pre></div>
         </article>
       </div>

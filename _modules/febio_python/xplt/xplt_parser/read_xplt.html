@@ -214,7 +214,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/create_a_simple_simulation.html">Creating a simple simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v25.html">Creating a simple simulation (v2.5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v30.html">Creating a simple simulation (v3.0)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v40.html">Creating a simple simulation (v4.0)</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
@@ -290,31 +292,37 @@
 
 <span class="k">def</span> <span class="nf">check_fileformat</span><span class="p">(</span><span class="n">bf</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
     <span class="n">fformat</span> <span class="o">=</span> <span class="n">read_bytes</span><span class="p">(</span><span class="n">bf</span><span class="p">)</span>
-    <span class="k">if</span><span class="p">(</span><span class="n">TAGS</span><span class="p">[</span><span class="s1">&#39;FEBIO&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">fformat</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">TAGS</span><span class="o">.</span><span class="n">FEBIO</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">fformat</span><span class="p">):</span>
         <span class="n">console_log</span><span class="p">(</span><span class="s1">&#39;Correct FEBio format.&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input XPLIT file does not have the correct format. Expected: </span><span class="si">{}</span><span class="s2">, received: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">TAGS</span><span class="p">[</span><span class="s1">&#39;FEBIO&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">fformat</span><span class="p">)))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input XPLIT file does not have the correct format. Expected: </span><span class="si">{</span><span class="n">TAGS</span><span class="o">.</span><span class="n">FEBIO</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">, received: </span><span class="si">{</span><span class="n">fformat</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
 
 <span class="k">def</span> <span class="nf">check_fileversion</span><span class="p">(</span><span class="n">bf</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
     <span class="n">version</span> <span class="o">=</span> <span class="n">read_bytes</span><span class="p">(</span><span class="n">bf</span><span class="p">)</span>
     <span class="c1"># return version</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">version</span> <span class="o">==</span> <span class="n">TAGS</span><span class="p">[</span><span class="s1">&#39;VERSION_2_5&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
-        <span class="n">console_log</span><span class="p">(</span><span class="s1">&#39;Current spec version is: 2.5 -&gt; </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">version</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">version</span> <span class="o">==</span> <span class="n">TAGS</span><span class="o">.</span><span class="n">VERSION_2_5</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+        <span class="n">console_log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Current spec version is: 2.5 -&gt; </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;XPLT version 2.5 is no longer supported.&quot;</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="p">(</span><span class="n">version</span> <span class="o">==</span> <span class="n">TAGS</span><span class="p">[</span><span class="s1">&#39;VERSION_3_0&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
-        <span class="n">console_log</span><span class="p">(</span><span class="s1">&#39;Current spec version is: 3.0 -&gt; </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">version</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">version</span> <span class="o">==</span> <span class="n">TAGS</span><span class="o">.</span><span class="n">VERSION_3_0</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+        <span class="n">console_log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Current spec version is: 3.0 -&gt; </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
         <span class="k">return</span> <span class="mf">3.0</span>
     <span class="k">elif</span> <span class="p">(</span><span class="n">version</span> <span class="o">==</span> <span class="mi">49</span><span class="p">):</span>
-        <span class="n">console_log</span><span class="p">(</span><span class="s1">&#39;Current spec version is: 3.0 -&gt; </span><span class="si">%d</span><span class="s1"> | WARNING: Docs say version should be 8, but it is 49.&#39;</span> <span class="o">%</span> <span class="n">version</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+        <span class="n">console_log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Current spec version is: 3.0 -&gt; </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s1"> | WARNING: Docs say version should be 8, but it is 49.&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
         <span class="k">return</span> <span class="mf">3.0</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">version</span> <span class="o">==</span> <span class="mi">52</span><span class="p">):</span>
+        <span class="n">console_log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Current spec version is: 4.0 -&gt; </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s1"> | WARNING: Docs have not being released for spec 4.0. Using reader for spec 3.0&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mf">4.0</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Incorrect XPLIT file version: </span><span class="si">{}</span><span class="s2">, expected version: </span><span class="si">{}</span><span class="s2"> or [</span><span class="si">{}</span><span class="s2"> or 49]&quot;</span>
-            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">TAGS</span><span class="p">[</span><span class="s1">&#39;VERSION_2_5&#39;</span><span class="p">],</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">TAGS</span><span class="p">[</span><span class="s1">&#39;VERSION_3_0&#39;</span><span class="p">],</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">))))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Incorrect XPLIT file version: </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">, expected version: </span><span class="si">{</span><span class="n">TAGS</span><span class="o">.</span><span class="n">VERSION_2_5</span><span class="si">}</span><span class="s2"> or [</span><span class="si">{</span><span class="n">TAGS</span><span class="o">.</span><span class="n">VERSION_3_0</span><span class="si">}</span><span class="s2"> or 49]&quot;</span>
+            <span class="c1"># .format(version, int(TAGS.VERSION_2_5, base=16), int(TAGS.VERSION_3_0, base=16)))</span>
+        <span class="p">)</span>
+
 
 <div class="viewcode-block" id="read_xplt">
 <a class="viewcode-back" href="../../../../api/xplt/read_xplt.html#febio_python.xplt.xplt_parser.read_xplt">[docs]</a>
-<span class="k">def</span> <span class="nf">read_xplt</span><span class="p">(</span><span class="n">xplit_filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">XpltMesh</span><span class="p">,</span> <span class="n">States</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">read_xplt</span><span class="p">(</span><span class="n">xplit_filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">XpltMesh</span><span class="p">,</span> <span class="n">States</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Reads a XPLT file and returns a XpltMesh and States object.</span>
 
 <span class="sd">    Args:</span>
@@ -324,18 +332,18 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        Tuple[XpltMesh, States]: _description_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="n">xplit_filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">xplit_filepath</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">xplit_filepath</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="k">raise</span><span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File not found: </span><span class="si">{</span><span class="n">xplit_filepath</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
-    
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File not found: </span><span class="si">{</span><span class="n">xplit_filepath</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
     <span class="c1"># open binary file</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">xplit_filepath</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bf</span><span class="p">:</span>
 
         <span class="c1"># get file size and check if its not empty</span>
         <span class="n">filesize</span> <span class="o">=</span> <span class="n">get_file_size</span><span class="p">(</span><span class="n">bf</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">filesize</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input xplit file size is zero. Please, check file.&quot;</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input xplit file size is zero. Please, check file.&quot;</span><span class="p">)</span>
 
         <span class="c1"># check if file format meets requirement</span>
         <span class="n">check_fileformat</span><span class="p">(</span><span class="n">bf</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
@@ -350,13 +358,17 @@
         <span class="n">search_block</span><span class="p">(</span><span class="n">bf</span><span class="p">,</span> <span class="n">TAGS</span><span class="o">.</span><span class="n">HDR_VERSION</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="n">version</span> <span class="o">=</span> <span class="n">check_fileversion</span><span class="p">(</span><span class="n">bf</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
         <span class="n">console_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File version: </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
-        
+
     <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="mf">3.0</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">._spec_30</span> <span class="kn">import</span> <span class="n">read_spec30</span>
         <span class="k">return</span> <span class="n">read_spec30</span><span class="p">(</span><span class="n">xplit_filepath</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">version</span> <span class="o">==</span> <span class="mf">4.0</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">._spec_40</span> <span class="kn">import</span> <span class="n">read_spec40</span>
+        <span class="k">return</span> <span class="n">read_spec40</span><span class="p">(</span><span class="n">xplit_filepath</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;XPLT file version not supported: </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span>
-                        <span class="s2">&quot;We currently only support version 3.0.&quot;</span><span class="p">))</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;XPLT file version not supported: </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span>
+                         <span class="s2">&quot;We currently only support version 3.0 and 4.0.&quot;</span>
+                         <span class="s2">&quot;NOTE: version 4.0 is not fully supported yet.&quot;</span><span class="p">)</span></div>
 
 </pre></div>
         </article>

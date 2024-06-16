@@ -214,7 +214,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation.html">Creating a simple simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v25.html">Creating a simple simulation (v2.5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v30.html">Creating a simple simulation (v3.0)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v40.html">Creating a simple simulation (v4.0)</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
@@ -279,10 +281,12 @@
           <h1>Source code for febio_python.core.enums</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">IntEnum</span>
 
+
 <div class="viewcode-block" id="FEB_ROOT">
 <a class="viewcode-back" href="../../../api/core/enums.html#febio_python.core.enums.FEB_ROOT">[docs]</a>
 <span class="k">class</span> <span class="nc">FEB_ROOT</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">ROOT</span> <span class="o">=</span> <span class="s1">&#39;febio_spec&#39;</span></div>
+
 
 
 <div class="viewcode-block" id="FEB_2_5_LEAD_TAGS">
@@ -299,6 +303,7 @@
     <span class="n">LOADDATA</span> <span class="o">=</span> <span class="s2">&quot;LoadData&quot;</span>
     <span class="n">OUTPUT</span> <span class="o">=</span> <span class="s2">&quot;Output&quot;</span>
     <span class="n">MESHDATA</span> <span class="o">=</span> <span class="s2">&quot;MeshData&quot;</span></div>
+
 
 
 <div class="viewcode-block" id="FEB_3_0_LEAD_TAGS">
@@ -318,25 +323,45 @@
     <span class="n">OUTPUT</span> <span class="o">=</span> <span class="s2">&quot;Output&quot;</span></div>
 
 
+
+<div class="viewcode-block" id="FEB_4_0_LEAD_TAGS">
+<a class="viewcode-back" href="../../../api/core/enums.html#febio_python.core.enums.FEB_4_0_LEAD_TAGS">[docs]</a>
+<span class="k">class</span> <span class="nc">FEB_4_0_LEAD_TAGS</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">MODULE</span> <span class="o">=</span> <span class="s2">&quot;Module&quot;</span>
+    <span class="n">CONTROL</span> <span class="o">=</span> <span class="s2">&quot;Control&quot;</span>
+    <span class="n">MATERIAL</span> <span class="o">=</span> <span class="s2">&quot;Material&quot;</span>
+    <span class="n">GLOBALS</span> <span class="o">=</span> <span class="s2">&quot;Globals&quot;</span>
+    <span class="n">MESH</span> <span class="o">=</span> <span class="s2">&quot;Mesh&quot;</span>
+    <span class="n">MESHDOMAINS</span> <span class="o">=</span> <span class="s2">&quot;MeshDomains&quot;</span>
+    <span class="n">MESHDATA</span> <span class="o">=</span> <span class="s2">&quot;MeshData&quot;</span>
+    <span class="n">BOUNDARY</span> <span class="o">=</span> <span class="s2">&quot;Boundary&quot;</span>
+    <span class="n">LOADS</span> <span class="o">=</span> <span class="s2">&quot;Loads&quot;</span>
+    <span class="n">DISCRETE</span> <span class="o">=</span> <span class="s2">&quot;Discrete&quot;</span>
+    <span class="n">LOADDATA</span> <span class="o">=</span> <span class="s2">&quot;LoadData&quot;</span>
+    <span class="n">OUTPUT</span> <span class="o">=</span> <span class="s2">&quot;Output&quot;</span></div>
+
+
+
 <div class="viewcode-block" id="FEB_MAJOR_TAGS">
 <a class="viewcode-back" href="../../../api/core/enums.html#febio_python.core.enums.FEB_MAJOR_TAGS">[docs]</a>
 <span class="k">class</span> <span class="nc">FEB_MAJOR_TAGS</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">NODES</span> <span class="o">=</span> <span class="s2">&quot;Nodes&quot;</span>
     <span class="n">NODESET</span> <span class="o">=</span> <span class="s2">&quot;NodeSet&quot;</span>
-    <span class="n">NODEDATA</span> <span class="o">=</span> <span class="s2">&quot;NodeData&quot;</span> <span class="c1"># Need to check this</span>
+    <span class="n">NODEDATA</span> <span class="o">=</span> <span class="s2">&quot;NodeData&quot;</span>  <span class="c1"># Need to check this</span>
     <span class="n">ELEMENTS</span> <span class="o">=</span> <span class="s2">&quot;Elements&quot;</span>
-    <span class="n">ELEMENTSET</span> <span class="o">=</span> <span class="s2">&quot;ElementSet&quot;</span> <span class="c1"># Need to check this</span>
+    <span class="n">ELEMENTSET</span> <span class="o">=</span> <span class="s2">&quot;ElementSet&quot;</span>  <span class="c1"># Need to check this</span>
     <span class="n">ELEMENTDATA</span> <span class="o">=</span> <span class="s2">&quot;ElementData&quot;</span>
     <span class="n">SURFACE</span> <span class="o">=</span> <span class="s2">&quot;Surface&quot;</span>
-    <span class="n">SURFACESET</span> <span class="o">=</span> <span class="s2">&quot;SurfaceSet&quot;</span> <span class="c1"># Need to check this</span>
+    <span class="n">SURFACESET</span> <span class="o">=</span> <span class="s2">&quot;SurfaceSet&quot;</span>  <span class="c1"># Need to check this</span>
     <span class="n">SURFACE_DATA</span> <span class="o">=</span> <span class="s2">&quot;SurfaceData&quot;</span>
     <span class="n">LOADCURVE</span> <span class="o">=</span> <span class="s2">&quot;loadcurve&quot;</span>
 
     <span class="n">MATERIAL</span> <span class="o">=</span> <span class="s2">&quot;material&quot;</span>
     <span class="n">NODALLOAD</span> <span class="o">=</span> <span class="s2">&quot;nodal_load&quot;</span>
     <span class="n">SURFACELOAD</span> <span class="o">=</span> <span class="s2">&quot;surface_load&quot;</span>
-    
+
     <span class="n">SHELLDOMAIN</span> <span class="o">=</span> <span class="s2">&quot;ShellDomain&quot;</span></div>
+
 
 
 <div class="viewcode-block" id="ELEM_TYPES">
@@ -347,6 +372,7 @@
     <span class="n">HEXAHEDRON</span> <span class="o">=</span> <span class="s2">&quot;hex8&quot;</span>
     <span class="n">QUADRATIC_HEXAHEDRON</span> <span class="o">=</span> <span class="s2">&quot;hex20&quot;</span>
     <span class="n">QUADRATIC_TRIANGLE</span> <span class="o">=</span> <span class="s2">&quot;tri6&quot;</span></div>
+
 
 
 <div class="viewcode-block" id="N_PTS_IN_ELEMENT">
@@ -372,113 +398,115 @@
 <span class="c1"># XPLT_TAGS</span>
 <span class="c1"># ==================================================================================</span>
 
+
 <div class="viewcode-block" id="XPLT_TAGS">
 <a class="viewcode-back" href="../../../api/core/enums.html#febio_python.core.enums.XPLT_TAGS">[docs]</a>
 <span class="k">class</span> <span class="nc">XPLT_TAGS</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-    <span class="n">FEBIO</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x00464542&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>  
+    <span class="n">FEBIO</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x00464542&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
 
-    <span class="n">VERSION_2_5</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x0005&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">VERSION_3_0</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x0008&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
+    <span class="n">VERSION_2_5</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x0005&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">VERSION_3_0</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x0008&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
 
-    <span class="n">ROOT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01000000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">HEADER</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01010000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-        
-    <span class="n">HDR_VERSION</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01010001&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">HDR_NODES</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01010002&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">HDR_MAX_FACET_NODES</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01010003&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">HDR_COMPRESSION</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01010004&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
+    <span class="n">ROOT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01000000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">HEADER</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01010000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
 
-    <span class="n">DICTIONARY</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01020000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">DIC_ITEM</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01020001&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">DIC_ITEM_TYPE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01020002&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">DIC_ITEM_FMT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01020003&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">DIC_ITEM_NAME</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01020004&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">DIC_GLOBAL</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01021000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">DIC_MATERIAL</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01022000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">DIC_NODAL</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01023000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">DIC_DOMAIN</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01024000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">DIC_SURFACE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01025000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
+    <span class="n">HDR_VERSION</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01010001&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">HDR_NODES</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01010002&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">HDR_MAX_FACET_NODES</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01010003&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">HDR_COMPRESSION</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01010004&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
 
-    <span class="n">MATERIALS</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01030000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">MATERIAL</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01030001&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">MAT_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01030002&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">MAT_NAME</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01030003&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
+    <span class="n">DICTIONARY</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01020000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">DIC_ITEM</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01020001&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">DIC_ITEM_TYPE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01020002&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">DIC_ITEM_FMT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01020003&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">DIC_ITEM_NAME</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01020004&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">DIC_GLOBAL</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01021000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">DIC_MATERIAL</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01022000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">DIC_NODAL</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01023000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">DIC_DOMAIN</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01024000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">DIC_SURFACE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01025000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
 
-    <span class="n">GEOMETRY</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01040000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span> <span class="c1"># spec 2.5</span>
-    <span class="n">MESH</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01040000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>     <span class="c1"># spec 3.0</span>
-      
+    <span class="n">MATERIALS</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01030000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">MATERIAL</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01030001&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">MAT_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01030002&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">MAT_NAME</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01030003&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+    <span class="n">GEOMETRY</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01040000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>  <span class="c1"># spec 2.5</span>
+    <span class="n">MESH</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01040000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>      <span class="c1"># spec 3.0</span>
+
     <span class="c1"># -- Node section</span>
     <span class="n">NODE_SECTION</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01041000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
-    <span class="n">NODE_HEADER</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01041100&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
+    <span class="n">NODE_HEADER</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01041100&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
     <span class="n">NODE_COORDS_2_5</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01041001&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   <span class="c1"># spec 2.5</span>
     <span class="n">NODE_COORDS_3_0</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01041200&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   <span class="c1"># spec 3.0</span>
-    <span class="n">NODE_N_NODES</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01041101&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">NODE_DIM</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01041102&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">NODE_NAME</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01041103&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-       
+    <span class="n">NODE_N_NODES</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01041101&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">NODE_DIM</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01041102&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">NODE_NAME</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01041103&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
     <span class="c1"># -- domain section</span>
-    <span class="n">DOMAIN_SECTION</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01042000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span> 
+    <span class="n">DOMAIN_SECTION</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01042000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
     <span class="n">DOMAIN</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01042100&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
-    <span class="n">DOMAIN_HEADER</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01042101&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">DOM_ELEM_TYPE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01042102&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>    
-    <span class="n">DOM_MAT_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01042103&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>     <span class="c1">#spec 2.4</span>
-    <span class="n">DOM_PART_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01042103&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>    <span class="c1">#spec 3.0       </span>
+    <span class="n">DOMAIN_HEADER</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01042101&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">DOM_ELEM_TYPE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01042102&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">DOM_MAT_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01042103&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>     <span class="c1"># spec 2.4</span>
+    <span class="n">DOM_PART_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01042103&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>    <span class="c1"># spec 3.0</span>
     <span class="n">DOM_N_ELEMS</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01032104&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
     <span class="n">DOM_NAME</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01032105&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
-    <span class="n">DOM_ELEM_LIST</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01042200&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">ELEMENT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01042201&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
+    <span class="n">DOM_ELEM_LIST</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01042200&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">ELEMENT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01042201&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
 
     <span class="c1"># -- surface section</span>
-    <span class="n">SURFACE_SECTION</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">SURFACE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043100&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
+    <span class="n">SURFACE_SECTION</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">SURFACE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043100&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
     <span class="n">SURFACE_HEADER</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043101&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
-    <span class="n">SURFACE_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043102&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">SURFACE_N_FACETS</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043103&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">SURFACE_NAME</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043104&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">MAX_FACET_NODES</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043105&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">FACET_LIST</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043200&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">FACET</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043201&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
+    <span class="n">SURFACE_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043102&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">SURFACE_N_FACETS</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043103&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">SURFACE_NAME</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043104&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">MAX_FACET_NODES</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043105&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">FACET_LIST</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043200&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">FACET</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01043201&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
 
     <span class="c1"># -- nodeset section</span>
-    <span class="n">NODESET_SECTION</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01044000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">NODESET</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01044100&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">NODESET_HEADER</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01044101&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">NODESET_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01044102&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">NODESET_NAME</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01044103&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">NODESET_N_NODES</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01044104&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">NODESET_LIST</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01044200&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
+    <span class="n">NODESET_SECTION</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01044000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">NODESET</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01044100&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">NODESET_HEADER</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01044101&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">NODESET_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01044102&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">NODESET_NAME</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01044103&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">NODESET_N_NODES</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01044104&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">NODESET_LIST</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01044200&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
 
     <span class="c1"># -- parts section</span>
     <span class="n">PART_SECTION</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01045000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
-    <span class="n">PART</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01045100&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">PART_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01045101&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">PART_NAME</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01045102&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
+    <span class="n">PART</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01045100&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">PART_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01045101&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">PART_NAME</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x01045102&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
 
     <span class="c1"># -- states section</span>
-    <span class="n">STATE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02000000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">STATE_HEADER</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02010000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">STATE_HEADER_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02010001&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">STATE_HEADER_TIME</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02010002&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    
-    <span class="n">STATE_DATA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">STATE_VARIABLE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020001&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">STATE_VAR_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020002&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">STATE_VAR_DATA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020003&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    
-    <span class="n">GLOBAL_DATA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020100&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">MATERIAL_DATA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020200&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">NODE_DATA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020300&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">ELEMENT_DATA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020400&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   
-    <span class="n">SURFACE_DATA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020500&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>   </div>
+    <span class="n">STATE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02000000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">STATE_HEADER</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02010000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">STATE_HEADER_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02010001&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">STATE_HEADER_TIME</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02010002&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+    <span class="n">STATE_DATA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020000&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">STATE_VARIABLE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020001&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">STATE_VAR_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020002&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">STATE_VAR_DATA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020003&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+    <span class="n">GLOBAL_DATA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020100&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">MATERIAL_DATA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020200&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">NODE_DATA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020300&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">ELEMENT_DATA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020400&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">SURFACE_DATA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;0x02020500&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="XPLT_DATA_TYPES">
 <a class="viewcode-back" href="../../../api/core/enums.html#febio_python.core.enums.XPLT_DATA_TYPES">[docs]</a>
 <span class="k">class</span> <span class="nc">XPLT_DATA_TYPES</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-    <span class="n">SCALAR</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># float</span>
-    <span class="n">VECTOR</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># vector of size 3</span>
-    <span class="n">MATRIX</span> <span class="o">=</span> <span class="mi">2</span> <span class="c1"># vector of size 6 (due to element symmetry)</span></div>
+    <span class="n">SCALAR</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># float</span>
+    <span class="n">VECTOR</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># vector of size 3</span>
+    <span class="n">MATRIX</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># vector of size 6 (due to element symmetry)</span></div>
+
 
 
 <div class="viewcode-block" id="XPLT_DATA_DIMS">

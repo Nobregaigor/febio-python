@@ -214,7 +214,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation.html">Creating a simple simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v25.html">Creating a simple simulation (v2.5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v30.html">Creating a simple simulation (v3.0)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v40.html">Creating a simple simulation (v4.0)</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
@@ -300,7 +302,7 @@
     <span class="n">GenericDomain</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">febio_python.feb</span> <span class="kn">import</span> <span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb</span>
+<span class="kn">from</span> <span class="nn">febio_python.feb</span> <span class="kn">import</span> <span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb40</span><span class="p">,</span> <span class="n">Feb</span>
 <span class="kn">from</span> <span class="nn">febio_python.xplt</span> <span class="kn">import</span> <span class="n">Xplt</span>
 
 
@@ -315,16 +317,16 @@
 
         <span class="k">if</span> <span class="n">auto_find</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_auto_find_files</span><span class="p">(</span><span class="n">feb</span><span class="p">,</span> <span class="n">xplt</span><span class="p">)</span>
-        
+
         <span class="c1"># Make sure that we have the correct input</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">xplt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No FEB or XPLT file is provided&quot;</span><span class="p">)</span>
-        
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feb</span><span class="p">,</span> <span class="p">(</span><span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb25</span><span class="p">)):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feb</span><span class="p">,</span> <span class="p">(</span><span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb40</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;FEB is not valid. Check input file or input parameters.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xplt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xplt</span><span class="p">,</span> <span class="n">Xplt</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;XPLT is not valid. Check input file or input parameters.&quot;</span><span class="p">)</span>
-        
+
         <span class="c1"># Now, if both files are provided, we must ensure that they are compatible.</span>
         <span class="c1"># We will compare the number of nodes and elements in the FEB and XPLT files.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">xplt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -332,14 +334,14 @@
             <span class="n">feb_elem_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">elem</span><span class="o">.</span><span class="n">ids</span><span class="o">.</span><span class="n">size</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span><span class="o">.</span><span class="n">get_elements</span><span class="p">()])</span>
             <span class="n">xplt_node_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">ids</span><span class="o">.</span><span class="n">size</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">xplt</span><span class="o">.</span><span class="n">nodes</span><span class="p">])</span>
             <span class="n">xplt_elem_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">elem</span><span class="o">.</span><span class="n">ids</span><span class="o">.</span><span class="n">size</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">xplt</span><span class="o">.</span><span class="n">elements</span><span class="p">])</span>
-            
+
             <span class="k">if</span> <span class="n">feb_node_count</span> <span class="o">!=</span> <span class="n">xplt_node_count</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of nodes in FEB and XPLT files do not match.&quot;</span>
                                  <span class="s2">&quot;Please, make sure that the FEB and XPLT files are compatible.&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">feb_elem_count</span> <span class="o">!=</span> <span class="n">xplt_elem_count</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of elements in FEB and XPLT files do not match.&quot;</span>
                                  <span class="s2">&quot;Please, make sure that the FEB and XPLT files are compatible.&quot;</span><span class="p">)</span>
-    
+
     <span class="k">def</span> <span class="nf">_load_feb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feb</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb25</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb25</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">feb</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
             <span class="n">feb_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">feb</span><span class="p">)</span>
@@ -365,10 +367,10 @@
     <span class="c1"># ========================================================================</span>
     <span class="c1"># Properties</span>
     <span class="c1"># ========================================================================</span>
-    
+
     <span class="c1"># Main geometry (mesh) properties</span>
     <span class="c1"># -------------------------------</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Nodes</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -377,7 +379,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xplt</span><span class="o">.</span><span class="n">nodes</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No FEB or XPLT file is provided&quot;</span><span class="p">)</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">elements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Elements</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -386,7 +388,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xplt</span><span class="o">.</span><span class="n">elements</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No FEB or XPLT file is provided&quot;</span><span class="p">)</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">surfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Elements</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -395,7 +397,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xplt</span><span class="o">.</span><span class="n">surfaces</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No FEB or XPLT file is provided&quot;</span><span class="p">)</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Elements</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -404,7 +406,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xplt</span><span class="o">.</span><span class="n">volumes</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No FEB or XPLT file is provided&quot;</span><span class="p">)</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">mesh_domains</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">GenericDomain</span><span class="p">,</span> <span class="n">XpltMeshPart</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -413,10 +415,10 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xplt</span><span class="o">.</span><span class="n">parts</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No FEB or XPLT file is provided&quot;</span><span class="p">)</span>
-    
+
     <span class="c1"># Other geometry (mesh) properties</span>
     <span class="c1"># --------------------------------</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nodesets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeSet</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -425,7 +427,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xplt</span><span class="o">.</span><span class="n">nodesets</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No FEB or XPLT file is provided&quot;</span><span class="p">)</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">surfacesets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SurfaceSet</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -434,7 +436,7 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;XPLT file does not save surface sets. Please provide a FEB file.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No FEB or XPLT file is provided&quot;</span><span class="p">)</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">elementsets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ElementSet</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -443,10 +445,10 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;XPLT file does not save element sets. Please provide a FEB file.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No FEB or XPLT file is provided&quot;</span><span class="p">)</span>
-    
+
     <span class="c1"># Material properties</span>
     <span class="c1"># -------------------</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">materials</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Material</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -455,12 +457,11 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                 <span class="s2">&quot;Trying to access material data without a FEB file. &quot;</span>
                 <span class="s2">&quot;Currently only FEB files save material data.&quot;</span>
-                <span class="s2">&quot;To access material data, provide a FEB file.&quot;</span>
-                <span class="p">)</span>
-    
+                <span class="s2">&quot;To access material data, provide a FEB file.&quot;</span><span class="p">)</span>
+
     <span class="c1"># Loads</span>
     <span class="c1"># -------------------</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nodal_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NodalLoad</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -469,9 +470,8 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                 <span class="s2">&quot;Trying to access nodal load data without a FEB file. &quot;</span>
                 <span class="s2">&quot;Currently only FEB files save nodal load data.&quot;</span>
-                <span class="s2">&quot;To access nodal load data, provide a FEB file.&quot;</span>
-                <span class="p">)</span>
-    
+                <span class="s2">&quot;To access nodal load data, provide a FEB file.&quot;</span><span class="p">)</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pressure_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">PressureLoad</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -480,9 +480,8 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                 <span class="s2">&quot;Trying to access pressure load data without a FEB file. &quot;</span>
                 <span class="s2">&quot;Currently only FEB files save pressure load data.&quot;</span>
-                <span class="s2">&quot;To access pressure load data, provide a FEB file.&quot;</span>
-                <span class="p">)</span>
-    
+                <span class="s2">&quot;To access pressure load data, provide a FEB file.&quot;</span><span class="p">)</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">load_curves</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">LoadCurve</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -491,12 +490,11 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                 <span class="s2">&quot;Trying to access load curve data without a FEB file. &quot;</span>
                 <span class="s2">&quot;Currently only FEB files save load curve data.&quot;</span>
-                <span class="s2">&quot;To access load curve data, provide a FEB file.&quot;</span>
-                <span class="p">)</span>
-    
+                <span class="s2">&quot;To access load curve data, provide a FEB file.&quot;</span><span class="p">)</span>
+
     <span class="c1"># Boundary conditions</span>
     <span class="c1"># -------------------</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">boundary_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">BoundaryCondition</span><span class="p">,</span> <span class="n">FixCondition</span><span class="p">,</span> <span class="n">RigidBodyCondition</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -505,12 +503,11 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                 <span class="s2">&quot;Trying to access boundary condition data without a FEB file. &quot;</span>
                 <span class="s2">&quot;Currently only FEB files save boundary condition data.&quot;</span>
-                <span class="s2">&quot;To access boundary condition data, provide a FEB file.&quot;</span>
-                <span class="p">)</span>
-    
+                <span class="s2">&quot;To access boundary condition data, provide a FEB file.&quot;</span><span class="p">)</span>
+
     <span class="c1"># Mesh data</span>
     <span class="c1"># -------------------</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nodal_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NodalData</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -520,7 +517,7 @@
                                <span class="s2">&quot;If you are looking for nodal state data, please, use the &#39;states&#39; property.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No FEB or XPLT file is provided&quot;</span><span class="p">)</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">surface_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SurfaceData</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -530,7 +527,7 @@
                                <span class="s2">&quot;If you are looking for surface state data, please, use the &#39;states&#39; property.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No FEB or XPLT file is provided&quot;</span><span class="p">)</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">element_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ElementData</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -543,7 +540,7 @@
 
     <span class="c1"># States (results)</span>
     <span class="c1"># -------------------</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">states</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xplt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -552,8 +549,7 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                 <span class="s2">&quot;Trying to access state data without a XPLT file. &quot;</span>
                 <span class="s2">&quot;Currently XPLT files save state data.&quot;</span>
-                <span class="s2">&quot;To access state data, provide a XPLT file.&quot;</span>
-                <span class="p">)</span>
+                <span class="s2">&quot;To access state data, provide a XPLT file.&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">node_states</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Nodes</span><span class="p">]:</span>
@@ -563,9 +559,8 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                 <span class="s2">&quot;Trying to access node state data without a XPLT file. &quot;</span>
                 <span class="s2">&quot;Currently XPLT files save state data.&quot;</span>
-                <span class="s2">&quot;To access state data, provide a XPLT file.&quot;</span>
-                <span class="p">)</span>
-    
+                <span class="s2">&quot;To access state data, provide a XPLT file.&quot;</span><span class="p">)</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">element_states</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Elements</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xplt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -574,9 +569,8 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                 <span class="s2">&quot;Trying to access element state data without a XPLT file. &quot;</span>
                 <span class="s2">&quot;Currently XPLT files save state data.&quot;</span>
-                <span class="s2">&quot;To access state data, provide a XPLT file.&quot;</span>
-                <span class="p">)</span>
-    
+                <span class="s2">&quot;To access state data, provide a XPLT file.&quot;</span><span class="p">)</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">surface_states</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Elements</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xplt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -585,8 +579,7 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                 <span class="s2">&quot;Trying to access surface state data without a XPLT file. &quot;</span>
                 <span class="s2">&quot;Currently XPLT files save state data.&quot;</span>
-                <span class="s2">&quot;To access state data, provide a XPLT file.&quot;</span>
-                <span class="p">)</span></div>
+                <span class="s2">&quot;To access state data, provide a XPLT file.&quot;</span><span class="p">)</span></div>
 
 </pre></div>
         </article>

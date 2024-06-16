@@ -214,7 +214,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation.html">Creating a simple simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v25.html">Creating a simple simulation (v2.5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v30.html">Creating a simple simulation (v3.0)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v40.html">Creating a simple simulation (v4.0)</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
@@ -279,39 +281,39 @@
           <h1>Source code for febio_python.feb.feb_version_handler</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">._feb_25</span> <span class="kn">import</span> <span class="n">Feb25</span>
 <span class="kn">from</span> <span class="nn">._feb_30</span> <span class="kn">import</span> <span class="n">Feb30</span>
+<span class="kn">from</span> <span class="nn">._feb_40</span> <span class="kn">import</span> <span class="n">Feb40</span>
 <span class="kn">from</span> <span class="nn">.bases</span> <span class="kn">import</span> <span class="n">FebBaseObject</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">xml.etree</span> <span class="kn">import</span> <span class="n">ElementTree</span> <span class="k">as</span> <span class="n">ET</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
-<span class="c1"># from typing import NewType</span>
-
-<span class="c1"># FebTypes = NewType(&#39;FebTypes&#39;, Union[Feb25, Feb30])</span>
 
 <div class="viewcode-block" id="Feb">
 <a class="viewcode-back" href="../../../api/feb/feb.html#febio_python.feb.Feb">[docs]</a>
-<span class="k">def</span> <span class="nf">Feb</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
-        <span class="n">tree</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">version</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">Feb</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tree</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">version</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb40</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a FEB object based on the version of the FEB.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># version = determine_version(filepath)</span>
     <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">version</span> <span class="o">=</span> <span class="n">FebBaseObject</span><span class="p">(</span><span class="n">tree</span><span class="o">=</span><span class="n">tree</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">version</span>
-    
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">)):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">version</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Version should be a float, not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">version</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>                   
-    
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Version should be a float, not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">version</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
     <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="mf">2.5</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Feb25</span><span class="p">(</span><span class="n">tree</span><span class="o">=</span><span class="n">tree</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">version</span> <span class="o">==</span> <span class="mf">3.0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Feb30</span><span class="p">(</span><span class="n">tree</span><span class="o">=</span><span class="n">tree</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">version</span> <span class="o">==</span> <span class="mf">4.0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Feb40</span><span class="p">(</span><span class="n">tree</span><span class="o">=</span><span class="n">tree</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported version: </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">. Supported versions are 2.5 and 3.0.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported version: </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">. Supported versions are 2.5, 3.0 and 4.0.&quot;</span><span class="p">)</span></div>
 
 </pre></div>
         </article>

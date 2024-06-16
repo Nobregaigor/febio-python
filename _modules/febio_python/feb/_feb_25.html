@@ -214,7 +214,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation.html">Creating a simple simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v25.html">Creating a simple simulation (v2.5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v30.html">Creating a simple simulation (v3.0)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/create_a_simple_simulation/create_a_simple_simulation_v40.html">Creating a simple simulation (v4.0)</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
@@ -283,7 +285,7 @@
 
 <span class="kn">from</span> <span class="nn">.bases</span> <span class="kn">import</span> <span class="n">AbstractFebObject</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">deque</span>
 
 <span class="kn">from</span> <span class="nn">febio_python.core</span> <span class="kn">import</span> <span class="p">(</span>
@@ -310,32 +312,33 @@
 
 <span class="kn">from</span> <span class="nn">._caching</span> <span class="kn">import</span> <span class="n">feb_instance_cache</span>
 
+
 <div class="viewcode-block" id="Feb25">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25">[docs]</a>
 <span class="k">class</span> <span class="nc">Feb25</span><span class="p">(</span><span class="n">AbstractFebObject</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
-                 <span class="n">tree</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ElementTree</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-                 <span class="n">root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">tree</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ElementTree</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_version</span> <span class="o">=</span> <span class="mf">2.5</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
-        
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">!=</span> <span class="mf">2.5</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This class is only for FEBio 2.5 files&quot;</span>
                              <span class="sa">f</span><span class="s2">&quot;Version found: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        
+
     <span class="c1"># =========================================================================================================</span>
     <span class="c1"># Retrieve methods</span>
     <span class="c1"># =========================================================================================================</span>
-    
+
     <span class="c1"># Main geometry data</span>
     <span class="c1"># ------------------------------</span>
-    
+
     <span class="nd">@feb_instance_cache</span>
     <span class="k">def</span> <span class="nf">get_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Nodes</span><span class="p">]:</span>
-        <span class="n">all_nodes</span><span class="p">:</span> <span class="n">OrderedDict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tag_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LEAD_TAGS</span><span class="o">.</span><span class="n">GEOMETRY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">NODES</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span>  <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">all_nodes</span><span class="p">:</span> <span class="n">OrderedDict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tag_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LEAD_TAGS</span><span class="o">.</span><span class="n">GEOMETRY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">NODES</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
         <span class="n">listed_nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="n">last_id</span> <span class="o">=</span> <span class="mi">0</span> 
+        <span class="n">last_id</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">all_nodes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">this_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">last_id</span><span class="p">,</span> <span class="n">last_id</span> <span class="o">+</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
             <span class="n">listed_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Nodes</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">coordinates</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">ids</span><span class="o">=</span><span class="n">this_ids</span><span class="p">))</span>
@@ -355,7 +358,7 @@
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="k">pass</span>
             <span class="n">elem_name</span> <span class="o">=</span> <span class="n">elem_group</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
-            
+
             <span class="n">connectivity</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span>
             <span class="n">elem_ids</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">elem_group</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;elem&quot;</span><span class="p">):</span>
@@ -364,18 +367,18 @@
                 <span class="n">connectivity</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_elem_connectivity</span><span class="p">)</span>
                 <span class="n">this_elem_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
                 <span class="n">elem_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_elem_id</span><span class="p">)</span>
-            
+
             <span class="c1"># Convert the list of element connectivities to a numpy array</span>
-            <span class="n">connectivity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">connectivity</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span> <span class="o">-</span><span class="mi">1</span> <span class="c1"># Convert to zero-based indexing</span>
-            <span class="n">elem_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">elem_ids</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="o">-</span><span class="mi">1</span> <span class="c1"># Convert to zero-based indexing</span>
+            <span class="n">connectivity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">connectivity</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># Convert to zero-based indexing</span>
+            <span class="n">elem_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">elem_ids</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># Convert to zero-based indexing</span>
             <span class="c1"># num_elems = connectivity.shape[0]</span>
             <span class="c1"># elem_ids = np.arange(last_elem_id, last_elem_id + num_elems, dtype=np.int64)</span>
             <span class="c1"># Create an Elements instance for each element</span>
-            <span class="n">element</span> <span class="o">=</span> <span class="n">Elements</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">elem_name</span><span class="p">,</span> 
-                               <span class="n">mat</span><span class="o">=</span><span class="n">mat_id</span><span class="p">,</span> 
-                               <span class="n">part</span><span class="o">=</span><span class="n">elem_part_id</span><span class="p">,</span> 
-                               <span class="nb">type</span><span class="o">=</span><span class="n">elem_type</span><span class="p">,</span> 
-                               <span class="n">connectivity</span><span class="o">=</span><span class="n">connectivity</span><span class="p">,</span> 
+            <span class="n">element</span> <span class="o">=</span> <span class="n">Elements</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">elem_name</span><span class="p">,</span>
+                               <span class="n">mat</span><span class="o">=</span><span class="n">mat_id</span><span class="p">,</span>
+                               <span class="n">part</span><span class="o">=</span><span class="n">elem_part_id</span><span class="p">,</span>
+                               <span class="nb">type</span><span class="o">=</span><span class="n">elem_type</span><span class="p">,</span>
+                               <span class="n">connectivity</span><span class="o">=</span><span class="n">connectivity</span><span class="p">,</span>
                                <span class="n">ids</span><span class="o">=</span><span class="n">elem_ids</span><span class="p">)</span>
             <span class="n">all_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
             <span class="c1"># last_elem_id += num_elems</span>
@@ -430,7 +433,7 @@
             <span class="n">nodeset_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">NodeSet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">ids</span><span class="o">=</span><span class="n">value</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">nodeset_list</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.get_surfacesets">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.get_surfacesets">[docs]</a>
     <span class="nd">@feb_instance_cache</span>
@@ -454,7 +457,7 @@
             <span class="n">surfaceset_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SurfaceSet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">node_ids</span><span class="o">=</span><span class="n">value</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">surfaceset_list</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.get_elementsets">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.get_elementsets">[docs]</a>
     <span class="nd">@feb_instance_cache</span>
@@ -481,7 +484,7 @@
 
     <span class="c1"># Parts</span>
     <span class="c1"># ------------------------------</span>
-    
+
     <span class="nd">@feb_instance_cache</span>
     <span class="k">def</span> <span class="nf">get_mesh_domains</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">GenericDomain</span><span class="p">]:</span>
         <span class="c1"># FEB 2.5 does not have a direct way to store mesh domains</span>
@@ -496,17 +499,17 @@
             <span class="p">)</span>
             <span class="n">mesh_domains</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_domain</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">mesh_domains</span>
-    
+
     <span class="c1"># Materials</span>
     <span class="c1"># ------------------------------</span>
-    
+
     <span class="nd">@feb_instance_cache</span>
     <span class="k">def</span> <span class="nf">get_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Material</span><span class="p">]:</span>
         <span class="n">materials_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;material&quot;</span><span class="p">):</span>
             <span class="c1"># Initialize the dictionary for attributes</span>
             <span class="n">mat_attrib</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span>
-            
+
             <span class="c1"># Extract parameters and remove them from attributes to avoid duplication</span>
             <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>  <span class="c1"># Assuming the first element describes the material itself</span>
@@ -535,13 +538,13 @@
 
     <span class="c1"># Loads</span>
     <span class="c1"># ------------------------------</span>
-    
+
     <span class="nd">@feb_instance_cache</span>
     <span class="k">def</span> <span class="nf">get_nodal_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NodalLoad</span><span class="p">]:</span>
         <span class="n">nodal_loads</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">load</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loads</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;nodal_load&quot;</span><span class="p">)):</span>
             <span class="n">scale_data</span> <span class="o">=</span> <span class="n">load</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;scale&quot;</span><span class="p">)</span>
-            
+
             <span class="c1"># Convert scale text to float if possible, maintain as text if not</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">scale_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">scale_data</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
@@ -565,7 +568,7 @@
             <span class="n">nodal_loads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_load</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">nodal_loads</span>
-    
+
     <span class="nd">@feb_instance_cache</span>
     <span class="k">def</span> <span class="nf">get_pressure_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">PressureLoad</span><span class="p">]:</span>
         <span class="n">pressure_loads_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -592,7 +595,7 @@
                 <span class="n">pressure_loads_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_load</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">pressure_loads_list</span>
-    
+
     <span class="nd">@feb_instance_cache</span>
     <span class="k">def</span> <span class="nf">get_loadcurves</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">LoadCurve</span><span class="p">]:</span>
         <span class="n">load_curves_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -619,22 +622,22 @@
             <span class="n">load_curves_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_load_curve</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">load_curves_list</span>
-        
+
     <span class="c1"># Boundary conditions</span>
     <span class="c1"># ------------------------------</span>
-    
+
     <span class="nd">@feb_instance_cache</span>
     <span class="k">def</span> <span class="nf">get_boundary_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">FixCondition</span><span class="p">,</span> <span class="n">RigidBodyCondition</span><span class="p">,</span> <span class="n">BoundaryCondition</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
-        
+
         <span class="n">boundary_conditions_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;fix&#39;</span><span class="p">:</span>
                 <span class="c1"># Create an instance of FixCondition for each &#39;fix&#39; element</span>
                 <span class="n">fix_condition</span> <span class="o">=</span> <span class="n">FixCondition</span><span class="p">(</span><span class="n">dof</span><span class="o">=</span><span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;bc&#39;</span><span class="p">],</span> <span class="n">node_set</span><span class="o">=</span><span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;node_set&#39;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
                 <span class="n">boundary_conditions_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fix_condition</span><span class="p">)</span>
-            
+
             <span class="k">elif</span> <span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;rigid_body&#39;</span><span class="p">:</span>
                 <span class="c1"># Gather all &#39;fixed&#39; sub-elements for a &#39;rigid_body&#39;</span>
                 <span class="n">fixed_axes</span> <span class="o">=</span> <span class="p">[</span><span class="n">fixed</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;bc&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">fixed</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;fixed&#39;</span><span class="p">)]</span>
@@ -642,17 +645,17 @@
                 <span class="c1"># Create an instance of RigidBodyCondition for each &#39;rigid_body&#39; element</span>
                 <span class="n">rigid_body_condition</span> <span class="o">=</span> <span class="n">RigidBodyCondition</span><span class="p">(</span><span class="n">material</span><span class="o">=</span><span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;mat&#39;</span><span class="p">],</span> <span class="n">dof</span><span class="o">=</span><span class="n">fixed_axes</span><span class="p">)</span>
                 <span class="n">boundary_conditions_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rigid_body_condition</span><span class="p">)</span>
-            
+
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Fallback to a generic BoundaryCondition for unrecognized types</span>
                 <span class="n">generic_condition</span> <span class="o">=</span> <span class="n">BoundaryCondition</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">elem</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span>
                 <span class="n">boundary_conditions_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">generic_condition</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">boundary_conditions_list</span>
-    
+
     <span class="c1"># Mesh data</span>
     <span class="c1"># ------------------------------</span>
-    
+
     <span class="nd">@feb_instance_cache</span>
     <span class="k">def</span> <span class="nf">get_nodal_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NodalData</span><span class="p">]:</span>
         <span class="n">nodal_data_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -672,7 +675,7 @@
                 <span class="n">_these_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;lid&quot;</span><span class="p">]))</span>
             <span class="n">ref</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;node_set&quot;</span><span class="p">]</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-            
+
             <span class="c1"># Create a NodalData instance</span>
             <span class="n">current_data</span> <span class="o">=</span> <span class="n">NodalData</span><span class="p">(</span>
                 <span class="n">node_set</span><span class="o">=</span><span class="n">ref</span><span class="p">,</span>
@@ -685,7 +688,7 @@
             <span class="n">nodal_data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_data</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">nodal_data_list</span>
-    
+
     <span class="nd">@feb_instance_cache</span>
     <span class="k">def</span> <span class="nf">get_surface_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SurfaceData</span><span class="p">]:</span>
         <span class="n">surf_data_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -705,7 +708,7 @@
                 <span class="n">_these_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;lid&quot;</span><span class="p">]))</span>
             <span class="n">ref</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;surf_set&quot;</span><span class="p">]</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-            
+
             <span class="c1"># Create a NodalData instance</span>
             <span class="n">current_data</span> <span class="o">=</span> <span class="n">SurfaceData</span><span class="p">(</span>
                 <span class="n">surf_set</span><span class="o">=</span><span class="n">ref</span><span class="p">,</span>
@@ -718,7 +721,7 @@
             <span class="n">surf_data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_data</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">surf_data_list</span>
-    
+
     <span class="nd">@feb_instance_cache</span>
     <span class="k">def</span> <span class="nf">get_element_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ElementData</span><span class="p">]:</span>
         <span class="n">elem_data_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -736,11 +739,11 @@
                     <span class="c1"># Add non-numeric strings as is</span>
                     <span class="n">_this_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
                 <span class="n">_these_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;lid&quot;</span><span class="p">]))</span>
-            
+
             <span class="n">ref</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;elem_set&quot;</span><span class="p">]</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">var</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>            
-            
+            <span class="n">var</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
             <span class="c1"># Create a ElementData instance</span>
             <span class="n">current_data</span> <span class="o">=</span> <span class="n">ElementData</span><span class="p">(</span>
                 <span class="n">elem_set</span><span class="o">=</span><span class="n">ref</span><span class="p">,</span>
@@ -758,10 +761,10 @@
     <span class="c1"># =========================================================================================================</span>
     <span class="c1"># Add methods</span>
     <span class="c1"># =========================================================================================================</span>
-    
+
     <span class="c1"># Main geometry data</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.add_nodes">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.add_nodes">[docs]</a>
     <span class="k">def</span> <span class="nf">add_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Nodes</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -827,7 +830,7 @@
                 <span class="n">el_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;.//Elements[@name=&#39;</span><span class="si">{</span><span class="n">element</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Make sure the element type is valid, it must be a valid FEBio element type</span>
-                <span class="c1"># However, user can also use VTK element types as input, but they must be </span>
+                <span class="c1"># However, user can also use VTK element types as input, but they must be</span>
                 <span class="c1"># converted to FEBio types</span>
                 <span class="n">el_type</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">type</span>
                 <span class="c1"># first, check if it is a VTK element type. FEBioElementType names</span>
@@ -836,8 +839,8 @@
                     <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">el_type</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">FEBioElementType</span><span class="o">.</span><span class="n">__members__</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                         <span class="n">el_type</span> <span class="o">=</span> <span class="n">FEBioElementType</span><span class="p">[</span><span class="n">el_type</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Element type </span><span class="si">{</span><span class="n">el_type</span><span class="si">}</span><span class="s2"> is not a valid FEBio element type.&quot;</span><span class="p">)</span>                        
-    
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Element type </span><span class="si">{</span><span class="n">el_type</span><span class="si">}</span><span class="s2"> is not a valid FEBio element type.&quot;</span><span class="p">)</span>
+
                 <span class="c1"># Create a new Elements group if no existing one matches the name</span>
                 <span class="n">el_root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Elements&quot;</span><span class="p">)</span>
                 <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="n">el_type</span><span class="p">)</span>  <span class="c1"># TYPE AND MAT MUST BE SET FIRST, OTHERWISE FEBIO WILL NOT RECOGNIZE THE ELEMENTS</span>
@@ -859,17 +862,17 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No surface elements found in the input list. Try using add_elements() instead.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_elements</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span>
-        
+
     <span class="k">def</span> <span class="nf">add_volume_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Elements</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Filter elements by volume type</span>
         <span class="n">filtered</span> <span class="o">=</span> <span class="p">[</span><span class="n">elem</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">elements</span> <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SURFACE_EL_TYPE</span><span class="o">.</span><span class="n">__members__</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No volume elements found in the input list. Try using add_elements() instead.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_elements</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span>
-    
+
     <span class="c1"># Node, element, surface sets</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.add_nodesets">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.add_nodesets">[docs]</a>
     <span class="k">def</span> <span class="nf">add_nodesets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodesets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeSet</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -882,9 +885,13 @@
         <span class="n">existing_nodesets</span> <span class="o">=</span> <span class="p">{</span><span class="n">nodeset</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">nodeset</span> <span class="k">for</span> <span class="n">nodeset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nodesets</span><span class="p">()}</span>
 
         <span class="k">for</span> <span class="n">nodeset</span> <span class="ow">in</span> <span class="n">nodesets</span><span class="p">:</span>
+            <span class="n">node_ids</span> <span class="o">=</span> <span class="n">nodeset</span><span class="o">.</span><span class="n">ids</span>
             <span class="k">if</span> <span class="n">nodeset</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">existing_nodesets</span><span class="p">:</span>
                 <span class="c1"># Append to existing NodeSet element</span>
                 <span class="n">el_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;.//NodeSet[@name=&#39;</span><span class="si">{</span><span class="n">nodeset</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">)</span>
+                <span class="c1"># Merge the existing node IDs with the new ones and remove duplicates</span>
+                <span class="n">existing_ids</span> <span class="o">=</span> <span class="n">existing_nodesets</span><span class="p">[</span><span class="n">nodeset</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">ids</span>
+                <span class="n">node_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">existing_ids</span><span class="p">,</span> <span class="n">node_ids</span><span class="p">)))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Create a new NodeSet element if no existing one matches the name</span>
                 <span class="n">el_root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;NodeSet&quot;</span><span class="p">)</span>
@@ -892,11 +899,11 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el_root</span><span class="p">)</span>
 
             <span class="c1"># Add node IDs as sub-elements</span>
-            <span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="n">nodeset</span><span class="o">.</span><span class="n">ids</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="n">node_ids</span><span class="p">:</span>
                 <span class="n">subel</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">el_root</span><span class="p">,</span> <span class="s2">&quot;node&quot;</span><span class="p">)</span>
                 <span class="n">subel</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">node_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>  <span class="c1"># Convert to one-based indexing</span></div>
 
-                
+
 <div class="viewcode-block" id="Feb25.add_surfacesets">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.add_surfacesets">[docs]</a>
     <span class="k">def</span> <span class="nf">add_surfacesets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">surfacesets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SurfaceSet</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -909,9 +916,13 @@
         <span class="n">existing_surfacesets</span> <span class="o">=</span> <span class="p">{</span><span class="n">surfset</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">surfset</span> <span class="k">for</span> <span class="n">surfset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_surfacesets</span><span class="p">()}</span>
 
         <span class="k">for</span> <span class="n">surfset</span> <span class="ow">in</span> <span class="n">surfacesets</span><span class="p">:</span>
+            <span class="n">surf_ids</span> <span class="o">=</span> <span class="n">surfset</span><span class="o">.</span><span class="n">node_ids</span>
             <span class="k">if</span> <span class="n">surfset</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">existing_surfacesets</span><span class="p">:</span>
                 <span class="c1"># Append to existing SurfaceSet element</span>
                 <span class="n">el_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;.//SurfaceSet[@name=&#39;</span><span class="si">{</span><span class="n">surfset</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">)</span>
+                <span class="c1"># Merge the existing node IDs with the new ones and remove duplicates</span>
+                <span class="n">existing_ids</span> <span class="o">=</span> <span class="n">existing_surfacesets</span><span class="p">[</span><span class="n">surfset</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">node_ids</span>
+                <span class="n">surf_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">existing_ids</span><span class="p">,</span> <span class="n">surf_ids</span><span class="p">)))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Create a new SurfaceSet element if no existing one matches the name</span>
                 <span class="n">el_root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;SurfaceSet&quot;</span><span class="p">)</span>
@@ -919,11 +930,11 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el_root</span><span class="p">)</span>
 
             <span class="c1"># Add node IDs as sub-elements</span>
-            <span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="n">surfset</span><span class="o">.</span><span class="n">node_ids</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="n">surf_ids</span><span class="p">:</span>
                 <span class="n">subel</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">el_root</span><span class="p">,</span> <span class="s2">&quot;node&quot;</span><span class="p">)</span>
-                <span class="n">subel</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">node_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span> <span class="c1"># Convert to one-based indexing</span></div>
+                <span class="n">subel</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">node_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>  <span class="c1"># Convert to one-based indexing</span></div>
 
-                
+
 <div class="viewcode-block" id="Feb25.add_elementsets">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.add_elementsets">[docs]</a>
     <span class="k">def</span> <span class="nf">add_elementsets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elementsets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ElementSet</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -936,24 +947,28 @@
         <span class="n">existing_elementsets</span> <span class="o">=</span> <span class="p">{</span><span class="n">elemset</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">elemset</span> <span class="k">for</span> <span class="n">elemset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_elementsets</span><span class="p">()}</span>
 
         <span class="k">for</span> <span class="n">elemset</span> <span class="ow">in</span> <span class="n">elementsets</span><span class="p">:</span>
+            <span class="n">elem_ids</span> <span class="o">=</span> <span class="n">elemset</span><span class="o">.</span><span class="n">ids</span>
             <span class="k">if</span> <span class="n">elemset</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">existing_elementsets</span><span class="p">:</span>
                 <span class="c1"># Append to existing ElementSet element</span>
                 <span class="n">el_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;.//ElementSet[@name=&#39;</span><span class="si">{</span><span class="n">elemset</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">)</span>
+                <span class="c1"># Merge the existing element IDs with the new ones and remove duplicates</span>
+                <span class="n">existing_ids</span> <span class="o">=</span> <span class="n">existing_elementsets</span><span class="p">[</span><span class="n">elemset</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">ids</span>
+                <span class="n">elem_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">existing_ids</span><span class="p">,</span> <span class="n">elem_ids</span><span class="p">)))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Create a new ElementSet element if no existing one matches the name</span>
                 <span class="n">el_root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;ElementSet&quot;</span><span class="p">)</span>
                 <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">elemset</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el_root</span><span class="p">)</span>
-            
-            <span class="c1"># Add element IDs as sub-elements</span>
-            <span class="k">for</span> <span class="n">elem_id</span> <span class="ow">in</span> <span class="n">elemset</span><span class="o">.</span><span class="n">ids</span><span class="p">:</span>
-                <span class="n">subel</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">el_root</span><span class="p">,</span> <span class="s2">&quot;elem&quot;</span><span class="p">)</span>
-                <span class="n">subel</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">elem_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span> <span class="c1"># Convert to one-based indexing</span></div>
 
-    
+            <span class="c1"># Add element IDs as sub-elements</span>
+            <span class="k">for</span> <span class="n">elem_id</span> <span class="ow">in</span> <span class="n">elem_ids</span><span class="p">:</span>
+                <span class="n">subel</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">el_root</span><span class="p">,</span> <span class="s2">&quot;elem&quot;</span><span class="p">)</span>
+                <span class="n">subel</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">elem_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>  <span class="c1"># Convert to one-based indexing</span></div>
+
+
     <span class="c1"># Materials</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.add_materials">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.add_materials">[docs]</a>
     <span class="k">def</span> <span class="nf">add_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">materials</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Material</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -986,10 +1001,10 @@
                 <span class="n">subel</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">el_root</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
                 <span class="n">subel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
-    
+
     <span class="c1"># Loads</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.add_nodal_loads">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.add_nodal_loads">[docs]</a>
     <span class="k">def</span> <span class="nf">add_nodal_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodal_loads</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodalLoad</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1006,17 +1021,17 @@
             <span class="c1">#     # Append to existing NodalLoad element</span>
             <span class="c1">#     el_root = self.loads.find(f&quot;.//nodal_load[@node_set=&#39;{load.node_set}&#39;]&quot;)</span>
             <span class="c1"># else:</span>
-                <span class="c1"># Create a new NodalLoad element if no existing one matches the node set</span>
+            <span class="c1">#    Create a new NodalLoad element if no existing one matches the node set</span>
             <span class="n">el_root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;nodal_load&quot;</span><span class="p">)</span>
             <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;node_set&quot;</span><span class="p">,</span> <span class="n">load</span><span class="o">.</span><span class="n">node_set</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">loads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el_root</span><span class="p">)</span>
 
             <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;bc&quot;</span><span class="p">,</span> <span class="n">load</span><span class="o">.</span><span class="n">dof</span><span class="p">)</span>
-            
+
             <span class="n">scale_subel</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">el_root</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">)</span>
             <span class="n">scale_subel</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;lc&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">load</span><span class="o">.</span><span class="n">load_curve</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">load</span><span class="o">.</span><span class="n">scale</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">scale_subel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span> <span class="c1"># Default to 1.0 if no scale is provided</span>
+                <span class="n">scale_subel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>  <span class="c1"># Default to 1.0 if no scale is provided</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">load</span><span class="o">.</span><span class="n">scale</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)):</span>
                 <span class="n">scale_subel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">load</span><span class="o">.</span><span class="n">scale</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">load</span><span class="o">.</span><span class="n">scale</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
@@ -1033,10 +1048,10 @@
                                      <span class="s2">&quot;the scale value as a mesh data and add the node set to the geometry.&quot;</span><span class="p">)</span>
                 <span class="n">node_set</span> <span class="o">=</span> <span class="n">node_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="c1"># prepare the nodal data</span>
-                <span class="n">nodal_data</span> <span class="o">=</span> <span class="n">NodalData</span><span class="p">(</span><span class="n">node_set</span><span class="o">=</span><span class="n">load</span><span class="o">.</span><span class="n">node_set</span><span class="p">,</span> 
-                                       <span class="n">name</span><span class="o">=</span><span class="n">ref_data_name</span><span class="p">,</span> 
-                                       <span class="n">data</span><span class="o">=</span><span class="n">load</span><span class="o">.</span><span class="n">scale</span><span class="p">,</span> 
-                                       <span class="n">ids</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">node_set</span><span class="o">.</span><span class="n">ids</span><span class="p">)</span> <span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="c1"># add_nodal_data will convert to one-based indexing</span>
+                <span class="n">nodal_data</span> <span class="o">=</span> <span class="n">NodalData</span><span class="p">(</span><span class="n">node_set</span><span class="o">=</span><span class="n">load</span><span class="o">.</span><span class="n">node_set</span><span class="p">,</span>
+                                       <span class="n">name</span><span class="o">=</span><span class="n">ref_data_name</span><span class="p">,</span>
+                                       <span class="n">data</span><span class="o">=</span><span class="n">load</span><span class="o">.</span><span class="n">scale</span><span class="p">,</span>
+                                       <span class="n">ids</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">node_set</span><span class="o">.</span><span class="n">ids</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># add_nodal_data will convert to one-based indexing</span>
                 <span class="c1"># add the nodal data</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_nodal_data</span><span class="p">([</span><span class="n">nodal_data</span><span class="p">])</span></div>
 
@@ -1066,7 +1081,7 @@
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">load</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div>
 
-                
+
 <div class="viewcode-block" id="Feb25.add_loadcurves">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.add_loadcurves">[docs]</a>
     <span class="k">def</span> <span class="nf">add_loadcurves</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">load_curves</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">LoadCurve</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1093,10 +1108,10 @@
                 <span class="n">subel</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">el_root</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">)</span>
                 <span class="n">subel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">point</span><span class="p">))</span></div>
 
-    
+
     <span class="c1"># Boundary conditions</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.add_boundary_conditions">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.add_boundary_conditions">[docs]</a>
     <span class="k">def</span> <span class="nf">add_boundary_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boundary_conditions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">FixCondition</span><span class="p">,</span> <span class="n">RigidBodyCondition</span><span class="p">,</span> <span class="n">BoundaryCondition</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1122,11 +1137,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">boundary</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el_root</span><span class="p">)</span>
 
             <span class="c1"># el_root.set(&quot;bc&quot;, bc.dof)</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">bc</span><span class="p">,</span> <span class="s2">&quot;node_set&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">bc</span><span class="p">,</span> <span class="s2">&quot;node_set&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">bc</span><span class="o">.</span><span class="n">node_set</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;node_set&quot;</span><span class="p">,</span> <span class="n">bc</span><span class="o">.</span><span class="n">node_set</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">bc</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">bc</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">bc</span><span class="o">.</span><span class="n">material</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;mat&quot;</span><span class="p">,</span> <span class="n">bc</span><span class="o">.</span><span class="n">material</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">bc</span><span class="p">,</span> <span class="s2">&quot;dof&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">bc</span><span class="p">,</span> <span class="s2">&quot;dof&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">bc</span><span class="o">.</span><span class="n">dof</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">bc_type</span> <span class="o">==</span> <span class="s2">&quot;RigidBodyCondition&quot;</span><span class="p">:</span>
                     <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;bc&quot;</span><span class="p">,</span> <span class="n">bc</span><span class="o">.</span><span class="n">dof</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -1134,10 +1149,10 @@
                         <span class="n">subel</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">el_root</span><span class="p">,</span> <span class="s2">&quot;fixed&quot;</span><span class="p">)</span>
                         <span class="n">subel</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;bc&quot;</span><span class="p">,</span> <span class="n">fixed</span><span class="p">)</span></div>
 
-    
+
     <span class="c1"># Mesh data</span>
     <span class="c1"># ------------------------------</span>
-       
+
 <div class="viewcode-block" id="Feb25.add_nodal_data">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.add_nodal_data">[docs]</a>
     <span class="k">def</span> <span class="nf">add_nodal_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodal_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodalData</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1172,7 +1187,7 @@
                     <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Node data for node set </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">node_set</span><span class="si">}</span><span class="s2"> is not in the correct format.&quot;</span><span class="p">)</span></div>
 
-                        
+
 <div class="viewcode-block" id="Feb25.add_surface_data">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.add_surface_data">[docs]</a>
     <span class="k">def</span> <span class="nf">add_surface_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">surface_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SurfaceData</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1200,7 +1215,7 @@
                 <span class="n">subel</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;lid&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># Convert to one-based indexing</span>
                 <span class="n">subel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">surf_data</span><span class="p">))</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.add_element_data">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.add_element_data">[docs]</a>
     <span class="k">def</span> <span class="nf">add_element_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ElementData</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1228,7 +1243,7 @@
 
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">elem_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>
                 <span class="n">subel</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">el_root</span><span class="p">,</span> <span class="s2">&quot;elem&quot;</span><span class="p">)</span>
-                <span class="n">subel</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;lid&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="c1"># Convert to one-based indexing</span>
+                <span class="n">subel</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;lid&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># Convert to one-based indexing</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem_data</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)):</span>
                     <span class="n">subel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">elem_data</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -1238,10 +1253,10 @@
     <span class="c1"># =========================================================================================================</span>
     <span class="c1"># Remove methods</span>
     <span class="c1"># =========================================================================================================</span>
-    
+
     <span class="c1"># Main geometry data</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.remove_nodes">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.remove_nodes">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1256,7 +1271,7 @@
             <span class="k">if</span> <span class="n">el</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.remove_elements">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.remove_elements">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1271,7 +1286,7 @@
             <span class="k">if</span> <span class="n">el</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-                
+
 <div class="viewcode-block" id="Feb25.remove_all_surface_elements">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.remove_all_surface_elements">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_all_surface_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1282,7 +1297,7 @@
             <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">SURFACE_EL_TYPE</span><span class="o">.</span><span class="n">__members__</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.remove_all_volume_elements">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.remove_all_volume_elements">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_all_volume_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1293,10 +1308,10 @@
             <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SURFACE_EL_TYPE</span><span class="o">.</span><span class="n">__members__</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-                
+
     <span class="c1"># Node, element, surface sets</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.remove_nodesets">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.remove_nodesets">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_nodesets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1311,7 +1326,7 @@
             <span class="k">if</span> <span class="n">el</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.remove_surfacesets">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.remove_surfacesets">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_surfacesets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1326,7 +1341,7 @@
             <span class="k">if</span> <span class="n">el</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.remove_elementsets">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.remove_elementsets">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_elementsets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1341,10 +1356,10 @@
             <span class="k">if</span> <span class="n">el</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
     <span class="c1"># Materials</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.remove_materials">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.remove_materials">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1368,10 +1383,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
                 <span class="k">continue</span></div>
 
-    
+
     <span class="c1"># Loads</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.remove_nodal_loads">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.remove_nodal_loads">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_nodal_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bc_or_node_sets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1391,7 +1406,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">loads</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
                 <span class="k">continue</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.remove_pressure_loads">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.remove_pressure_loads">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_pressure_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">surfaces</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1406,7 +1421,7 @@
             <span class="k">if</span> <span class="n">el</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">loads</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-                
+
 <div class="viewcode-block" id="Feb25.remove_loadcurves">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.remove_loadcurves">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_loadcurves</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1421,17 +1436,17 @@
             <span class="k">if</span> <span class="n">el</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">loaddata</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
     <span class="c1"># Boundary conditions</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.remove_boundary_conditions">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.remove_boundary_conditions">[docs]</a>
-    <span class="k">def</span> <span class="nf">remove_boundary_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">bc</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_boundary_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">bc</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes boundary conditions from Boundary by type and optionally fiter type by boundary condition.</span>
 <span class="sd">        e.g. remove_boundary_conditions([&quot;fix&quot;], [&quot;BC1&quot;]), instead of removing all fix conditions, only BC1 will be removed.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            types (list of str): List of boundary condition types to remove.</span>
 <span class="sd">            bc (list of str): List of boundary conditions to remove.</span>
@@ -1447,20 +1462,20 @@
                     <span class="k">if</span> <span class="n">el</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">boundary</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-        
+
     <span class="c1"># Mesh data</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.remove_nodal_data">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.remove_nodal_data">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_nodal_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodesets_or_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes nodal data from MeshData by node_set or name.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            nodesets_or_names (list of str): List of node sets or names to remove.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        
+
         <span class="k">for</span> <span class="n">ns</span> <span class="ow">in</span> <span class="n">nodesets_or_names</span><span class="p">:</span>
             <span class="n">el</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;.//</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">NODEDATA</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">[@node_set=&#39;</span><span class="si">{</span><span class="n">ns</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">el</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1471,13 +1486,13 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
                 <span class="k">continue</span></div>
 
-        
+
 <div class="viewcode-block" id="Feb25.remove_surface_data">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.remove_surface_data">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_surface_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">surfacesets_or_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes surface data from MeshData by surf_set or name.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            surfacesets_or_names (list of str): List of surface sets or names to remove.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1491,13 +1506,13 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
                 <span class="k">continue</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.remove_element_data">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.remove_element_data">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_element_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elementsets_or_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes element data from MeshData by elem_set or name.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            elementsets_or_names (list of str): List of element sets or names to remove.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1511,11 +1526,11 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
                 <span class="k">continue</span></div>
 
-    
+
     <span class="c1"># =========================================================================================================</span>
     <span class="c1"># Clear methods (remove all)</span>
     <span class="c1"># =========================================================================================================</span>
-    
+
 <div class="viewcode-block" id="Feb25.clear_nodes">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.clear_nodes">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1525,7 +1540,7 @@
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">NODES</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.clear_elements">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.clear_elements">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1546,7 +1561,7 @@
             <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">SURFACE_EL_TYPE</span><span class="o">.</span><span class="n">__members__</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.clear_volume_elements">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.clear_volume_elements">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_volume_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1557,7 +1572,7 @@
             <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SURFACE_EL_TYPE</span><span class="o">.</span><span class="n">__members__</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.clear_nodesets">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.clear_nodesets">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_nodesets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1567,7 +1582,7 @@
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">NODESET</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.clear_surfacesets">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.clear_surfacesets">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_surfacesets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1577,7 +1592,7 @@
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">SURFACESET</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.clear_elementsets">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.clear_elementsets">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_elementsets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1587,7 +1602,7 @@
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">ELEMENTSET</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.clear_materials">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.clear_materials">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1597,7 +1612,7 @@
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">MATERIAL</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.clear_nodal_loads">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.clear_nodal_loads">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_nodal_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1607,7 +1622,7 @@
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">loads</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">NODALLOAD</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">loads</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.clear_pressure_loads">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.clear_pressure_loads">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_pressure_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1617,7 +1632,7 @@
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">loads</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">SURFACELOAD</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">loads</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.clear_loadcurves">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.clear_loadcurves">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_loadcurves</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1627,17 +1642,17 @@
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">loaddata</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">LOADCURVE</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">loaddata</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.clear_boundary_conditions">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.clear_boundary_conditions">[docs]</a>
-    <span class="k">def</span> <span class="nf">clear_boundary_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>    
+    <span class="k">def</span> <span class="nf">clear_boundary_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes all boundary conditions from Boundary.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">boundary</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.clear_nodal_data">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.clear_nodal_data">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_nodal_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1647,7 +1662,7 @@
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">NODEDATA</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.clear_surface_data">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.clear_surface_data">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_surface_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1657,7 +1672,7 @@
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">SURFACE_DATA</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.clear_element_data">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.clear_element_data">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_element_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1667,10 +1682,10 @@
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">ELEMENTDATA</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.clear">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.clear">[docs]</a>
-    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
               <span class="n">nodes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
               <span class="n">elements</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
               <span class="n">surfaces</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1688,7 +1703,7 @@
               <span class="n">element_data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Clears the FEBio model of all data, based on the specified options.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            nodes (bool): Remove all nodes.</span>
 <span class="sd">            elements (bool): Remove all elements.</span>
@@ -1708,7 +1723,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">nodes</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">clear_nodes</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">elements</span><span class="p">:</span>    
+        <span class="k">if</span> <span class="n">elements</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">clear_elements</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">surfaces</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">clear_surface_elements</span><span class="p">()</span>
@@ -1741,10 +1756,10 @@
     <span class="c1"># =========================================================================================================</span>
     <span class="c1"># Update methods</span>
     <span class="c1"># =========================================================================================================</span>
-    
+
     <span class="c1"># Main geometry data</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.update_nodes">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.update_nodes">[docs]</a>
     <span class="k">def</span> <span class="nf">update_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Nodes</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1757,7 +1772,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">remove_nodes</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_nodes</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.update_elements">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.update_elements">[docs]</a>
     <span class="k">def</span> <span class="nf">update_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Elements</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1770,10 +1785,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">remove_elements</span><span class="p">([</span><span class="n">element</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_elements</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span></div>
 
-    
+
     <span class="c1"># Node, element, surface sets</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.update_nodesets">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.update_nodesets">[docs]</a>
     <span class="k">def</span> <span class="nf">update_nodesets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodesets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeSet</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1786,7 +1801,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">remove_nodesets</span><span class="p">([</span><span class="n">nodeset</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">nodeset</span> <span class="ow">in</span> <span class="n">nodesets</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_nodesets</span><span class="p">(</span><span class="n">nodesets</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.update_surfacesets">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.update_surfacesets">[docs]</a>
     <span class="k">def</span> <span class="nf">update_surfacesets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">surfacesets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SurfaceSet</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1799,7 +1814,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">remove_surfacesets</span><span class="p">([</span><span class="n">surfset</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">surfset</span> <span class="ow">in</span> <span class="n">surfacesets</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_surfacesets</span><span class="p">(</span><span class="n">surfacesets</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.update_elementsets">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.update_elementsets">[docs]</a>
     <span class="k">def</span> <span class="nf">update_elementsets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elementsets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ElementSet</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1812,10 +1827,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">remove_elementsets</span><span class="p">([</span><span class="n">elemset</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">elemset</span> <span class="ow">in</span> <span class="n">elementsets</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_elementsets</span><span class="p">(</span><span class="n">elementsets</span><span class="p">)</span></div>
 
-    
+
     <span class="c1"># Materials</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.update_materials">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.update_materials">[docs]</a>
     <span class="k">def</span> <span class="nf">update_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">materials</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Material</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1828,10 +1843,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">remove_materials</span><span class="p">([</span><span class="n">material</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">material</span> <span class="ow">in</span> <span class="n">materials</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_materials</span><span class="p">(</span><span class="n">materials</span><span class="p">)</span></div>
 
-        
+
     <span class="c1"># Loads</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.update_nodal_loads">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.update_nodal_loads">[docs]</a>
     <span class="k">def</span> <span class="nf">update_nodal_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodal_loads</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodalLoad</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1844,7 +1859,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">remove_nodal_loads</span><span class="p">([</span><span class="n">load</span><span class="o">.</span><span class="n">node_set</span> <span class="k">for</span> <span class="n">load</span> <span class="ow">in</span> <span class="n">nodal_loads</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_nodal_loads</span><span class="p">(</span><span class="n">nodal_loads</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.update_pressure_loads">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.update_pressure_loads">[docs]</a>
     <span class="k">def</span> <span class="nf">update_pressure_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pressure_loads</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PressureLoad</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1857,7 +1872,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">remove_pressure_loads</span><span class="p">([</span><span class="n">load</span><span class="o">.</span><span class="n">surface</span> <span class="k">for</span> <span class="n">load</span> <span class="ow">in</span> <span class="n">pressure_loads</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_pressure_loads</span><span class="p">(</span><span class="n">pressure_loads</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.update_loadcurves">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.update_loadcurves">[docs]</a>
     <span class="k">def</span> <span class="nf">update_loadcurves</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">load_curves</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">LoadCurve</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1873,7 +1888,7 @@
 
     <span class="c1"># Boundary conditions</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.update_boundary_conditions">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.update_boundary_conditions">[docs]</a>
     <span class="k">def</span> <span class="nf">update_boundary_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boundary_conditions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">FixCondition</span><span class="p">,</span> <span class="n">RigidBodyCondition</span><span class="p">,</span> <span class="n">BoundaryCondition</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1893,10 +1908,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">remove_boundary_conditions</span><span class="p">(</span><span class="n">bc_types</span><span class="p">,</span> <span class="n">bc_bcs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_boundary_conditions</span><span class="p">(</span><span class="n">boundary_conditions</span><span class="p">)</span></div>
 
-    
+
     <span class="c1"># Mesh data</span>
     <span class="c1"># ------------------------------</span>
-    
+
 <div class="viewcode-block" id="Feb25.update_nodal_data">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.update_nodal_data">[docs]</a>
     <span class="k">def</span> <span class="nf">update_nodal_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodal_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodalData</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1909,7 +1924,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">remove_nodal_data</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">node_set</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">nodal_data</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_nodal_data</span><span class="p">(</span><span class="n">nodal_data</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.update_surface_data">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.update_surface_data">[docs]</a>
     <span class="k">def</span> <span class="nf">update_surface_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">surface_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SurfaceData</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1922,7 +1937,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">remove_surface_data</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">node_set</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">surface_data</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_surface_data</span><span class="p">(</span><span class="n">surface_data</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Feb25.update_element_data">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.update_element_data">[docs]</a>
     <span class="k">def</span> <span class="nf">update_element_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ElementData</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1936,35 +1951,34 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_element_data</span><span class="p">(</span><span class="n">element_data</span><span class="p">)</span></div>
 
 
-
     <span class="c1"># =========================================================================================================</span>
     <span class="c1"># Base control setup methods</span>
     <span class="c1"># =========================================================================================================</span>
-    
+
     <span class="k">def</span> <span class="nf">setup_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_type</span><span class="o">=</span><span class="s2">&quot;solid&quot;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">module_type</span>
-    
+
 <div class="viewcode-block" id="Feb25.setup_controls">
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.setup_controls">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_controls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+    <span class="k">def</span> <span class="nf">setup_controls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                        <span class="n">analysis_type</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">,</span>
-                       <span class="n">time_steps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> 
-                       <span class="n">step_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> 
-                       <span class="n">max_refs</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> 
+                       <span class="n">time_steps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                       <span class="n">step_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                       <span class="n">max_refs</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
                        <span class="n">max_ups</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                       <span class="n">diverge_reform</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
-                       <span class="n">reform_each_time_step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
-                       <span class="n">dtol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
+                       <span class="n">diverge_reform</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                       <span class="n">reform_each_time_step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                       <span class="n">dtol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
                        <span class="n">etol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
-                       <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
-                       <span class="n">lstol</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> 
-                       <span class="n">min_residual</span><span class="o">=</span><span class="mf">1e-20</span><span class="p">,</span> 
-                       <span class="n">qnmethod</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+                       <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                       <span class="n">lstol</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+                       <span class="n">min_residual</span><span class="o">=</span><span class="mf">1e-20</span><span class="p">,</span>
+                       <span class="n">qnmethod</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                        <span class="n">rhoi</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                       <span class="n">dtmin</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
-                       <span class="n">dtmax</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> 
-                       <span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> 
-                       <span class="n">opt_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> 
+                       <span class="n">dtmin</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+                       <span class="n">dtmax</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                       <span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                       <span class="n">opt_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
                        <span class="o">**</span><span class="n">control_settings</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set up or replace the control settings in an FEBio .feb file.</span>
@@ -1995,7 +2009,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="p">)</span>
 
         <span class="c1"># Create new control element</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">control</span> <span class="c1"># will trigger the creation of the control element</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control</span>  <span class="c1"># will trigger the creation of the control element</span>
 
         <span class="c1"># Add individual settings</span>
         <span class="n">settings</span> <span class="o">=</span> <span class="p">{</span>
@@ -2023,7 +2037,7 @@
             <span class="p">}</span>
         <span class="p">}</span>
         <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">control_settings</span><span class="p">)</span>
-        
+
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;analysis&quot;</span><span class="p">:</span>
                 <span class="n">sub_element</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
@@ -2097,7 +2111,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">output_tag</span><span class="p">)</span>
 
         <span class="c1"># Create new Output element</span>
-        <span class="n">output_tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="c1"># will trigger the creation of the output element</span>
+        <span class="n">output_tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span>  <span class="c1"># will trigger the creation of the output element</span>
 
         <span class="c1"># Create plotfile sub-element under Output</span>
         <span class="n">plotfile</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">output_tag</span><span class="p">,</span> <span class="s2">&quot;plotfile&quot;</span><span class="p">)</span>
