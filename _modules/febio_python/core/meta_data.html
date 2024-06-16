@@ -291,15 +291,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.Nodes">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">Nodes</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a collection of nodes in a finite element mesh.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        name (str): Name of the nodes (e.g., &#39;NodesPart1&#39;).</span>
-<span class="sd">        coordinates (ndarray[float]): A 2D array of floats, where each row contains the coordinates of a node</span>
-<span class="sd">            (e.g., [[0, 0, 0], [1, 0, 0]]).</span>
-<span class="sd">        ids (ndarray[int], optional): A 1D array of integers representing node IDs. If not provided,</span>
-<span class="sd">            it will be inferred from the length of the coordinates list.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># Name of the nodes (e.g. &#39;NodesPart1&#39;)</span>
     <span class="n">coordinates</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>     <span class="c1"># 2-d array of floats, where each row is the coordinates of a node (e.g. [[0, 0, 0], [1, 0, 0]])</span>
     <span class="n">ids</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># If not provided, it will be inferred from the length of the coordinates list</span></div>
@@ -310,18 +301,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.Elements">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">Elements</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a collection of elements in a finite element mesh.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        name (str): Name of the element set.</span>
-<span class="sd">        type (str): Type of the elements (e.g., &#39;tri3&#39;, &#39;quad4&#39;, &#39;tet4&#39;, &#39;hex8&#39;).</span>
-<span class="sd">        connectivity (ndarray[int]): A 2D array of integers, where each row contains the connectivity of an element</span>
-<span class="sd">            (e.g., [[1, 2, 3], [2, 3, 4]]).</span>
-<span class="sd">        ids (ndarray[int], optional): A 1D array of integers representing element IDs. If not provided,</span>
-<span class="sd">            it will be inferred from the length of the connectivity list.</span>
-<span class="sd">        mat (int, optional): Material ID for the elements. Required for spec 2.5, optional for later versions.</span>
-<span class="sd">        part (int, optional): Part ID for the elements. Optional for spec 3.0, required for earlier versions.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># Name of the element set</span>
     <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># Element type (e.g. &#39;tri3&#39;, &#39;quad4&#39;, &#39;tet4&#39;, &#39;hex8&#39;)</span>
     <span class="n">connectivity</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>  <span class="c1"># 2-d array of integers, where each row is the connectivity of an element (e.g. [[1, 2, 3], [2, 3, 4]])</span>
@@ -335,12 +314,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.NodeSet">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">NodeSet</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a set of nodes in a finite element mesh.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        name (str): Name of the node set.</span>
-<span class="sd">        ids (ndarray[int]): A 1D array of integers representing node IDs.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>       <span class="c1"># Name of the node set</span>
     <span class="n">ids</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>   <span class="c1"># Node IDs as a 1-d array of integers</span></div>
 
@@ -350,12 +323,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.SurfaceSet">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">SurfaceSet</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a set of surfaces in a finite element mesh.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        name (str): Name of the surface set.</span>
-<span class="sd">        ids (ndarray[int]): A 1D array of integers representing surface IDs.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>       <span class="c1"># Name of the surface set</span>
     <span class="n">ids</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>   <span class="c1"># Surface IDs as a 1-d array of integers</span></div>
 
@@ -365,12 +332,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.ElementSet">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">ElementSet</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a set of elements in a finite element mesh.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        name (str): Name of the element set.</span>
-<span class="sd">        ids (ndarray[int]): A 1D array of integers representing element IDs.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>    <span class="c1"># Name of the element set</span>
     <span class="n">ids</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>       <span class="c1"># Element IDs as a 1-d array of integers</span></div>
 
@@ -382,15 +343,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.Material">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">Material</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a material in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        id (int): Material ID.</span>
-<span class="sd">        type (str): Type of the material (e.g., &#39;rigid body&#39;, &#39;neo-Hookean&#39;, &#39;uncoupled solid mixture&#39;).</span>
-<span class="sd">        name (str): Name of the material, used to attach a domain or element set to the material.</span>
-<span class="sd">        parameters (Dict[str, Union[int, float, str]]): Material parameters (e.g., {&#39;E&#39;: 1e6, &#39;v&#39;: 0.3}).</span>
-<span class="sd">        attributes (Dict[str, Union[int, float, str]], optional): Optional TAG attributes (e.g., {&#39;density&#39;: 1e3}).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>     <span class="c1"># Material ID</span>
     <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># Material type (e.g. &#39;rigid body&#39;, &#39;neo-Hookean&#39;, &#39;uncoupled solid mixture&#39;)</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># Material name (will be used to attach a domain or element set to the material)</span>
@@ -405,17 +357,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.NodalLoad">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">NodalLoad</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a nodal load in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        node_set (str): Name of the node set to which the load is applied.</span>
-<span class="sd">        scale (Union[float, str, tuple]): Load scale factor. Tuple | ndarray is only supported for type=&#39;nodal_force&#39;</span>
-<span class="sd">        load_curve (int): Load curve ID.</span>
-<span class="sd">        dof (str, optional): Degree of freedom, used for spec &lt;4.</span>
-<span class="sd">        type (str): Load type (e.g., &#39;nodal_force&#39;, &#39;nodal_traction&#39;), only for spec &gt;=4. Defaults to &quot;nodal_load&quot;.</span>
-<span class="sd">        shell_bottom (bool): Only for spec &gt;=4, when type=nodal_force</span>
-<span class="sd">        relative (bool): Only for spec &gt;=4, when type=nodal_force</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">node_set</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># Name of the node set to which the load is applied</span>
     <span class="n">load_curve</span><span class="p">:</span> <span class="nb">int</span>   <span class="c1"># Load curve ID</span>
     <span class="n">scale</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]</span>    <span class="c1"># Load scale factor</span>
@@ -441,13 +382,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.PressureLoad">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">PressureLoad</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a pressure load in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        surface (str): Name of the surface to which the load is applied.</span>
-<span class="sd">        attributes (Dict[str, Union[int, float, str]]): Pressure load attributes (e.g., {&#39;lc&#39;: 1}).</span>
-<span class="sd">        multiplier (float): Load multiplier.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">surface</span><span class="p">:</span> <span class="nb">str</span>    <span class="c1"># Name of the surface to which the load is applied</span>
     <span class="n">attributes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>    <span class="c1"># Pressure load attributes (e.g. {&#39;lc&#39;: 1})</span>
     <span class="n">multiplier</span><span class="p">:</span> <span class="nb">float</span></div>
@@ -458,14 +392,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.LoadCurve">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">LoadCurve</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a load curve in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        id (int): Load curve ID.</span>
-<span class="sd">        interpolate_type (str): Interpolation type (e.g., &#39;linear&#39;, &#39;smooth&#39;, &#39;step&#39;).</span>
-<span class="sd">        data (ndarray): Load curve data as a 2D array (e.g., [[0, 0], [1, 1]]).</span>
-<span class="sd">        extend (str): Extend type (e.g., &#39;CONSTANT&#39;, &#39;EXTRAPOLATE&#39;). Used for spec &gt;=4.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>     <span class="c1"># Load curve ID</span>
     <span class="n">interpolate_type</span><span class="p">:</span> <span class="nb">str</span>       <span class="c1"># Interpolation type (e.g. &#39;linear&#39;, &#39;smooth&#39;, &#39;step&#39;)</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">ndarray</span>      <span class="c1"># Load curve data as a 2-d array (e.g. [[0, 0], [1, 1]])</span>
@@ -479,19 +405,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.BoundaryCondition">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">BoundaryCondition</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a boundary condition in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        dof (str): Degree of freedom (e.g., &#39;x&#39;, &#39;y&#39;, &#39;z&#39;).</span>
-<span class="sd">        type (str): Boundary condition type (e.g., &#39;fix&#39;, &#39;prescribe&#39;, &#39;rigid body&#39;, &#39;rigid body velocity&#39;).</span>
-<span class="sd">        node_set (str, optional): Name of the node set to which the boundary condition is applied.</span>
-<span class="sd">        surf_set (str, optional): Name of the surface set to which the boundary condition is applied.</span>
-<span class="sd">        elem_set (str, optional): Name of the element set to which the boundary condition is applied.</span>
-<span class="sd">        material (Union[int, str], optional): Material ID or name.</span>
-<span class="sd">        name (str, optional): Optional name for the boundary condition.</span>
-<span class="sd">        attributes (Dict[str, Union[int, float, str]], optional): Optional attributes for the boundary condition.</span>
-<span class="sd">        tags (Dict[str, Union[int, float, str]], optional): Optional TAG attributes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dof</span><span class="p">:</span> <span class="nb">str</span>        <span class="c1"># Degree of freedom (e.g. &#39;x&#39;, &#39;y&#39;, &#39;z&#39;)</span>
     <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span>       <span class="c1"># Boundary condition type (e.g. &#39;fix&#39;, &#39;prescribe&#39;, &#39;rigid body&#39;, &#39;rigid body velocity&#39;)</span>
     <span class="n">node_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>    <span class="c1"># Name of the node set to which the boundary condition is applied</span>
@@ -508,12 +421,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.FixCondition">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">FixCondition</span><span class="p">(</span><span class="n">BoundaryCondition</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a fixed boundary condition in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        type (str): Boundary condition type, defaults to &#39;fix&#39;.</span>
-<span class="sd">        see BoundaryCondition for other attributes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;fix&quot;</span>       <span class="c1"># Default type is &#39;fix&#39;</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -526,12 +433,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.ZeroDisplacementCondition">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">ZeroDisplacementCondition</span><span class="p">(</span><span class="n">FixCondition</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a zero displacement boundary condition in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        type (str): Boundary condition type, defaults to &#39;zero displacement&#39;.</span>
-<span class="sd">        see BoundaryCondition for other attributes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;zero displacement&quot;</span>     <span class="c1"># Default type is &#39;zero displacement&#39;</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -544,12 +445,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.ZeroShellDisplacementCondition">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">ZeroShellDisplacementCondition</span><span class="p">(</span><span class="n">FixCondition</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a zero shell displacement boundary condition in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        type (str): Boundary condition type, defaults to &#39;zero shell displacement&#39;.</span>
-<span class="sd">        see BoundaryCondition for other attributes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;zero shell displacement&quot;</span>     <span class="c1"># Default type is &#39;zero shell displacement&#39;</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -562,13 +457,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.RigidBodyCondition">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">RigidBodyCondition</span><span class="p">(</span><span class="n">BoundaryCondition</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a rigid body boundary condition in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        material (Union[int, str]): Material ID or name.</span>
-<span class="sd">        dof (str): Degree of freedom (e.g., &#39;x&#39;, &#39;y&#39;, &#39;z&#39;).</span>
-<span class="sd">        see BoundaryCondition for other attributes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">material</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>   <span class="c1"># Material ID or name</span>
     <span class="n">dof</span><span class="p">:</span> <span class="nb">str</span>        <span class="c1"># Degree of freedom (e.g. &#39;x&#39;, &#39;y&#39;, &#39;z&#39;)</span></div>
 
@@ -580,15 +468,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.NodalData">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">NodalData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents nodal data in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        node_set (str): Name of the node set to which the data is applied.</span>
-<span class="sd">        name (str): Name of the data.</span>
-<span class="sd">        data (ndarray[float]): Data values.</span>
-<span class="sd">        ids (ndarray[int], optional): Node IDs, refer to the nodes in the node set.</span>
-<span class="sd">        data_type (str, optional): Data type (e.g., &#39;scalar&#39;, &#39;vector&#39;, &#39;tensor&#39;).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">node_set</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># Name of the node set to which the data is applied</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># Name of the data</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>    <span class="c1"># Data values</span>
@@ -601,15 +480,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.SurfaceData">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">SurfaceData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents surface data in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        surf_set (str): Name of the surface set to which the data is applied.</span>
-<span class="sd">        name (str): Name of the data.</span>
-<span class="sd">        data (ndarray[float]): Data values.</span>
-<span class="sd">        ids (ndarray[int], optional): Surface IDs, refer to the surfaces in the surface set.</span>
-<span class="sd">        data_type (str, optional): Data type (e.g., &#39;scalar&#39;, &#39;vector&#39;, &#39;tensor&#39;).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">surf_set</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># Name of the surface set to which the data is applied</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># Name of the data</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>    <span class="c1"># Data values</span>
@@ -622,16 +492,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.ElementData">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">ElementData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents element data in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        elem_set (str): Name of the element set to which the data is applied.</span>
-<span class="sd">        name (str): Name of the data.</span>
-<span class="sd">        data (ndarray[float]): Data values.</span>
-<span class="sd">        ids (ndarray[int], optional): Element IDs, refer to the elements in the element set.</span>
-<span class="sd">        data_type (str, optional): Data type (e.g., &#39;scalar&#39;, &#39;vector&#39;, &#39;tensor&#39;).</span>
-<span class="sd">        var (str, optional): Data variable (e.g., &#39;shell thickness&#39;, &#39;fiber density&#39;). Used for spec &lt;4.0.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">elem_set</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># Name of the element set to which the data is applied</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># Name of the data</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>    <span class="c1"># Data values</span>
@@ -647,13 +507,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.GenericDomain">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">GenericDomain</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a generic domain in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        id (int): Domain ID.</span>
-<span class="sd">        name (str): Domain name (must match at least one of the elements of the model).</span>
-<span class="sd">        mat (Union[int, str]): Material ID or name.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>    <span class="c1"># Domain ID</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># Domain name (must match at least one of the Elements of the model)</span>
     <span class="n">mat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>    <span class="c1"># Material ID or name</span></div>
@@ -664,13 +517,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.ShellDomain">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">ShellDomain</span><span class="p">(</span><span class="n">GenericDomain</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a shell domain in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        type (str): Domain type, defaults to &#39;elastic-shell&#39;. Used for spec &gt;=4.</span>
-<span class="sd">        shell_normal_nodal (float): Normal to the shell, defaults to 1.0. Used for spec &gt;=4.</span>
-<span class="sd">        shell_thickness (float): Shell thickness, defaults to 0.0. Used for spec &gt;=4.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elastic-shell&quot;</span>  <span class="c1"># used for spec &gt;=4</span>
     <span class="n">shell_normal_nodal</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>     <span class="c1"># normal to the shell, used for spec &gt;=4</span>
     <span class="n">shell_thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span>    <span class="c1"># shell thickness, used for spec &gt;=4</span></div>
@@ -687,12 +533,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.XpltMeshPart">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">XpltMeshPart</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a part of a mesh in an XPLT file.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        id (int): Part ID.</span>
-<span class="sd">        name (str): Part name.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>     <span class="c1"># Part ID</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># Part name</span></div>
 
@@ -702,15 +542,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.XpltMesh">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">XpltMesh</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a mesh in an XPLT file.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        nodes (List[Nodes]): List of Nodes objects representing the nodes in the mesh.</span>
-<span class="sd">        elements (List[Elements]): List of Elements objects representing the elements in the mesh.</span>
-<span class="sd">        surfaces (List[SurfaceSet]): List of SurfaceSet objects representing the surface sets in the mesh.</span>
-<span class="sd">        nodesets (List[NodeSet]): List of NodeSet objects representing the node sets in the mesh.</span>
-<span class="sd">        parts (List[XpltMeshPart]): List of XpltMeshPart objects representing the parts in the mesh.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Nodes</span><span class="p">]</span>
     <span class="n">elements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Elements</span><span class="p">]</span>
     <span class="n">surfaces</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SurfaceSet</span><span class="p">]</span>
@@ -725,13 +556,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.StatesDict">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">StatesDict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a dictionary of states in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        types (List[str]): List of state types as defined in XPLT_DATA_TYPES (e.g., scalar, vector, matrix).</span>
-<span class="sd">        formats (List[str]): List of state formats (e.g., node, element, surface).</span>
-<span class="sd">        names (List[str]): List of state names (e.g., displacement, velocity, acceleration).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">types</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>    <span class="c1"># List of state types as defined in XPLT_DATA_TYPES, e.g. scalar, vector, matrix</span>
     <span class="n">formats</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>  <span class="c1"># List of state formats, e.g. node, element, surface</span>
     <span class="n">names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>    <span class="c1"># List of state names, e.g. displacement, velocity, acceleration</span></div>
@@ -742,14 +566,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.StateVariable">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">StateVariable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a state variable in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        name (str): Name of the state variable.</span>
-<span class="sd">        dim (int): Dimension of the state variable (e.g., 1 for scalar, 3 for vector, 6 for symmetric matrix).</span>
-<span class="sd">        dom (str): Domain to which the state variable is attached.</span>
-<span class="sd">        data (ndarray[float]): State variable data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># Name of the state variable</span>
     <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span>    <span class="c1"># Dimension of the state variable  (e.g. 1 for scalar, 3 for vector, 6 for symmetric matrix)</span>
     <span class="n">dom</span><span class="p">:</span> <span class="nb">str</span>    <span class="c1"># Domain to which the state variable is attached</span>
@@ -761,13 +577,6 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.StateData">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">StateData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents state data in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        name (str): Name of the state data.</span>
-<span class="sd">        dom (str): Domain to which the state data is attached.</span>
-<span class="sd">        data (ndarray[float]): State data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>       <span class="c1"># Name of the state data</span>
     <span class="n">dom</span><span class="p">:</span> <span class="nb">str</span>        <span class="c1"># Domain to which the state data is attached</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>        <span class="c1"># State data</span></div>
@@ -778,24 +587,11 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.States">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">States</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents the state data at different timesteps in a finite element model.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        nodes (List[StateData]): List of StateData objects representing state data for nodes.</span>
-<span class="sd">        elements (List[StateData]): List of StateData objects representing state data for elements.</span>
-<span class="sd">        surfaces (List[StateData]): List of StateData objects representing state data for surfaces.</span>
-<span class="sd">        timesteps (ndarray[float]): Array of timesteps at which the state data is recorded.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">StateData</span><span class="p">]</span>
     <span class="n">elements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">StateData</span><span class="p">]</span>
     <span class="n">surfaces</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">StateData</span><span class="p">]</span>
     <span class="n">timesteps</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span></div>
 
-
-
-<span class="c1"># StateVariable = namedtuple(&quot;StateVariable&quot;, [&quot;name&quot;, &quot;dim&quot;, &quot;dom&quot;, &quot;data&quot;])</span>
-<span class="c1"># StateData = namedtuple(&quot;StateData&quot;, [&quot;name&quot;, &quot;dom&quot;, &quot;data&quot;])</span>
-<span class="c1"># States = namedtuple(&quot;States&quot;, [&quot;nodes&quot;, &quot;elements&quot;, &quot;surfaces&quot;, &quot;timesteps&quot;])</span>
 </pre></div>
         </article>
       </div>
