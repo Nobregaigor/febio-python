@@ -29,7 +29,6 @@ jobs:
         echo "PYTHONPATH=${PWD}:${PYTHONPATH}" >> $GITHUB_ENV
         echo $PYTHONPATH
     - name: Build HTML
-      continue-on-error: true
       run: |
         pip install -e .
         python -m pip install -r docs/requirements.txt
