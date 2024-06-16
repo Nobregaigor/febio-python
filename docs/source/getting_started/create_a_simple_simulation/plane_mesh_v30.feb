@@ -937,7 +937,7 @@
 	</Mesh>
 	<MeshDomains>
 		<ShellDomain name="plane_elements" mat="plane material">
-			<shell_normal_nodal>1</shell_normal_nodal>
+			<shell_normal_nodal>1.0</shell_normal_nodal>
 		</ShellDomain>
 	</MeshDomains>
 	<MeshData>
