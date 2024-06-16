@@ -108,22 +108,31 @@ class NodalLoad:
 
     Attributes:
         node_set (str): Name of the node set to which the load is applied.
-        scale (Union[float, str, tuple]): Load scale factor. For spec <4, it must be a float or a string; for spec >4,
-            it must be a tuple of length 3.
+        scale (Union[float, str, tuple]): Load scale factor. Tuple | ndarray is only supported for type='nodal_force'
         load_curve (int): Load curve ID.
         dof (str, optional): Degree of freedom, used for spec <4.
-        type (str): Load type (e.g., 'nodal_force', 'nodal_traction'), only for spec >=4. Defaults to "nodal_force".
-        shell_bottom (bool): Only for spec >=4. Defaults to False.
-        relative (bool): Only for spec >=4. Defaults to False.
+        type (str): Load type (e.g., 'nodal_force', 'nodal_traction'), only for spec >=4. Defaults to "nodal_load".
+        shell_bottom (bool): Only for spec >=4, when type=nodal_force
+        relative (bool): Only for spec >=4, when type=nodal_force
     """
     node_set: str   # Name of the node set to which the load is applied
-    scale: Union[float, str, tuple]    # Load scale factor (for spec <4, it must be a float or a string; for spec >4, it must be a tuple of length 3)
     load_curve: int   # Load curve ID
+    scale: Union[float, str, tuple, ndarray]    # Load scale factor
     name: str = None   # Optional name for the load
     dof: str = None    # Degree of freedom - Will be used for spec <4
-    type: str = "nodal_force"  # Load type (e.g. 'nodal_force', 'nodal_traction'), only for spec >=4
-    shell_bottom: bool = False  # Only for spec >=4
-    relative: bool = False  # Only for spec >=4
+    type: str = "nodal_load"  # Load type (e.g. 'nodal_force', 'nodal_traction' only for spec >=4
+    shell_bottom: bool = False  # Only for spec >=4, when type=nodal_force
+    relative: bool = False  # Only for spec >=4, when type=nodal_force
+
+    def __post__(self):
+        if self.type != "nodal_load" or self.type != "nodal_force":
+            raise ValueError(f"Invalid type {self.type} for {self.__class__.__name__}"
+                             "Valid types are 'nodal_load' and 'nodal_force'")
+        if self.type == "nodal_force" and not isinstance(self, (tuple, ndarray)):
+            raise ValueError(f"Invalid scale {self.scale} for {self.__class__.__name__}"
+                             "Scale must be a tuple or ndarray when type='nodal_force'")
+        if self.type == "nodal_load" and self.dof is None:
+            raise ValueError(f"dof cannot be None for {self.__class__.__name__}")
 
 
 @dataclass
@@ -327,7 +336,7 @@ class ShellDomain(GenericDomain):
     """
     type: str = "elastic-shell"  # used for spec >=4
     shell_normal_nodal: float = 1.0     # normal to the shell, used for spec >=4
-    shell_thickness: float = 0.0    # shell thickness, used for spec >=4
+    shell_thickness: float = 0.01    # shell thickness, used for spec >=4
 
 
 # ================================
