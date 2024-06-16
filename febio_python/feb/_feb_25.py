@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 
 from .bases import AbstractFebObject
 import numpy as np
-from typing import Union, Dict, List
+from typing import Union, List
 from collections import OrderedDict, deque
 
 from febio_python.core import (
@@ -31,30 +31,31 @@ from febio_python.core import (
 
 from ._caching import feb_instance_cache
 
+
 class Feb25(AbstractFebObject):
-    def __init__(self, 
-                 tree: Union[ElementTree, None] = None, 
-                 root: Union[Element, None] = None, 
+    def __init__(self,
+                 tree: Union[ElementTree, None] = None,
+                 root: Union[Element, None] = None,
                  filepath: Union[str, Path] = None):
         self._default_version = 2.5
         super().__init__(tree, root, filepath)
-        
+
         if self.version != 2.5:
             raise ValueError("This class is only for FEBio 2.5 files"
                              f"Version found: {self.version}")
-        
+
     # =========================================================================================================
     # Retrieve methods
     # =========================================================================================================
-    
+
     # Main geometry data
     # ------------------------------
-    
+
     @feb_instance_cache
     def get_nodes(self, dtype: np.dtype = np.float32) -> List[Nodes]:
-        all_nodes: OrderedDict = self.get_tag_data(self.LEAD_TAGS.GEOMETRY, self.MAJOR_TAGS.NODES, content_type="text",  dtype=dtype)
+        all_nodes: OrderedDict = self.get_tag_data(self.LEAD_TAGS.GEOMETRY, self.MAJOR_TAGS.NODES, content_type="text", dtype=dtype)
         listed_nodes = list()
-        last_id = 0 
+        last_id = 0
         for key, value in all_nodes.items():
             this_ids = np.arange(last_id, last_id + value.shape[0], dtype=np.int64)
             listed_nodes.append(Nodes(name=key, coordinates=value, ids=this_ids))
@@ -74,7 +75,7 @@ class Feb25(AbstractFebObject):
             except ValueError:
                 pass
             elem_name = elem_group.attrib.get("name")
-            
+
             connectivity = deque()
             elem_ids = deque()
             for elem in elem_group.findall("elem"):
@@ -83,18 +84,18 @@ class Feb25(AbstractFebObject):
                 connectivity.append(this_elem_connectivity)
                 this_elem_id = int(elem.attrib["id"])
                 elem_ids.append(this_elem_id)
-            
+
             # Convert the list of element connectivities to a numpy array
-            connectivity = np.array(connectivity, dtype=dtype) -1 # Convert to zero-based indexing
-            elem_ids = np.array(elem_ids, dtype=np.int64) -1 # Convert to zero-based indexing
+            connectivity = np.array(connectivity, dtype=dtype) - 1  # Convert to zero-based indexing
+            elem_ids = np.array(elem_ids, dtype=np.int64) - 1  # Convert to zero-based indexing
             # num_elems = connectivity.shape[0]
             # elem_ids = np.arange(last_elem_id, last_elem_id + num_elems, dtype=np.int64)
             # Create an Elements instance for each element
-            element = Elements(name=elem_name, 
-                               mat=mat_id, 
-                               part=elem_part_id, 
-                               type=elem_type, 
-                               connectivity=connectivity, 
+            element = Elements(name=elem_name,
+                               mat=mat_id,
+                               part=elem_part_id,
+                               type=elem_type,
+                               connectivity=connectivity,
                                ids=elem_ids)
             all_elements.append(element)
             # last_elem_id += num_elems
@@ -146,7 +147,7 @@ class Feb25(AbstractFebObject):
             value -= 1  # Convert to zero-based indexing
             nodeset_list.append(NodeSet(name=key, ids=value))
         return nodeset_list
-    
+
     @feb_instance_cache
     def get_surfacesets(self, dtype=np.int64) -> List[SurfaceSet]:
         """
@@ -167,7 +168,7 @@ class Feb25(AbstractFebObject):
             value -= 1  # Convert to zero-based indexing
             surfaceset_list.append(SurfaceSet(name=key, node_ids=value))
         return surfaceset_list
-    
+
     @feb_instance_cache
     def get_elementsets(self, dtype=np.int64) -> List[ElementSet]:
         """
@@ -191,7 +192,7 @@ class Feb25(AbstractFebObject):
 
     # Parts
     # ------------------------------
-    
+
     @feb_instance_cache
     def get_mesh_domains(self) -> List[GenericDomain]:
         # FEB 2.5 does not have a direct way to store mesh domains
@@ -206,17 +207,17 @@ class Feb25(AbstractFebObject):
             )
             mesh_domains.append(new_domain)
         return mesh_domains
-    
+
     # Materials
     # ------------------------------
-    
+
     @feb_instance_cache
     def get_materials(self) -> List[Material]:
         materials_list = []
         for item in self.material.findall("material"):
             # Initialize the dictionary for attributes
             mat_attrib = dict(item.attrib)
-            
+
             # Extract parameters and remove them from attributes to avoid duplication
             parameters = {}
             for el in list(item)[1:]:  # Assuming the first element describes the material itself
@@ -245,13 +246,13 @@ class Feb25(AbstractFebObject):
 
     # Loads
     # ------------------------------
-    
+
     @feb_instance_cache
     def get_nodal_loads(self) -> List[NodalLoad]:
         nodal_loads = []
         for i, load in enumerate(self.loads.findall("nodal_load")):
             scale_data = load.find("scale")
-            
+
             # Convert scale text to float if possible, maintain as text if not
             try:
                 scale_value = float(scale_data.text)
@@ -275,7 +276,7 @@ class Feb25(AbstractFebObject):
             nodal_loads.append(current_load)
 
         return nodal_loads
-    
+
     @feb_instance_cache
     def get_pressure_loads(self) -> List[PressureLoad]:
         pressure_loads_list = []
@@ -302,7 +303,7 @@ class Feb25(AbstractFebObject):
                 pressure_loads_list.append(current_load)
 
         return pressure_loads_list
-    
+
     @feb_instance_cache
     def get_loadcurves(self, dtype=np.float32) -> List[LoadCurve]:
         load_curves_list = []
@@ -329,22 +330,22 @@ class Feb25(AbstractFebObject):
             load_curves_list.append(current_load_curve)
 
         return load_curves_list
-        
+
     # Boundary conditions
     # ------------------------------
-    
+
     @feb_instance_cache
     def get_boundary_conditions(self) -> List[Union[FixCondition, RigidBodyCondition, BoundaryCondition]]:
         if self.boundary is None:
             return []
-        
+
         boundary_conditions_list = []
         for elem in self.boundary:
             if elem.tag == 'fix':
                 # Create an instance of FixCondition for each 'fix' element
                 fix_condition = FixCondition(dof=elem.attrib['bc'], node_set=elem.attrib['node_set'], name=None)
                 boundary_conditions_list.append(fix_condition)
-            
+
             elif elem.tag == 'rigid_body':
                 # Gather all 'fixed' sub-elements for a 'rigid_body'
                 fixed_axes = [fixed.attrib['bc'] for fixed in elem.findall('fixed')]
@@ -352,17 +353,17 @@ class Feb25(AbstractFebObject):
                 # Create an instance of RigidBodyCondition for each 'rigid_body' element
                 rigid_body_condition = RigidBodyCondition(material=elem.attrib['mat'], dof=fixed_axes)
                 boundary_conditions_list.append(rigid_body_condition)
-            
+
             else:
                 # Fallback to a generic BoundaryCondition for unrecognized types
                 generic_condition = BoundaryCondition(type=elem.tag, attributes=elem.attrib)
                 boundary_conditions_list.append(generic_condition)
 
         return boundary_conditions_list
-    
+
     # Mesh data
     # ------------------------------
-    
+
     @feb_instance_cache
     def get_nodal_data(self, dtype=np.float32) -> List[NodalData]:
         nodal_data_list = []
@@ -382,7 +383,7 @@ class Feb25(AbstractFebObject):
                 _these_ids.append(int(x.attrib["lid"]))
             ref = data.attrib["node_set"]
             name = data.attrib["name"]
-            
+
             # Create a NodalData instance
             current_data = NodalData(
                 node_set=ref,
@@ -395,7 +396,7 @@ class Feb25(AbstractFebObject):
             nodal_data_list.append(current_data)
 
         return nodal_data_list
-    
+
     @feb_instance_cache
     def get_surface_data(self, dtype=np.float32) -> List[SurfaceData]:
         surf_data_list = []
@@ -415,7 +416,7 @@ class Feb25(AbstractFebObject):
                 _these_ids.append(int(x.attrib["lid"]))
             ref = data.attrib["surf_set"]
             name = data.attrib["name"]
-            
+
             # Create a NodalData instance
             current_data = SurfaceData(
                 surf_set=ref,
@@ -428,7 +429,7 @@ class Feb25(AbstractFebObject):
             surf_data_list.append(current_data)
 
         return surf_data_list
-    
+
     @feb_instance_cache
     def get_element_data(self, dtype=np.float32) -> List[ElementData]:
         elem_data_list = []
@@ -446,11 +447,11 @@ class Feb25(AbstractFebObject):
                     # Add non-numeric strings as is
                     _this_data.append(x.text)
                 _these_ids.append(int(x.attrib["lid"]))
-            
+
             ref = data.attrib["elem_set"]
             name = data.attrib.get("name", None)
-            var = data.attrib.get("var", None)            
-            
+            var = data.attrib.get("var", None)
+
             # Create a ElementData instance
             current_data = ElementData(
                 elem_set=ref,
@@ -468,10 +469,10 @@ class Feb25(AbstractFebObject):
     # =========================================================================================================
     # Add methods
     # =========================================================================================================
-    
+
     # Main geometry data
     # ------------------------------
-    
+
     def add_nodes(self, nodes: List[Nodes]) -> None:
         """
         Adds nodes to Geometry, appending to existing nodes if they share the same name.
@@ -532,7 +533,7 @@ class Feb25(AbstractFebObject):
                 el_root = self.geometry.find(f".//Elements[@name='{element.name}']")
             else:
                 # Make sure the element type is valid, it must be a valid FEBio element type
-                # However, user can also use VTK element types as input, but they must be 
+                # However, user can also use VTK element types as input, but they must be
                 # converted to FEBio types
                 el_type = element.type
                 # first, check if it is a VTK element type. FEBioElementType names
@@ -541,8 +542,8 @@ class Feb25(AbstractFebObject):
                     if str(el_type).upper() in FEBioElementType.__members__.keys():
                         el_type = FEBioElementType[el_type].value
                     else:
-                        raise ValueError(f"Element type {el_type} is not a valid FEBio element type.")                        
-    
+                        raise ValueError(f"Element type {el_type} is not a valid FEBio element type.")
+
                 # Create a new Elements group if no existing one matches the name
                 el_root = ET.Element("Elements")
                 el_root.set("type", el_type)  # TYPE AND MAT MUST BE SET FIRST, OTHERWISE FEBIO WILL NOT RECOGNIZE THE ELEMENTS
@@ -563,17 +564,17 @@ class Feb25(AbstractFebObject):
         if len(filtered) == 0:
             raise ValueError("No surface elements found in the input list. Try using add_elements() instead.")
         self.add_elements(filtered)
-        
+
     def add_volume_elements(self, elements: List[Elements]) -> None:
         # Filter elements by volume type
         filtered = [elem for elem in elements if elem.type not in SURFACE_EL_TYPE.__members__]
         if len(filtered) == 0:
             raise ValueError("No volume elements found in the input list. Try using add_elements() instead.")
         self.add_elements(filtered)
-    
+
     # Node, element, surface sets
     # ------------------------------
-    
+
     def add_nodesets(self, nodesets: List[NodeSet]) -> None:
         """
         Adds node sets to Geometry, appending to existing node sets if they share the same name.
@@ -584,9 +585,13 @@ class Feb25(AbstractFebObject):
         existing_nodesets = {nodeset.name: nodeset for nodeset in self.get_nodesets()}
 
         for nodeset in nodesets:
+            node_ids = nodeset.ids
             if nodeset.name in existing_nodesets:
                 # Append to existing NodeSet element
                 el_root = self.geometry.find(f".//NodeSet[@name='{nodeset.name}']")
+                # Merge the existing node IDs with the new ones and remove duplicates
+                existing_ids = existing_nodesets[nodeset.name].ids
+                node_ids = np.unique(np.concatenate((existing_ids, node_ids)))
             else:
                 # Create a new NodeSet element if no existing one matches the name
                 el_root = ET.Element("NodeSet")
@@ -594,10 +599,10 @@ class Feb25(AbstractFebObject):
                 self.geometry.append(el_root)
 
             # Add node IDs as sub-elements
-            for node_id in nodeset.ids:
+            for node_id in node_ids:
                 subel = ET.SubElement(el_root, "node")
                 subel.set("id", str(int(node_id + 1)))  # Convert to one-based indexing
-                
+
     def add_surfacesets(self, surfacesets: List[SurfaceSet]) -> None:
         """
         Adds surface sets to Geometry, appending to existing surface sets if they share the same name.
@@ -608,9 +613,13 @@ class Feb25(AbstractFebObject):
         existing_surfacesets = {surfset.name: surfset for surfset in self.get_surfacesets()}
 
         for surfset in surfacesets:
+            surf_ids = surfset.node_ids
             if surfset.name in existing_surfacesets:
                 # Append to existing SurfaceSet element
                 el_root = self.geometry.find(f".//SurfaceSet[@name='{surfset.name}']")
+                # Merge the existing node IDs with the new ones and remove duplicates
+                existing_ids = existing_surfacesets[surfset.name].node_ids
+                surf_ids = np.unique(np.concatenate((existing_ids, surf_ids)))
             else:
                 # Create a new SurfaceSet element if no existing one matches the name
                 el_root = ET.Element("SurfaceSet")
@@ -618,10 +627,10 @@ class Feb25(AbstractFebObject):
                 self.geometry.append(el_root)
 
             # Add node IDs as sub-elements
-            for node_id in surfset.node_ids:
+            for node_id in surf_ids:
                 subel = ET.SubElement(el_root, "node")
-                subel.set("id", str(int(node_id + 1))) # Convert to one-based indexing
-                
+                subel.set("id", str(int(node_id + 1)))  # Convert to one-based indexing
+
     def add_elementsets(self, elementsets: List[ElementSet]) -> None:
         """
         Adds element sets to Geometry, appending to existing element sets if they share the same name.
@@ -632,23 +641,27 @@ class Feb25(AbstractFebObject):
         existing_elementsets = {elemset.name: elemset for elemset in self.get_elementsets()}
 
         for elemset in elementsets:
+            elem_ids = elemset.ids
             if elemset.name in existing_elementsets:
                 # Append to existing ElementSet element
                 el_root = self.geometry.find(f".//ElementSet[@name='{elemset.name}']")
+                # Merge the existing element IDs with the new ones and remove duplicates
+                existing_ids = existing_elementsets[elemset.name].ids
+                elem_ids = np.unique(np.concatenate((existing_ids, elem_ids)))
             else:
                 # Create a new ElementSet element if no existing one matches the name
                 el_root = ET.Element("ElementSet")
                 el_root.set("name", elemset.name)
                 self.geometry.append(el_root)
-            
+
             # Add element IDs as sub-elements
-            for elem_id in elemset.ids:
+            for elem_id in elem_ids:
                 subel = ET.SubElement(el_root, "elem")
-                subel.set("id", str(int(elem_id + 1))) # Convert to one-based indexing
-    
+                subel.set("id", str(int(elem_id + 1)))  # Convert to one-based indexing
+
     # Materials
     # ------------------------------
-    
+
     def add_materials(self, materials: List[Material]) -> None:
         """
         Adds materials to Material, appending to existing materials if they share the same ID.
@@ -678,10 +691,10 @@ class Feb25(AbstractFebObject):
             for key, value in mat_params.items():
                 subel = ET.SubElement(el_root, key)
                 subel.text = str(value)
-    
+
     # Loads
     # ------------------------------
-    
+
     def add_nodal_loads(self, nodal_loads: List[NodalLoad]) -> None:
         """
         Adds nodal loads to Loads, appending to existing nodal loads if they share the same node set.
@@ -696,17 +709,17 @@ class Feb25(AbstractFebObject):
             #     # Append to existing NodalLoad element
             #     el_root = self.loads.find(f".//nodal_load[@node_set='{load.node_set}']")
             # else:
-                # Create a new NodalLoad element if no existing one matches the node set
+            #    Create a new NodalLoad element if no existing one matches the node set
             el_root = ET.Element("nodal_load")
             el_root.set("node_set", load.node_set)
             self.loads.append(el_root)
 
             el_root.set("bc", load.dof)
-            
+
             scale_subel = ET.SubElement(el_root, "scale")
             scale_subel.set("lc", str(load.load_curve))
             if load.scale is None:
-                scale_subel.text = "1.0" # Default to 1.0 if no scale is provided
+                scale_subel.text = "1.0"  # Default to 1.0 if no scale is provided
             elif isinstance(load.scale, (str, int, float, np.number)):
                 scale_subel.text = str(load.scale)
             elif isinstance(load.scale, np.ndarray):
@@ -723,10 +736,10 @@ class Feb25(AbstractFebObject):
                                      "the scale value as a mesh data and add the node set to the geometry.")
                 node_set = node_set[0]
                 # prepare the nodal data
-                nodal_data = NodalData(node_set=load.node_set, 
-                                       name=ref_data_name, 
-                                       data=load.scale, 
-                                       ids=np.arange(0, len(node_set.ids) +1)) # add_nodal_data will convert to one-based indexing
+                nodal_data = NodalData(node_set=load.node_set,
+                                       name=ref_data_name,
+                                       data=load.scale,
+                                       ids=np.arange(0, len(node_set.ids) + 1))  # add_nodal_data will convert to one-based indexing
                 # add the nodal data
                 self.add_nodal_data([nodal_data])
 
@@ -752,7 +765,7 @@ class Feb25(AbstractFebObject):
             el_root.text = str(load.multiplier)
             for key, value in load.attributes.items():
                 el_root.set(key, str(value))
-                
+
     def add_loadcurves(self, load_curves: List[LoadCurve]) -> None:
         """
         Adds load curves to LoadData, appending to existing load curves if they share the same ID.
@@ -776,10 +789,10 @@ class Feb25(AbstractFebObject):
             for point in curve.data:
                 subel = ET.SubElement(el_root, "point")
                 subel.text = ",".join(map(str, point))
-    
+
     # Boundary conditions
     # ------------------------------
-    
+
     def add_boundary_conditions(self, boundary_conditions: List[Union[FixCondition, RigidBodyCondition, BoundaryCondition]]) -> None:
         """
         Adds boundary conditions to Boundary, appending to existing boundary conditions if they share the same type.
@@ -814,10 +827,10 @@ class Feb25(AbstractFebObject):
                     for fixed in bc.dof.split(","):
                         subel = ET.SubElement(el_root, "fixed")
                         subel.set("bc", fixed)
-    
+
     # Mesh data
     # ------------------------------
-       
+
     def add_nodal_data(self, nodal_data: List[NodalData]) -> None:
         """
         Adds nodal data to MeshData, appending to existing nodal data if they share the same node set.
@@ -849,7 +862,7 @@ class Feb25(AbstractFebObject):
                         subel.text = ",".join(map(str, node_data))
                     except TypeError:
                         raise ValueError(f"Node data for node set {data.node_set} is not in the correct format.")
-                        
+
     def add_surface_data(self, surface_data: List[SurfaceData]) -> None:
         """
         Adds surface data to MeshData, appending to existing surface data if they share the same surface set.
@@ -874,7 +887,7 @@ class Feb25(AbstractFebObject):
                 subel = ET.SubElement(el_root, "surf")
                 subel.set("lid", str(data.ids[i] + 1))  # Convert to one-based indexing
                 subel.text = ",".join(map(str, surf_data))
-    
+
     def add_element_data(self, element_data: List[ElementData]) -> None:
         """
         Adds element data to MeshData, appending to existing element data if they share the same element set.
@@ -900,7 +913,7 @@ class Feb25(AbstractFebObject):
 
             for i, elem_data in enumerate(data.data):
                 subel = ET.SubElement(el_root, "elem")
-                subel.set("lid", str(data.ids[i] + 1)) # Convert to one-based indexing
+                subel.set("lid", str(data.ids[i] + 1))  # Convert to one-based indexing
                 if isinstance(elem_data, (str, int, float, np.number)):
                     subel.text = str(elem_data)
                 else:
@@ -909,10 +922,10 @@ class Feb25(AbstractFebObject):
     # =========================================================================================================
     # Remove methods
     # =========================================================================================================
-    
+
     # Main geometry data
     # ------------------------------
-    
+
     def remove_nodes(self, names: List[str]) -> None:
         """
         Removes nodes from Geometry by name.
@@ -924,7 +937,7 @@ class Feb25(AbstractFebObject):
             el = self.geometry.find(f".//Nodes[@name='{name}']")
             if el is not None:
                 self.geometry.remove(el)
-    
+
     def remove_elements(self, names: List[str]) -> None:
         """
         Removes elements from Geometry by name.
@@ -936,7 +949,7 @@ class Feb25(AbstractFebObject):
             el = self.geometry.find(f".//Elements[@name='{name}']")
             if el is not None:
                 self.geometry.remove(el)
-                
+
     def remove_all_surface_elements(self) -> None:
         """
         Removes all surface elements from Geometry.
@@ -944,7 +957,7 @@ class Feb25(AbstractFebObject):
         for el in self.geometry.findall("Elements"):
             if el.attrib.get("type") in SURFACE_EL_TYPE.__members__:
                 self.geometry.remove(el)
-    
+
     def remove_all_volume_elements(self) -> None:
         """
         Removes all volume elements from Geometry.
@@ -952,10 +965,10 @@ class Feb25(AbstractFebObject):
         for el in self.geometry.findall("Elements"):
             if el.attrib.get("type") not in SURFACE_EL_TYPE.__members__:
                 self.geometry.remove(el)
-                
+
     # Node, element, surface sets
     # ------------------------------
-    
+
     def remove_nodesets(self, names: List[str]) -> None:
         """
         Removes node sets from Geometry by name.
@@ -967,7 +980,7 @@ class Feb25(AbstractFebObject):
             el = self.geometry.find(f".//NodeSet[@name='{name}']")
             if el is not None:
                 self.geometry.remove(el)
-    
+
     def remove_surfacesets(self, names: List[str]) -> None:
         """
         Removes surface sets from Geometry by name.
@@ -979,7 +992,7 @@ class Feb25(AbstractFebObject):
             el = self.geometry.find(f".//SurfaceSet[@name='{name}']")
             if el is not None:
                 self.geometry.remove(el)
-    
+
     def remove_elementsets(self, names: List[str]) -> None:
         """
         Removes element sets from Geometry by name.
@@ -991,10 +1004,10 @@ class Feb25(AbstractFebObject):
             el = self.geometry.find(f".//ElementSet[@name='{name}']")
             if el is not None:
                 self.geometry.remove(el)
-    
+
     # Materials
     # ------------------------------
-    
+
     def remove_materials(self, ids: List[Union[str, int]]) -> None:
         """
         Removes materials from Material by ID, name or type.
@@ -1015,10 +1028,10 @@ class Feb25(AbstractFebObject):
             if el is not None:
                 self.material.remove(el)
                 continue
-    
+
     # Loads
     # ------------------------------
-    
+
     def remove_nodal_loads(self, bc_or_node_sets: List[str]) -> None:
         """
         Removes nodal loads from Loads by boundary condition or node set.
@@ -1035,7 +1048,7 @@ class Feb25(AbstractFebObject):
             if el is not None:
                 self.loads.remove(el)
                 continue
-    
+
     def remove_pressure_loads(self, surfaces: List[str]) -> None:
         """
         Removes pressure loads from Loads by surface.
@@ -1047,7 +1060,7 @@ class Feb25(AbstractFebObject):
             el = self.loads.find(f".//surface_load[@surface='{surf}']")
             if el is not None:
                 self.loads.remove(el)
-                
+
     def remove_loadcurves(self, ids: List[int]) -> None:
         """
         Removes load curves from LoadData by ID.
@@ -1059,15 +1072,15 @@ class Feb25(AbstractFebObject):
             el = self.loaddata.find(f".//loadcurve[@id='{id}']")
             if el is not None:
                 self.loaddata.remove(el)
-    
+
     # Boundary conditions
     # ------------------------------
-    
-    def remove_boundary_conditions(self, types: List[str], bc: List[str]=None) -> None:
+
+    def remove_boundary_conditions(self, types: List[str], bc: List[str] = None) -> None:
         """
         Removes boundary conditions from Boundary by type and optionally fiter type by boundary condition.
         e.g. remove_boundary_conditions(["fix"], ["BC1"]), instead of removing all fix conditions, only BC1 will be removed.
-        
+
         Args:
             types (list of str): List of boundary condition types to remove.
             bc (list of str): List of boundary conditions to remove.
@@ -1082,18 +1095,18 @@ class Feb25(AbstractFebObject):
                     el = self.boundary.find(f".//{type}[@bc='{b}']")
                     if el is not None:
                         self.boundary.remove(el)
-        
+
     # Mesh data
     # ------------------------------
-    
+
     def remove_nodal_data(self, nodesets_or_names: List[str]) -> None:
         """
         Removes nodal data from MeshData by node_set or name.
-        
+
         Args:
             nodesets_or_names (list of str): List of node sets or names to remove.
         """
-        
+
         for ns in nodesets_or_names:
             el = self.meshdata.find(f".//{self.MAJOR_TAGS.NODEDATA.value}[@node_set='{ns}']")
             if el is not None:
@@ -1103,11 +1116,11 @@ class Feb25(AbstractFebObject):
             if el is not None:
                 self.meshdata.remove(el)
                 continue
-        
+
     def remove_surface_data(self, surfacesets_or_names: List[str]) -> None:
         """
         Removes surface data from MeshData by surf_set or name.
-        
+
         Args:
             surfacesets_or_names (list of str): List of surface sets or names to remove.
         """
@@ -1120,11 +1133,11 @@ class Feb25(AbstractFebObject):
             if el is not None:
                 self.meshdata.remove(el)
                 continue
-    
+
     def remove_element_data(self, elementsets_or_names: List[str]) -> None:
         """
         Removes element data from MeshData by elem_set or name.
-        
+
         Args:
             elementsets_or_names (list of str): List of element sets or names to remove.
         """
@@ -1137,18 +1150,18 @@ class Feb25(AbstractFebObject):
             if el is not None:
                 self.meshdata.remove(el)
                 continue
-    
+
     # =========================================================================================================
     # Clear methods (remove all)
     # =========================================================================================================
-    
+
     def clear_nodes(self) -> None:
         """
         Removes all nodes from Geometry.
         """
         for el in self.geometry.findall(self.MAJOR_TAGS.NODES.value):
             self.geometry.remove(el)
-    
+
     def clear_elements(self) -> None:
         """
         Removes all elements from Geometry.
@@ -1163,7 +1176,7 @@ class Feb25(AbstractFebObject):
         for el in self.geometry.findall(self.MAJOR_TAGS.ELEMENTS.value):
             if el.attrib.get("type") in SURFACE_EL_TYPE.__members__:
                 self.geometry.remove(el)
-    
+
     def clear_volume_elements(self) -> None:
         """
         Removes all volume elements from Geometry.
@@ -1171,85 +1184,85 @@ class Feb25(AbstractFebObject):
         for el in self.geometry.findall(self.MAJOR_TAGS.ELEMENTS.value):
             if el.attrib.get("type") not in SURFACE_EL_TYPE.__members__:
                 self.geometry.remove(el)
-    
+
     def clear_nodesets(self) -> None:
         """
         Removes all node sets from Geometry.
         """
         for el in self.geometry.findall(self.MAJOR_TAGS.NODESET.value):
             self.geometry.remove(el)
-    
+
     def clear_surfacesets(self) -> None:
         """
         Removes all surface sets from Geometry.
         """
         for el in self.geometry.findall(self.MAJOR_TAGS.SURFACESET.value):
             self.geometry.remove(el)
-    
+
     def clear_elementsets(self) -> None:
         """
         Removes all element sets from Geometry.
         """
         for el in self.geometry.findall(self.MAJOR_TAGS.ELEMENTSET.value):
             self.geometry.remove(el)
-    
+
     def clear_materials(self) -> None:
         """
         Removes all materials from Material.
         """
         for el in self.material.findall(self.MAJOR_TAGS.MATERIAL.value):
             self.material.remove(el)
-    
+
     def clear_nodal_loads(self) -> None:
         """
         Removes all nodal loads from Loads.
         """
         for el in self.loads.findall(self.MAJOR_TAGS.NODALLOAD.value):
             self.loads.remove(el)
-    
+
     def clear_pressure_loads(self) -> None:
         """
         Removes all pressure loads from Loads.
         """
         for el in self.loads.findall(self.MAJOR_TAGS.SURFACELOAD.value):
             self.loads.remove(el)
-    
+
     def clear_loadcurves(self) -> None:
         """
         Removes all load curves from LoadData.
         """
         for el in self.loaddata.findall(self.MAJOR_TAGS.LOADCURVE.value):
             self.loaddata.remove(el)
-    
-    def clear_boundary_conditions(self) -> None:    
+
+    def clear_boundary_conditions(self) -> None:
         """
         Removes all boundary conditions from Boundary.
         """
         for el in self.boundary:
             self.boundary.remove(el)
-    
+
     def clear_nodal_data(self) -> None:
         """
         Removes all nodal data from MeshData.
         """
         for el in self.meshdata.findall(self.MAJOR_TAGS.NODEDATA.value):
             self.meshdata.remove(el)
-    
+
     def clear_surface_data(self) -> None:
         """
         Removes all surface data from MeshData.
         """
         for el in self.meshdata.findall(self.MAJOR_TAGS.SURFACE_DATA.value):
             self.meshdata.remove(el)
-    
+
     def clear_element_data(self) -> None:
         """
         Removes all element data from MeshData.
         """
         for el in self.meshdata.findall(self.MAJOR_TAGS.ELEMENTDATA.value):
             self.meshdata.remove(el)
-    
-    def clear(self, 
+
+    def clear(self,
               nodes=True,
               elements=True,
               surfaces=True,
@@ -1267,7 +1280,7 @@ class Feb25(AbstractFebObject):
               element_data=True) -> None:
         """
         Clears the FEBio model of all data, based on the specified options.
-        
+
         Args:
             nodes (bool): Remove all nodes.
             elements (bool): Remove all elements.
@@ -1287,7 +1300,7 @@ class Feb25(AbstractFebObject):
         """
         if nodes:
             self.clear_nodes()
-        if elements:    
+        if elements:
             self.clear_elements()
         if surfaces:
             self.clear_surface_elements()
@@ -1319,10 +1332,10 @@ class Feb25(AbstractFebObject):
     # =========================================================================================================
     # Update methods
     # =========================================================================================================
-    
+
     # Main geometry data
     # ------------------------------
-    
+
     def update_nodes(self, nodes: List[Nodes]) -> None:
         """
         Updates nodes in Geometry by name, replacing existing nodes with the same name.
@@ -1332,7 +1345,7 @@ class Feb25(AbstractFebObject):
         """
         self.remove_nodes([node.name for node in nodes])
         self.add_nodes(nodes)
-    
+
     def update_elements(self, elements: List[Elements]) -> None:
         """
         Updates elements in Geometry by name, replacing existing elements with the same name.
@@ -1342,10 +1355,10 @@ class Feb25(AbstractFebObject):
         """
         self.remove_elements([element.name for element in elements])
         self.add_elements(elements)
-    
+
     # Node, element, surface sets
     # ------------------------------
-    
+
     def update_nodesets(self, nodesets: List[NodeSet]) -> None:
         """
         Updates node sets in Geometry by name, replacing existing node sets with the same name.
@@ -1355,7 +1368,7 @@ class Feb25(AbstractFebObject):
         """
         self.remove_nodesets([nodeset.name for nodeset in nodesets])
         self.add_nodesets(nodesets)
-    
+
     def update_surfacesets(self, surfacesets: List[SurfaceSet]) -> None:
         """
         Updates surface sets in Geometry by name, replacing existing surface sets with the same name.
@@ -1365,7 +1378,7 @@ class Feb25(AbstractFebObject):
         """
         self.remove_surfacesets([surfset.name for surfset in surfacesets])
         self.add_surfacesets(surfacesets)
-    
+
     def update_elementsets(self, elementsets: List[ElementSet]) -> None:
         """
         Updates element sets in Geometry by name, replacing existing element sets with the same name.
@@ -1375,10 +1388,10 @@ class Feb25(AbstractFebObject):
         """
         self.remove_elementsets([elemset.name for elemset in elementsets])
         self.add_elementsets(elementsets)
-    
+
     # Materials
     # ------------------------------
-    
+
     def update_materials(self, materials: List[Material]) -> None:
         """
         Updates materials in Material by ID, replacing existing materials with the same ID.
@@ -1388,10 +1401,10 @@ class Feb25(AbstractFebObject):
         """
         self.remove_materials([material.id for material in materials])
         self.add_materials(materials)
-        
+
     # Loads
     # ------------------------------
-    
+
     def update_nodal_loads(self, nodal_loads: List[NodalLoad]) -> None:
         """
         Updates nodal loads in Loads by node set, replacing existing nodal loads with the same node set.
@@ -1401,7 +1414,7 @@ class Feb25(AbstractFebObject):
         """
         self.remove_nodal_loads([load.node_set for load in nodal_loads])
         self.add_nodal_loads(nodal_loads)
-    
+
     def update_pressure_loads(self, pressure_loads: List[PressureLoad]) -> None:
         """
         Updates pressure loads in Loads by surface, replacing existing pressure loads with the same surface.
@@ -1411,7 +1424,7 @@ class Feb25(AbstractFebObject):
         """
         self.remove_pressure_loads([load.surface for load in pressure_loads])
         self.add_pressure_loads(pressure_loads)
-    
+
     def update_loadcurves(self, load_curves: List[LoadCurve]) -> None:
         """
         Updates load curves in LoadData by ID, replacing existing load curves with the same ID.
@@ -1424,7 +1437,7 @@ class Feb25(AbstractFebObject):
 
     # Boundary conditions
     # ------------------------------
-    
+
     def update_boundary_conditions(self, boundary_conditions: List[Union[FixCondition, RigidBodyCondition, BoundaryCondition]]) -> None:
         """
         Updates boundary conditions in Boundary, replacing existing boundary conditions with the same type.
@@ -1441,10 +1454,10 @@ class Feb25(AbstractFebObject):
                 bc_bcs.append(None)
         self.remove_boundary_conditions(bc_types, bc_bcs)
         self.add_boundary_conditions(boundary_conditions)
-    
+
     # Mesh data
     # ------------------------------
-    
+
     def update_nodal_data(self, nodal_data: List[NodalData]) -> None:
         """
         Updates nodal data in MeshData by node set, replacing existing nodal data with the same node set.
@@ -1454,7 +1467,7 @@ class Feb25(AbstractFebObject):
         """
         self.remove_nodal_data([data.node_set for data in nodal_data])
         self.add_nodal_data(nodal_data)
-    
+
     def update_surface_data(self, surface_data: List[SurfaceData]) -> None:
         """
         Updates surface data in MeshData by surface set, replacing existing surface data with the same surface set.
@@ -1464,7 +1477,7 @@ class Feb25(AbstractFebObject):
         """
         self.remove_surface_data([data.node_set for data in surface_data])
         self.add_surface_data(surface_data)
-    
+
     def update_element_data(self, element_data: List[ElementData]) -> None:
         """
         Updates element data in MeshData by element set, replacing existing element data with the same element set.
@@ -1475,33 +1488,32 @@ class Feb25(AbstractFebObject):
         self.remove_element_data([data.node_set for data in element_data])
         self.add_element_data(element_data)
 
-
     # =========================================================================================================
     # Base control setup methods
     # =========================================================================================================
-    
+
     def setup_module(self, module_type="solid"):
         self.module.attrib["type"] = module_type
-    
-    def setup_controls(self, 
+
+    def setup_controls(self,
                        analysis_type="static",
-                       time_steps=10, 
-                       step_size=0.1, 
-                       max_refs=15, 
+                       time_steps=10,
+                       step_size=0.1,
+                       max_refs=15,
                        max_ups=10,
-                       diverge_reform=1, 
-                       reform_each_time_step=1, 
-                       dtol=0.001, 
+                       diverge_reform=1,
+                       reform_each_time_step=1,
+                       dtol=0.001,
                        etol=0.01,
-                       rtol=0, 
-                       lstol=0.75, 
-                       min_residual=1e-20, 
-                       qnmethod=0, 
+                       rtol=0,
+                       lstol=0.75,
+                       min_residual=1e-20,
+                       qnmethod=0,
                        rhoi=0,
-                       dtmin=0.01, 
-                       dtmax=0.1, 
-                       max_retries=5, 
-                       opt_iter=10, 
+                       dtmin=0.01,
+                       dtmax=0.1,
+                       max_retries=5,
+                       opt_iter=10,
                        **control_settings):
         """
         Set up or replace the control settings in an FEBio .feb file.
@@ -1532,7 +1544,7 @@ class Feb25(AbstractFebObject):
             self.root.remove(self.control)
 
         # Create new control element
-        self.control # will trigger the creation of the control element
+        self.control  # will trigger the creation of the control element
 
         # Add individual settings
         settings = {
@@ -1560,7 +1572,7 @@ class Feb25(AbstractFebObject):
             }
         }
         settings.update(control_settings)
-        
+
         for key, value in settings.items():
             if key == "analysis":
                 sub_element = ET.SubElement(self.control, key)
@@ -1628,7 +1640,7 @@ class Feb25(AbstractFebObject):
             self.root.remove(output_tag)
 
         # Create new Output element
-        output_tag = self.output # will trigger the creation of the output element
+        output_tag = self.output  # will trigger the creation of the output element
 
         # Create plotfile sub-element under Output
         plotfile = ET.SubElement(output_tag, "plotfile")
