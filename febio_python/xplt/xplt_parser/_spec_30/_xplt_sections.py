@@ -507,12 +507,12 @@ def _search_for_state_variables(bf, filesize: int, states_dict: StatesDict, verb
                 offset += n_nodes_variables
 
             # Check if there are element data, if so, extract it
-            # if check_block(bf, TAGS.ELEMENT_DATA, filesize=filesize):
-            #     # move pointer to next element data
-            #     search_block(bf, TAGS.ELEMENT_DATA, verbose=verbose)
-            #     elems_variables, n_elems_variables = _process_state_var(bf, filesize, states_dict, offset, verbose=verbose)
-            #     all_elem_variables.extend(elems_variables)
-            #     offset += n_elems_variables
+            if check_block(bf, TAGS.ELEMENT_DATA, filesize=filesize):
+                # move pointer to next element data
+                search_block(bf, TAGS.ELEMENT_DATA, verbose=verbose)
+                elems_variables, n_elems_variables = _process_state_var(bf, filesize, states_dict, offset, verbose=verbose)
+                all_elem_variables.extend(elems_variables)
+                offset += n_elems_variables
 
             # Check if there are surface data, if so, extract it
             if check_block(bf, TAGS.SURFACE_DATA, filesize=filesize):
