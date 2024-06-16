@@ -119,6 +119,7 @@ class NodalLoad:
     node_set: str   # Name of the node set to which the load is applied
     scale: Union[float, str, tuple]    # Load scale factor (for spec <4, it must be a float or a string; for spec >4, it must be a tuple of length 3)
     load_curve: int   # Load curve ID
+    name: str = None   # Optional name for the load
     dof: str = None    # Degree of freedom - Will be used for spec <4
     type: str = "nodal_force"  # Load type (e.g. 'nodal_force', 'nodal_traction'), only for spec >=4
     shell_bottom: bool = False  # Only for spec >=4
