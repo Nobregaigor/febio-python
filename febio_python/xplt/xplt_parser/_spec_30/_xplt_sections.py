@@ -454,17 +454,28 @@ def _process_state_var(bf, filesize: int, states_dict: StatesDict, offset=0, ver
         data_size = read_bytes(bf)
         # read data
         n_data = data_size // var_dim // 4
-        var_data = read_bytes(bf, nb=data_size, format='f' * (n_data * var_dim))
-        var_data = np.array(var_data, dtype="float32")
-        var_data = var_data.reshape((n_data, var_dim))
+        try:
+            var_data = read_bytes(bf, nb=data_size, format='f' * (n_data * var_dim))
+            var_data = np.array(var_data, dtype="float32")
+            var_data = var_data.reshape((n_data, var_dim))
 
-        new_variable = StateVariable(
-            name=var_name,
-            dim=var_dim,
-            dom=domain_id,
-            data=var_data
-        )
-        all_data.append(new_variable)
+            new_variable = StateVariable(
+                name=var_name,
+                dim=var_dim,
+                dom=domain_id,
+                data=var_data
+            )
+            all_data.append(new_variable)
+        except Exception as e:
+            console_log(f"Failed to read state variable: {var_name} due to {e}. Skipping..."
+                        "Posssible reasons: "
+                        "1. Mismatch between data size and expected size based on data type."
+                        "(Based on some tests, this happens when febio tries to write/append 'standard' variables "
+                        "like 'stress', but not all simulations have stress data. "
+                        "2. Data is not in the expected format."
+                        "3. Data is corrupted."
+                        "Please check the simulation 'output' section and try to re-run the simulation, "
+                        "or check the data integrity.", level=1, verbose=verbose)
 
     offset += len(all_data)
 
