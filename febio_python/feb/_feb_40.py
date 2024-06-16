@@ -21,6 +21,8 @@ from febio_python.core import (
     LoadCurve,
     BoundaryCondition,
     FixCondition,
+    ZeroDisplacementCondition,
+    ZeroShellDisplacementCondition,
     # FixedAxis,
     RigidBodyCondition,
     NodalData,
@@ -390,7 +392,10 @@ class Feb40(AbstractFebObject):
     # ------------------------------
 
     @feb_instance_cache
-    def get_boundary_conditions(self) -> List[Union[FixCondition, RigidBodyCondition, BoundaryCondition]]:
+    def get_boundary_conditions(self) -> List[Union[ZeroDisplacementCondition,
+                                                    ZeroShellDisplacementCondition,
+                                                    RigidBodyCondition,
+                                                    BoundaryCondition]]:
         if self.boundary is None:
             return []
 
@@ -404,13 +409,26 @@ class Feb40(AbstractFebObject):
                     "z_dof": elem.find("z_dof").text if elem.find("z_dof") is not None else "0"
                 }
                 # Create an instance of FixCondition for each 'zero displacement' element
-                fix_condition = FixCondition(
+                fix_condition = ZeroDisplacementCondition(
                     dof=dof,
                     node_set=elem.attrib['node_set'],
                     name=elem.attrib.get('name')
                 )
                 boundary_conditions_list.append(fix_condition)
-
+            elif elem.attrib.get('type') == 'zero shell displacement':
+                # Extract DOFs
+                dof = {
+                    "sx_dof": elem.find("sx_dof").text if elem.find("sx_dof") is not None else "0",
+                    "sy_dof": elem.find("sy_dof").text if elem.find("sy_dof") is not None else "0",
+                    "sz_dof": elem.find("sz_dof").text if elem.find("sz_dof") is not None else "0"
+                }
+                # Create an instance of FixCondition for each 'zero displacement' element
+                fix_condition = ZeroShellDisplacementCondition(
+                    dof=dof,
+                    node_set=elem.attrib['node_set'],
+                    name=elem.attrib.get('name')
+                )
+                boundary_conditions_list.append(fix_condition)
             elif elem.tag == 'rigid_body':  # Assuming rigid_body handling remains similar
                 # Gather all 'fixed' sub-elements for a 'rigid_body'
                 fixed_axes = [fixed.attrib['bc'] for fixed in elem.findall('fixed')]
@@ -540,7 +558,7 @@ class Feb40(AbstractFebObject):
                 ids=np.array(_these_ids, dtype=np.int64) - 1,  # Correct ids to zero-based indexing
                 name=name,
                 var=var,
-                type=data_type,
+                data_type=data_type,
             )
 
             # Add the ElementData instance to the list
@@ -671,19 +689,22 @@ class Feb40(AbstractFebObject):
         existing_nodesets = {nodeset.name: nodeset for nodeset in self.get_nodesets()}
 
         for nodeset in nodesets:
+            node_ids = nodeset.ids
+
             if nodeset.name in existing_nodesets:
                 # Append to existing NodeSet element
                 el_root = self.mesh.find(f".//NodeSet[@name='{nodeset.name}']")
+                # Make sure that node IDs are unique (merge both old and new then remove duplicates)
+                existing_ids = existing_nodesets[nodeset.name].ids
+                node_ids = np.unique(np.concatenate([existing_ids, node_ids]))
             else:
                 # Create a new NodeSet element if no existing one matches the name
                 el_root = ET.Element("NodeSet")
                 el_root.set("name", nodeset.name)
                 self.mesh.append(el_root)
 
-            # Add node IDs as sub-elements
-            for node_id in nodeset.ids:
-                subel = ET.SubElement(el_root, "node")
-                subel.set("id", str(int(node_id + 1)))  # Convert to one-based indexing
+            # In spec 4.0, nodesets are text-elements and not sub-elements
+            el_root.text = ",".join(map(str, node_ids + 1))
 
     def add_surfacesets(self, surfacesets: List[SurfaceSet]) -> None:
         """
@@ -695,19 +716,21 @@ class Feb40(AbstractFebObject):
         existing_surfacesets = {surfset.name: surfset for surfset in self.get_surfacesets()}
 
         for surfset in surfacesets:
+            surf_ids = surfset.ids
             if surfset.name in existing_surfacesets:
                 # Append to existing SurfaceSet element
                 el_root = self.mesh.find(f".//SurfaceSet[@name='{surfset.name}']")
+                # Make sure that node IDs are unique (merge both old and new then remove duplicates)
+                existing_ids = existing_surfacesets[surfset.name].ids
+                surf_ids = np.unique(np.concatenate([existing_ids, surf_ids]))
             else:
                 # Create a new SurfaceSet element if no existing one matches the name
                 el_root = ET.Element("SurfaceSet")
                 el_root.set("name", surfset.name)
                 self.mesh.append(el_root)
 
-            # Add node IDs as sub-elements
-            for node_id in surfset.node_ids:
-                subel = ET.SubElement(el_root, "node")
-                subel.set("id", str(int(node_id + 1)))  # Convert to one-based indexing
+            # In spec 4.0, surfacesets are text-elements and not sub-elements
+            el_root.text = ",".join(map(str, surf_ids + 1))
 
     def add_elementsets(self, elementsets: List[ElementSet]) -> None:
         """
@@ -719,19 +742,21 @@ class Feb40(AbstractFebObject):
         existing_elementsets = {elemset.name: elemset for elemset in self.get_elementsets()}
 
         for elemset in elementsets:
+            elem_ids = elemset.ids
             if elemset.name in existing_elementsets:
                 # Append to existing ElementSet element
                 el_root = self.mesh.find(f".//ElementSet[@name='{elemset.name}']")
+                # Make sure that element IDs are unique (merge both old and new then remove duplicates)
+                existing_ids = existing_elementsets[elemset.name].ids
+                elem_ids = np.unique(np.concatenate([existing_ids, elem_ids]))
             else:
                 # Create a new ElementSet element if no existing one matches the name
                 el_root = ET.Element("ElementSet")
                 el_root.set("name", elemset.name)
                 self.mesh.append(el_root)
 
-            # Add element IDs as sub-elements
-            for elem_id in elemset.ids:
-                subel = ET.SubElement(el_root, "elem")
-                subel.set("id", str(int(elem_id + 1)))  # Convert to one-based indexing
+            # In spec 4.0, elements are text-elements and not sub-elements
+            el_root.text = ",".join(map(str, elem_ids + 1))
 
     # Mesh Domains
     # ------------------------------
@@ -746,8 +771,13 @@ class Feb40(AbstractFebObject):
         for domain in domains:
             if isinstance(domain, ShellDomain):
                 # Create a ShellDomain element with specific attributes
-                domain_elem = ET.SubElement(mesh_domains, "ShellDomain", name=domain.name, mat=domain.mat)
+                domain_elem = ET.SubElement(mesh_domains, "ShellDomain")
+                domain_elem.set("name", domain.name)
+                domain_elem.set("mat", domain.mat)
+                domain_elem.set("type", domain.type)
                 # Add specific child for ShellDomain
+                shell_thickness = ET.SubElement(domain_elem, "shell_thickness")
+                shell_thickness.text = str(domain.shell_thickness)
                 shell_normal_nodal_elem = ET.SubElement(domain_elem, "shell_normal_nodal")
                 shell_normal_nodal_elem.text = str(domain.shell_normal_nodal)
             else:
@@ -789,55 +819,119 @@ class Feb40(AbstractFebObject):
 
     def add_nodal_loads(self, nodal_loads: List[NodalLoad]) -> None:
         """
-        Adds nodal loads to Loads, appending to existing nodal loads if they share the same node set.
+        Adds nodal loads to Loads.
 
         Args:
             nodal_loads (list of NodalLoad): List of NodalLoad namedtuples, each containing a boundary condition, node set, scale, and load curve.
         """
-        # existing_nodal_loads = {load.node_set: load for load in self.get_nodal_loads()}
 
         for load in nodal_loads:
-            # if load.node_set in existing_nodal_loads:
-            #     # Append to existing NodalLoad element
-            #     el_root = self.loads.find(f".//nodal_load[@node_set='{load.node_set}']")
-            # else:
             # Create a new NodalLoad element if no existing one matches the node set
             el_root = ET.Element("nodal_load")
             el_root.set("node_set", load.node_set)
-            self.loads.append(el_root)
+            el_root.set("type", load.type)
+            if load.name is not None:
+                el_root.set("name", load.name)
 
-            # Setting the type attribute which is required in new version
-            el_root.set("type", "nodal_load")
-            # Setting the dof
-            dof_element = ET.SubElement(el_root, "dof")
-            dof_element.text = load.dof
-            # Set the scale and load curve
-            scale_subel = ET.SubElement(el_root, "scale")
-            scale_subel.set("lc", str(load.load_curve))
-            if load.scale is None:
-                scale_subel.text = "1.0"  # Default to 1.0 if no scale is provided
-            elif isinstance(load.scale, (str, int, float, np.number)):
-                scale_subel.text = str(load.scale)
-            elif isinstance(load.scale, np.ndarray):
-                # we need to add this as mesh data; and then reference it here
-                ref_data_name = f"nodal_load_{load.node_set}_scale"
-                scale_subel.text = f"1*{ref_data_name}"
-                # we need to retrieve the node ids for this node set
-                nodesets = self.get_nodesets()
-                # find the node set
-                node_set = [ns for ns in nodesets if ns.name == load.node_set]
-                if len(node_set) == 0:
-                    raise ValueError(f"Node set {load.node_set} not found in the geometry."
-                                     "Please, either add 'scale' as an str and manually provide "
-                                     "the scale value as a mesh data and add the node set to the geometry.")
-                node_set = node_set[0]
-                # prepare the nodal data
-                nodal_data = NodalData(node_set=load.node_set,
-                                       name=ref_data_name,
-                                       data=load.scale,
-                                       ids=np.arange(0, len(node_set.ids) + 1))  # add_nodal_data will convert to one-based indexing
-                # add the nodal data
-                self.add_nodal_data([nodal_data])
+            # add tag attributes (relative, shell_bottom)
+            if load.relative is not None:
+                relative_subel = ET.SubElement(el_root, "relative")
+                relative_subel.text = str(load.relative)
+            if load.shell_bottom is not None:
+                shell_bottom_subel = ET.SubElement(el_root, "shell_bottom")
+                shell_bottom_subel.text = str(load.shell_bottom)
+
+            # Now, set the "value" tag with lc-attribute and scale text-value
+            value_subel = ET.SubElement(el_root, "value")
+
+            # In earlier versions (spec 3.0), the nodal_load used a dof attribute.
+            # This is no longer the case in spec 4.0. We will keep this for backward compatibility,
+            # However, the 'scale' attribute must not be a tuple.
+            # It can only be a string, number of numpy array.
+            if load.dof is not None:
+                if load.scale is not None and isinstance(load.scale, tuple):
+                    raise ValueError(
+                        "When dof attribute is provided, the 'scale' attribute must not be a tuple. "
+                        "It can only be a string, number of numpy 1-D array. "
+                        "We are keeping this for backward compatibility, spec >4.0 does not use 'dof' attribute."
+                        "Please, either remove the 'dof' attribute or provide 'scale' as a string, number or numpy 1-D array.")
+                # Check if scale is N-D array
+                if isinstance(load.scale, np.ndarray):
+                    if load.scale.ndim != 1:
+                        raise ValueError("If the 'dof' attribute is provided, and scale is a numpy array, "
+                                         "Then the 'scale' attribute must be a 1-dimensional array."
+                                         "This is to ensure that the scale is applied to the correct DOF. "
+                                         "We are keeping this for backward compatibility, spec >4.0 does not use 'dof' attribute.")
+                # check if dof is a string and in xyz
+                if not isinstance(load.dof, str) or load.dof not in ['x', 'y', 'z']:
+                    raise ValueError("If the 'dof' attribute is provided, it must be a string representing the DOF. "
+                                     "Valid values are 'x', 'y', 'z'."
+                                     "If you have a load in multiple directions, please, remove the 'dof' attribute and provide "
+                                     "the scale as a tuple, or numpy array.")
+                # Now add the scale data
+                if not isinstance(load.scale, np.ndarray):  # then it must be a string or number
+                    if load.dof == 'x':
+                        value_subel.text = f"{load.scale}, 0.0, 0.0"
+                    elif load.dof == 'y':
+                        value_subel.text = f"0.0, {load.scale}, 0.0"
+                    elif load.dof == 'z':
+                        value_subel.text = f"0.0, 0.0, {load.scale}"
+                    else:
+                        raise ValueError(f"Invalid 'dof' attribute value {load.dof}. Valid values are 'x', 'y', 'z'.")
+                else:
+                    # We now need to add this as mesh data; and then reference it here
+                    ref_data_name = f"nodal_load_{load.node_set}_scale_{load.dof}"
+                    if load.dof == 'x':
+                        value_subel.text = f"1*{ref_data_name}, 0.0, 0.0"
+                    elif load.dof == 'y':
+                        value_subel.text = f"0.0, 1*{ref_data_name}, 0.0"
+                    elif load.dof == 'z':
+                        value_subel.text = f"0.0, 0.0, 1*{ref_data_name}"
+                    else:
+                        raise ValueError(f"Invalid 'dof' attribute value {load.dof}. Valid values are 'x', 'y', 'z.")
+                    # prepare the nodal data
+                    nodal_data = NodalData(node_set=load.node_set,
+                                             name=ref_data_name,
+                                             data=load.scale,
+                                             ids=np.arange(0, len(load.scale) + 1))
+                    # add the nodal data
+                    self.add_nodal_data([nodal_data])
+
+            # If no dof is provided, which is recommended and follows the spec 4.0 (new version)
+            # then we can provide the scale as a tuple, numpy array or string.
+            else:
+                # set the load curve
+                value_subel.set("lc", str(load.load_curve))
+                # Add the scale data.
+                if load.scale is None:
+                    value_subel.text = "1.0, 1.0, 1.0"
+                elif isinstance(load.scale, str):
+                    value_subel.text = load.scale
+                elif isinstance(load.scale, (int, float)):
+                    value_subel.text = f"{load.scale}, {load.scale}, {load.scale}"
+                elif isinstance(load.scale, tuple):
+                    value_subel.text = f"{load.scale[0]}, {load.scale[1]}, {load.scale[2]}"
+                elif isinstance(load.scale, np.ndarray):
+                    # check if the scale has the correct shape: 2-dim array with 3 columns
+                    if load.scale.ndim != 2 or load.scale.shape[1] != 3:
+                        raise ValueError("If the 'scale' attribute is provided as a numpy array, "
+                                        "then it must be a 2-dimensional array with 3 columns."
+                                        f"Current shape: {load.scale.shape}")
+                    # We now need to add this as mesh data; and then reference it here
+                    ref_data_name = f"nodal_load_{load.node_set}_scale"
+                    value_subel.text = f"1*{ref_data_name}"
+                    # prepare the nodal data
+                    nodal_data = NodalData(node_set=load.node_set,
+                                        name=ref_data_name,
+                                        data=load.scale,
+                                        ids=np.arange(0, len(load.scale) + 1))
+                    # add the nodal data
+                    self.add_nodal_data([nodal_data])
+                else:
+                    raise ValueError("Invalid 'scale' attribute. It must be a string, number, tuple or numpy array.")
+
+            # Append the new NodalLoad element to the 'loads' container
+            self.loads.append(el_root)
 
     def add_pressure_loads(self, pressure_loads: List[PressureLoad]) -> None:
         """
@@ -872,57 +966,125 @@ class Feb40(AbstractFebObject):
         existing_load_curves = {curve.id: curve for curve in self.get_loadcurves()}
 
         for curve in load_curves:
+            curve_points = curve.data  # 2-D array of points
+            # Make sure that data is a 2-D array
+            if curve_points.ndim != 2:
+                raise ValueError(f"LoadCurve data must be a 2-dimensional array. Current shape: {curve_points.shape}")
+            # Make sure that data has 2 columns
+            if curve_points.shape[1] != 2:
+                raise ValueError(f"LoadCurve data must have 2 columns. Current shape: {curve_points.shape}")
+
+            # Check if the curve ID already exists
             if curve.id in existing_load_curves:
                 # Find existing LoadCurve element
                 el_root = self.loaddata.find(f".//load_controller[@id='{curve.id}']")
+                existing_points = existing_load_curves[curve.id].data
+                # add the new points to the existing points (stack vertically)
+                curve_points = np.vstack([existing_points, curve_points])
             else:
                 # Create a new LoadCurve element if no existing one matches the ID
                 el_root = ET.Element("load_controller")
                 el_root.set("id", str(curve.id))
                 self.loaddata.append(el_root)
 
-            # Set type as 'loadcurve' and add 'interpolate' element
+            # Set type as 'loadcurve'
             el_root.set("type", "loadcurve")
+            # Add the 'interpolate' tage element
             interpolate_elem = ET.SubElement(el_root, "interpolate")
             interpolate_elem.text = curve.interpolate_type.upper()  # Ensure the correct case
+            # Add the 'extend' tag element
+            extend_elem = ET.SubElement(el_root, "extend")
+            extend_elem.text = curve.extend_type.upper()  # Ensure the correct case
 
-            # Create a 'points' container element
+            # Create a 'points' container element and add the curve points
             points_elem = ET.SubElement(el_root, "points")
-            for point in curve.data:
-                point_elem = ET.SubElement(points_elem, "point")
+            for point in curve_points:
+                point_elem = ET.SubElement(points_elem, "pt")
                 point_elem.text = ",".join(map(str, point))
 
     # Boundary conditions
     # ------------------------------
 
-    def add_boundary_conditions(self, boundary_conditions: List[Union[FixCondition, RigidBodyCondition, BoundaryCondition]]) -> None:
+    def add_boundary_conditions(self, boundary_conditions: List[BoundaryCondition]) -> None:
         """
-        Adds boundary conditions to Boundary, appending to existing boundary conditions if they share the same type and node set.
+        Adds boundary conditions to Boundary.
 
         Args:
             boundary_conditions (list of Union[FixCondition, RigidBodyCondition, BoundaryCondition]): List of boundary condition namedtuples.
         """
         for i, bc in enumerate(boundary_conditions):
-            assert isinstance(bc, (FixCondition, RigidBodyCondition, BoundaryCondition)), (
-                f"Boundary condition {i} is not a valid type."
-                f"Please use FixCondition, RigidBodyCondition, or BoundaryCondition."
-                "If you are using a Tuple, please use a named tuple instead."
-                "See meta_data module for more information."
-            )
+            if not issubclass(type(bc), BoundaryCondition):
+                raise ValueError(f"Boundary condition at index {i} is not a valid BoundaryCondition instance."
+                                 "Input boundary conditions must be instaces of BoundaryCondition or its subclasses."
+                                 "e.g. BoundaryCondition, ZeroDisplacementCondition, RigidBodyCondition.")
+            # Make sure that bc has a type (e.g. type is not None)
+            if bc.type is None:
+                raise ValueError(f"Boundary condition at index {i} must have a valid 'type' attribute.")
 
+            # Create a new BoundaryCondition element
             el_root = ET.Element("bc")
 
             # Add the FixedCondition
-            if isinstance(bc, FixCondition):
-                el_root.set("type", "fix")
+            if isinstance(bc, (FixCondition, ZeroDisplacementCondition)):    # For backward compatibility
+                if "s" in bc.dof.lower():
+                    raise ValueError("FixCondition is no longer used in spec 4.0. "
+                                     "It has been replaced by ZeroDisplacementCondition and ZeroShellDisplacementCondition. "
+                                     "It is recommended to use ZeroDisplacementCondition instead of FixCondition. "
+                                     "We are keeping this for backward compatibility, but it is only available for 'x', 'y', 'z' DOFs."
+                                     "ZeroShellDisplacementCondition is used for shell elements, please use ZeroDisplacementCondition instead.")
+                if bc.type == "fix":
+                    el_root.set("type", "zero displacement")
+                else:
+                    el_root.set("type", bc.type)
                 el_root.set("node_set", bc.node_set)
                 if bc.name is None:
                     name = f"FixCondition_{i}_{bc.node_set}"
                 else:
                     name = bc.name
                 el_root.set("name", name)
-                dof_elem = ET.SubElement(el_root, "dofs")
-                dof_elem.text = bc.dof
+
+                x_dof_elem = ET.SubElement(el_root, "x_dof")
+                y_dof_elem = ET.SubElement(el_root, "y_dof")
+                z_dof_elem = ET.SubElement(el_root, "z_dof")
+
+                if "x" in bc.dof.lower():
+                    x_dof_elem.text = "1"
+                else:
+                    x_dof_elem.text = "0"
+                if "y" in bc.dof.lower():
+                    y_dof_elem.text = "1"
+                else:
+                    y_dof_elem.text = "0"
+                if "z" in bc.dof.lower():
+                    z_dof_elem.text = "1"
+                else:
+                    z_dof_elem.text = "0"
+            elif isinstance(bc, ZeroShellDisplacementCondition):
+                el_root.set("type", bc.type)
+                el_root.set("node_set", bc.node_set)
+                if bc.name is None:
+                    name = f"ZeroShellDisplacementCondition_{i}_{bc.node_set}"
+                else:
+                    name = bc.name
+                el_root.set("name", name)
+
+                sx_dof_elem = ET.SubElement(el_root, "sx")
+                sy_dof_elem = ET.SubElement(el_root, "sy")
+                sz_dof_elem = ET.SubElement(el_root, "sz")
+
+                if "x" in bc.dof.lower():
+                    sx_dof_elem.text = "1"
+                else:
+                    sx_dof_elem.text = "0"
+                if "y" in bc.dof.lower():
+                    sy_dof_elem.text = "1"
+                else:
+                    sy_dof_elem.text = "0"
+                if "z" in bc.dof.lower():
+                    sz_dof_elem.text = "1"
+                else:
+                    sz_dof_elem.text = "0"
+
             elif isinstance(bc, RigidBodyCondition):
                 el_root.set("type", "rigid_body")
                 el_root.set("mat", bc.material)
@@ -934,44 +1096,32 @@ class Feb40(AbstractFebObject):
                 for fixed in bc.dof.split(','):
                     subel = ET.SubElement(el_root, "fixed")
                     subel.set("bc", fixed)
+            else:  # General BoundaryCondition
+                el_root.set("type", bc.type)
+                if bc.node_set is not None:
+                    el_root.set("node_set", bc.node_set)
+                if bc.surf_set is not None:
+                    el_root.set("surf_set", bc.surf_set)
+                if bc.elem_set is not None:
+                    el_root.set("elem_set", bc.elem_set)
+                if bc.name is not None:
+                    el_root.set("name", bc.name)
+                if bc.material is not None:
+                    el_root.set("mat", str(bc.material))
+                if bc.dof is not None:
+                    split_dof = bc.dof.split(',')
+                    for dof_type in split_dof:
+                        subel = ET.SubElement(el_root, f"{dof_type}_dof")
+                        subel.text = "1"
+                if bc.attributes is not None:
+                    for key, value in bc.attributes.items():
+                        el_root.set(key, str(value))
+                if bc.tags is not None:
+                    for key, value in bc.tags.items():
+                        subel = ET.SubElement(el_root, key)
+                        subel.text = str(value)
 
             self.boundary.append(el_root)
-
-            # bc_type = bc.type if hasattr(bc, "type") else bc.__class__.__name__
-
-            # Find or create a new 'bc' element based on type and name
-            # el_root = self.boundary.find(f".//bc[@name='{bc.name}']")
-            # if el_root is None:
-            # el_root = ET.Element("bc")
-
-            # # Set 'type' attribute
-            # if bc_type == "FixCondition":
-            #     el_root = ET.Element("fix")
-            # else:
-            #     el_root = ET.Element(bc_type)
-
-            # # Set 'name' attribute
-            # if hasattr(bc, "name") and bc.name is not None:
-            #     el_root.set("name", bc.name)
-
-            # # Append to the boundary element
-            # self.boundary.append(el_root)
-
-            # # Set 'node_set'
-            # if hasattr(bc, "node_set") and bc.node_set is not None:
-            #     el_root.set("node_set", bc.node_set)
-
-            # Handle different types of boundary conditions
-            # if isinstance(bc, FixCondition):
-            #     dof_elem = ET.SubElement(el_root, "dofs")
-            #     dof_elem.text = bc.dof
-            # elif isinstance(bc, RigidBodyCondition):
-            #     for fixed in bc.dof.split(','):
-            #         subel = ET.SubElement(el_root, "fixed")
-            #         subel.set("bc", fixed)
-            # else:
-            #     for key, value in bc.attributes.items():
-            #         el_root.set(key, value)
 
     # Mesh data
     # ------------------------------
@@ -1065,7 +1215,7 @@ class Feb40(AbstractFebObject):
                 self.meshdata.append(el_root)
 
             for i, elem_data in enumerate(data.data):
-                subel = ET.SubElement(el_root, "elem")
+                subel = ET.SubElement(el_root, "e")
                 subel.set("lid", str(data.ids[i] + 1))  # Convert to one-based indexing
                 if isinstance(elem_data, (str, int, float, np.number)):
                     subel.text = str(elem_data)
