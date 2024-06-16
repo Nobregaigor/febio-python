@@ -11,32 +11,35 @@ from ._binary_file_reader_helpers import search_block, read_bytes, get_file_size
 
 def check_fileformat(bf, verbose):
     fformat = read_bytes(bf)
-    if(TAGS['FEBIO'].value == fformat):
+    if (TAGS.FEBIO.value == fformat):
         console_log('Correct FEBio format.', 2, verbose)
     else:
-        raise(ValueError("Input XPLIT file does not have the correct format. Expected: {}, received: {}".format(TAGS['FEBIO'].value, fformat)))
+        raise ValueError(f"Input XPLIT file does not have the correct format. Expected: {TAGS.FEBIO.value}, received: {fformat}")
+
 
 def check_fileversion(bf, verbose):
     version = read_bytes(bf)
     # return version
     if (version == TAGS.VERSION_2_5.value):
-        console_log('Current spec version is: 2.5 -> %d' % version, 2, verbose)
+        console_log(f'Current spec version is: 2.5 -> {version}', 2, verbose)
         raise RuntimeError("XPLT version 2.5 is no longer supported.")
     elif (version == TAGS.VERSION_3_0.value):
-        console_log('Current spec version is: 3.0 -> %d' % version, 2, verbose)
+        console_log(f'Current spec version is: 3.0 -> {version}', 2, verbose)
         return 3.0
     elif (version == 49):
-        console_log('Current spec version is: 3.0 -> %d | WARNING: Docs say version should be 8, but it is 49.' % version, 2, verbose)
+        console_log(f'Current spec version is: 3.0 -> {version} | WARNING: Docs say version should be 8, but it is 49.', 2, verbose)
         return 3.0
     elif (version == 52):
-        return 3.0
+        console_log(f'Current spec version is: 4.0 -> {version} | WARNING: Docs have not being released for spec 4.0. Using reader for spec 3.0', 2, verbose)
+        return 4.0
     else:
         raise ValueError(
             f"Incorrect XPLIT file version: {version}, expected version: {TAGS.VERSION_2_5} or [{TAGS.VERSION_3_0} or 49]"
             # .format(version, int(TAGS.VERSION_2_5, base=16), int(TAGS.VERSION_3_0, base=16)))
         )
 
-def read_xplt(xplit_filepath: Union[Path, str], verbose: int=0) -> Tuple[XpltMesh, States]:
+
+def read_xplt(xplit_filepath: Union[Path, str], verbose: int = 0) -> Tuple[XpltMesh, States]:
     """Reads a XPLT file and returns a XpltMesh and States object.
 
     Args:
@@ -49,7 +52,7 @@ def read_xplt(xplit_filepath: Union[Path, str], verbose: int=0) -> Tuple[XpltMes
 
     xplit_filepath = Path(xplit_filepath)
     if not xplit_filepath.exists():
-        raise(FileNotFoundError(f"File not found: {xplit_filepath}"))
+        raise FileNotFoundError(f"File not found: {xplit_filepath}")
 
     # open binary file
     with open(xplit_filepath, "rb") as bf:
@@ -57,7 +60,7 @@ def read_xplt(xplit_filepath: Union[Path, str], verbose: int=0) -> Tuple[XpltMes
         # get file size and check if its not empty
         filesize = get_file_size(bf)
         if filesize == 0:
-            raise(ValueError("Input xplit file size is zero. Please, check file."))
+            raise ValueError("Input xplit file size is zero. Please, check file.")
 
         # check if file format meets requirement
         check_fileformat(bf, verbose)
@@ -76,6 +79,10 @@ def read_xplt(xplit_filepath: Union[Path, str], verbose: int=0) -> Tuple[XpltMes
     if version == 3.0:
         from ._spec_30 import read_spec30
         return read_spec30(xplit_filepath, verbose=verbose)
+    elif version == 4.0:
+        from ._spec_40 import read_spec40
+        return read_spec40(xplit_filepath, verbose=verbose)
     else:
-        raise(ValueError(f"XPLT file version not supported: {version}"
-                        "We currently only support version 3.0."))
+        raise ValueError(f"XPLT file version not supported: {version}"
+                         "We currently only support version 3.0 and 4.0."
+                         "NOTE: version 4.0 is not fully supported yet.")
