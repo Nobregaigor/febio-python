@@ -56,23 +56,24 @@ def febio_to_pyvista(data: Union[FEBioContainer, Feb25, Feb30], apply_load_curve
 
     # Add nodal sets, element sets, and surface sets
     grid = add_nodalsets(container, grid)
-    grid = add_elementsets(container, grid)
-    grid = add_surfacesets(container, grid)
+    if container.feb is not None:
+        grid = add_elementsets(container, grid)
+        grid = add_surfacesets(container, grid)
 
-    # Add mesh data -> point data, cell data
-    grid = add_nodaldata(container, grid)
-    grid = add_elementdata(container, grid)
-    grid = add_surface_data(container, grid)
+        # Add mesh data -> point data, cell data
+        grid = add_nodaldata(container, grid)
+        grid = add_elementdata(container, grid)
+        grid = add_surface_data(container, grid)
 
-    # Add materials -> cell data (parameters), field data (parameter names, type, material name)
-    grid = add_material(container, grid)
+        # Add materials -> cell data (parameters), field data (parameter names, type, material name)
+        grid = add_material(container, grid)
 
-    # Add loads -> point data (resultant nodal load), cell data (resultant pressure load)
-    grid = add_nodalload(container, grid)
-    grid = add_pressure_load(container, grid)
+        # Add loads -> point data (resultant nodal load), cell data (resultant pressure load)
+        grid = add_nodalload(container, grid)
+        grid = add_pressure_load(container, grid)
 
-    # Add boundary conditions -> point data (fixed boundary conditions), cell data (rigid body boundary conditions
-    grid = add_boundary_conditions(container, grid)
+        # Add boundary conditions -> point data (fixed boundary conditions), cell data (rigid body boundary conditions
+        grid = add_boundary_conditions(container, grid)
 
     # If states data is available, we should create a list of grids for each state
     grid_or_list_of_grids = add_states_to_grid(container, grid, apply_load_curves=apply_load_curves)
@@ -120,31 +121,33 @@ def create_unstructured_grid_from_febio_container(container: FEBioContainer) -> 
     elements = deepcopy(volumes) + deepcopy(surfaces)  # deep copy to avoid modifying the original data
 
     # create a MultiBlock object
-    # multiblock = pv.MultiBlock()
-
     # First, stack all the node coordinates; this will be the points of the mesh
     coordinates = np.vstack([node.coordinates for node in nodes])
 
     # Next, create a cells_dict.
     # This is a dictionary that maps the element type to the connectivity
-    cells_dict = {}
-    for elem in elements:
-        el_type: str = elem.type
+    cells_dict = OrderedDict()
+    domain_identifiers = []
+    for i, elem in enumerate(elements):
+        elem_type: str = elem.type
         connectivity: np.ndarray = elem.connectivity  # FEBio uses 1-based indexing
+        if elem_type in FebioElementTypeToVTKElementType.__members__.keys():
+            # get name of the element type
+            elem_type = FebioElementTypeToVTKElementType[elem_type].value
         try:
-            elem_type = FebioElementTypeToVTKElementType[el_type].value
             elem_type = pv.CellType[elem_type]
         except KeyError:
-            raise ValueError(f"Element type {el_type} is not supported. "
-                                "Please add it to the FebioElementTypeToVTKElementType enum.")
+            raise ValueError(f"Failed to convert element type {elem_type} to a PyVista cell type.")
 
         # if the element type already exists in the cells_dict, append the connectivity
-        if el_type in cells_dict:
+        if elem_type in cells_dict:
             cells_dict[elem_type] = np.vstack([cells_dict[elem_type], connectivity])
         else:
             cells_dict[elem_type] = connectivity
-    # print(cells_dict)
+        domain_identifiers.extend([i] * len(connectivity))
+
     grid = pv.UnstructuredGrid(cells_dict, coordinates)
+    grid.cell_data["domain"] = domain_identifiers
 
     return grid
 
@@ -727,8 +730,17 @@ def add_states_to_grid(container: FEBioContainer, grid: pv.UnstructuredGrid, app
     for elem_state in element_states:
         name = elem_state.name
         data = elem_state.data
+        dom_index = elem_state.dom
+        # domain = container.mesh_domains[dom_index]
+        # print(f"Adding element state {name} with shape {data.shape} on grid with number of cells {grid.n_cells} | element domain: {domain.name}")
         for i, grid in enumerate(state_grids):
-            grid.cell_data[name] = data[i]
+            this_data = data[i]
+            # if data does not match the number of cells, we need to add to specific cells based on the domain
+            if this_data.shape[0] != grid.n_cells:
+                this_data = np.full((grid.n_cells, this_data.shape[1]), np.nan)
+                mask = grid.cell_data["domain"] == dom_index
+                this_data[mask] = data[i]
+            grid.cell_data[name] = this_data
 
     # Add surface states
     for surf_state in surface_states:
@@ -738,7 +750,7 @@ def add_states_to_grid(container: FEBioContainer, grid: pv.UnstructuredGrid, app
             grid.cell_data[name] = data[i]
 
     # Now, we need to interpolate the load curves, based on the timesteps
-    if apply_load_curves:
+    if container.feb is not None and apply_load_curves:
         interpolators = _load_curvers_to_interpolators(container)
         for lc_id, interpolator in interpolators.items():
             for i, grid in enumerate(state_grids):
