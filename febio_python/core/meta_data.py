@@ -1,7 +1,7 @@
 # from collections import namedtuple
 from dataclasses import dataclass
 from numpy import ndarray
-from typing import Dict, Union, Tuple, List
+from typing import Dict, Union, List
 
 
 # Geometry
@@ -146,11 +146,13 @@ class LoadCurve:
     Attributes:
         id (int): Load curve ID.
         interpolate_type (str): Interpolation type (e.g., 'linear', 'smooth', 'step').
-        data (ndarray[Tuple[float, float]]): Load curve data as a 2D array of tuples (e.g., [(0.0, 0.0), (1.0, 1.0)]).
+        data (ndarray): Load curve data as a 2D array (e.g., [[0, 0], [1, 1]]).
+        extend (str): Extend type (e.g., 'CONSTANT', 'EXTRAPOLATE'). Used for spec >=4.
     """
     id: int     # Load curve ID
     interpolate_type: str       # Interpolation type (e.g. 'linear', 'smooth', 'step')
-    data: ndarray[Tuple[float, float]]      # Load curve data as a 2-d array of tuples (e.g. [(0.0, 0.0), (1.0, 1.0)])
+    data: ndarray      # Load curve data as a 2-d array (e.g. [[0, 0], [1, 1]])
+    extend: str = "CONSTANT"    # Extend type (e.g. 'CONSTANT', 'EXTRAPOLATE')
 
 
 # Boundary conditions
@@ -197,7 +199,7 @@ class FixCondition(BoundaryCondition):
 
 
 @dataclass
-class ZeroDisplacementCondition(BoundaryCondition):
+class ZeroDisplacementCondition(FixCondition):
     """Represents a zero displacement boundary condition in a finite element model.
 
     Attributes:
@@ -205,6 +207,21 @@ class ZeroDisplacementCondition(BoundaryCondition):
         see BoundaryCondition for other attributes.
     """
     type: str = "zero displacement"     # Default type is 'zero displacement'
+
+    def __post_init__(self):
+        if self.node_set is None:
+            raise ValueError(f"node_set cannot be None for {self.__class__.__name__}")
+
+
+@dataclass
+class ZeroShellDisplacementCondition(FixCondition):
+    """Represents a zero shell displacement boundary condition in a finite element model.
+
+    Attributes:
+        type (str): Boundary condition type, defaults to 'zero shell displacement'.
+        see BoundaryCondition for other attributes.
+    """
+    type: str = "zero shell displacement"     # Default type is 'zero shell displacement'
 
     def __post_init__(self):
         if self.node_set is None:
