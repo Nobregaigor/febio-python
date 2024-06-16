@@ -833,102 +833,80 @@ class Feb40(AbstractFebObject):
             if load.name is not None:
                 el_root.set("name", load.name)
 
-            # add tag attributes (relative, shell_bottom)
-            if load.relative is not None:
-                relative_subel = ET.SubElement(el_root, "relative")
-                relative_subel.text = str(load.relative)
-            if load.shell_bottom is not None:
-                shell_bottom_subel = ET.SubElement(el_root, "shell_bottom")
-                shell_bottom_subel.text = str(load.shell_bottom)
+            # Add data based on the type of load
+            if load.type == "nodal_force":
+                # add tag attributes (relative, shell_bottom)
+                if load.relative is not None:
+                    relative_subel = int(ET.SubElement(el_root, "relative"))
+                    relative_subel.text = str(load.relative)
+                if load.shell_bottom is not None:
+                    shell_bottom_subel = ET.SubElement(el_root, "shell_bottom")
+                    shell_bottom_subel.text = str(load.shell_bottom)
 
-            # Now, set the "value" tag with lc-attribute and scale text-value
-            value_subel = ET.SubElement(el_root, "value")
+                # Now, set the "value" tag with lc-attribute and scale text-value
+                value_subel = ET.SubElement(el_root, "value")
 
-            # In earlier versions (spec 3.0), the nodal_load used a dof attribute.
-            # This is no longer the case in spec 4.0. We will keep this for backward compatibility,
-            # However, the 'scale' attribute must not be a tuple.
-            # It can only be a string, number of numpy array.
-            if load.dof is not None:
-                if load.scale is not None and isinstance(load.scale, tuple):
+                # determine the type of value data
+                if load.scale is not None and isinstance(load.scale, (tuple, np.ndarray)):
                     raise ValueError(
-                        "When dof attribute is provided, the 'scale' attribute must not be a tuple. "
-                        "It can only be a string, number of numpy 1-D array. "
-                        "We are keeping this for backward compatibility, spec >4.0 does not use 'dof' attribute."
-                        "Please, either remove the 'dof' attribute or provide 'scale' as a string, number or numpy 1-D array.")
+                        "If type='nodal_force', the 'scale' attribute must be a tuple or numpy array. "
+                        f"Got type: {type(load.scale)}")
                 # Check if scale is N-D array
                 if isinstance(load.scale, np.ndarray):
                     if load.scale.ndim != 1:
-                        raise ValueError("If the 'dof' attribute is provided, and scale is a numpy array, "
-                                         "Then the 'scale' attribute must be a 1-dimensional array."
-                                         "This is to ensure that the scale is applied to the correct DOF. "
-                                         "We are keeping this for backward compatibility, spec >4.0 does not use 'dof' attribute.")
+                        raise ValueError("If type='nodal_force' and scale is a numpy array, "
+                                         "Then the 'scale' attribute must be a 1-dimensional array of length 3. ")
                 # check if dof is a string and in xyz
                 if not isinstance(load.dof, str) or load.dof not in ['x', 'y', 'z']:
                     raise ValueError("If the 'dof' attribute is provided, it must be a string representing the DOF. "
                                      "Valid values are 'x', 'y', 'z'."
                                      "If you have a load in multiple directions, please, remove the 'dof' attribute and provide "
                                      "the scale as a tuple, or numpy array.")
-                # Now add the scale data
-                if not isinstance(load.scale, np.ndarray):  # then it must be a string or number
-                    if load.dof == 'x':
-                        value_subel.text = f"{load.scale}, 0.0, 0.0"
-                    elif load.dof == 'y':
-                        value_subel.text = f"0.0, {load.scale}, 0.0"
-                    elif load.dof == 'z':
-                        value_subel.text = f"0.0, 0.0, {load.scale}"
-                    else:
-                        raise ValueError(f"Invalid 'dof' attribute value {load.dof}. Valid values are 'x', 'y', 'z'.")
-                else:
-                    # We now need to add this as mesh data; and then reference it here
-                    ref_data_name = f"nodal_load_{load.node_set}_scale_{load.dof}"
-                    if load.dof == 'x':
-                        value_subel.text = f"1*{ref_data_name}, 0.0, 0.0"
-                    elif load.dof == 'y':
-                        value_subel.text = f"0.0, 1*{ref_data_name}, 0.0"
-                    elif load.dof == 'z':
-                        value_subel.text = f"0.0, 0.0, 1*{ref_data_name}"
-                    else:
-                        raise ValueError(f"Invalid 'dof' attribute value {load.dof}. Valid values are 'x', 'y', 'z.")
-                    # prepare the nodal data
-                    nodal_data = NodalData(node_set=load.node_set,
-                                             name=ref_data_name,
-                                             data=load.scale,
-                                             ids=np.arange(0, len(load.scale) + 1))
-                    # add the nodal data
-                    self.add_nodal_data([nodal_data])
+                if load.scale is None:
+                    value_subel.text = "0.0, 0.0, 0.0"  # No scale provided, default to 0.0
+                else:  # either tuple or numpy array
+                    value_subel.text = f"{load.scale[0]}, {load.scale[1]}, {load.scale[2]}"
 
-            # If no dof is provided, which is recommended and follows the spec 4.0 (new version)
-            # then we can provide the scale as a tuple, numpy array or string.
-            else:
+            elif load.type == "nodal_load":
+                # Set the dof tag element
+                if load.dof is not None:
+                    dof_subel = ET.SubElement(el_root, "dof")
+                    dof_subel.text = load.dof
+                else:
+                    raise ValueError("If type='nodal_load', the 'dof' attribute must be provided. "
+                                     "Valid values are 'x', 'y', 'z'.")
+                # Now, set the "value" tag with lc-attribute and scale text-value
+                scale_subel = ET.SubElement(el_root, "scale")
                 # set the load curve
-                value_subel.set("lc", str(load.load_curve))
+                scale_subel.set("lc", str(load.load_curve))
+
                 # Add the scale data.
                 if load.scale is None:
-                    value_subel.text = "1.0, 1.0, 1.0"
-                elif isinstance(load.scale, str):
-                    value_subel.text = load.scale
-                elif isinstance(load.scale, (int, float)):
-                    value_subel.text = f"{load.scale}, {load.scale}, {load.scale}"
-                elif isinstance(load.scale, tuple):
-                    value_subel.text = f"{load.scale[0]}, {load.scale[1]}, {load.scale[2]}"
+                    scale_subel.text = "1.0"
+                elif isinstance(load.scale, (str, int, float, np.number)):
+                    scale_subel.text = f"{load.scale}"
                 elif isinstance(load.scale, np.ndarray):
-                    # check if the scale has the correct shape: 2-dim array with 3 columns
-                    if load.scale.ndim != 2 or load.scale.shape[1] != 3:
-                        raise ValueError("If the 'scale' attribute is provided as a numpy array, "
-                                        "then it must be a 2-dimensional array with 3 columns."
-                                        f"Current shape: {load.scale.shape}")
+                    # check if the scale has the correct shape: 1-dim or 2-dim with 1 column
+                    if load.scale.ndim > 2:
+                        raise ValueError("If type='nodal_load' and scale is a numpy array, "
+                                            "Then the 'scale' attribute must be a 1-dimensional array or a 2-dimensional array with 1 column. ")
+                    if load.scale.ndim == 2 and load.scale.shape[1] != 1:
+                        raise ValueError("If type='nodal_load' and scale is a numpy array, "
+                                            "Then the 'scale' attribute must be a 1-dimensional array or a 2-dimensional array with 1 column. ")
+                    # convert to 1-dim array
+                    load_scale = load.scale.flatten()
                     # We now need to add this as mesh data; and then reference it here
                     ref_data_name = f"nodal_load_{load.node_set}_scale"
-                    value_subel.text = f"1*{ref_data_name}"
+                    scale_subel.text = f"1*{ref_data_name}"
                     # prepare the nodal data
                     nodal_data = NodalData(node_set=load.node_set,
-                                        name=ref_data_name,
-                                        data=load.scale,
-                                        ids=np.arange(0, len(load.scale) + 1))
+                                           name=ref_data_name,
+                                           data=load_scale,
+                                           ids=np.arange(0, len(load.scale) + 1))
                     # add the nodal data
                     self.add_nodal_data([nodal_data])
                 else:
-                    raise ValueError("Invalid 'scale' attribute. It must be a string, number, tuple or numpy array.")
+                    raise ValueError("Invalid 'scale' attribute. It must be a string, number or numpy array.")
 
             # Append the new NodalLoad element to the 'loads' container
             self.loads.append(el_root)
@@ -967,6 +945,8 @@ class Feb40(AbstractFebObject):
 
         for curve in load_curves:
             curve_points = curve.data  # 2-D array of points
+            # try to convert to numpy array
+            curve_points = np.array(curve_points)
             # Make sure that data is a 2-D array
             if curve_points.ndim != 2:
                 raise ValueError(f"LoadCurve data must be a 2-dimensional array. Current shape: {curve_points.shape}")
@@ -994,7 +974,7 @@ class Feb40(AbstractFebObject):
             interpolate_elem.text = curve.interpolate_type.upper()  # Ensure the correct case
             # Add the 'extend' tag element
             extend_elem = ET.SubElement(el_root, "extend")
-            extend_elem.text = curve.extend_type.upper()  # Ensure the correct case
+            extend_elem.text = curve.extend.upper()  # Ensure the correct case
 
             # Create a 'points' container element and add the curve points
             points_elem = ET.SubElement(el_root, "points")
@@ -1025,7 +1005,7 @@ class Feb40(AbstractFebObject):
             el_root = ET.Element("bc")
 
             # Add the FixedCondition
-            if isinstance(bc, (FixCondition, ZeroDisplacementCondition)):    # For backward compatibility
+            if bc.type == "fix" or bc.type == "zero displacement":  # fix is used for backward compatibility
                 if "s" in bc.dof.lower():
                     raise ValueError("FixCondition is no longer used in spec 4.0. "
                                      "It has been replaced by ZeroDisplacementCondition and ZeroShellDisplacementCondition. "
@@ -1059,7 +1039,7 @@ class Feb40(AbstractFebObject):
                     z_dof_elem.text = "1"
                 else:
                     z_dof_elem.text = "0"
-            elif isinstance(bc, ZeroShellDisplacementCondition):
+            elif bc.type == "zero shell displacement":
                 el_root.set("type", bc.type)
                 el_root.set("node_set", bc.node_set)
                 if bc.name is None:
@@ -1068,9 +1048,9 @@ class Feb40(AbstractFebObject):
                     name = bc.name
                 el_root.set("name", name)
 
-                sx_dof_elem = ET.SubElement(el_root, "sx")
-                sy_dof_elem = ET.SubElement(el_root, "sy")
-                sz_dof_elem = ET.SubElement(el_root, "sz")
+                sx_dof_elem = ET.SubElement(el_root, "sx_dof")
+                sy_dof_elem = ET.SubElement(el_root, "sy_dof")
+                sz_dof_elem = ET.SubElement(el_root, "sz_dof")
 
                 if "x" in bc.dof.lower():
                     sx_dof_elem.text = "1"
@@ -1084,8 +1064,8 @@ class Feb40(AbstractFebObject):
                     sz_dof_elem.text = "1"
                 else:
                     sz_dof_elem.text = "0"
-
-            elif isinstance(bc, RigidBodyCondition):
+            elif bc.type == "rigid body":
+                print("NEEDS TO BE TESTED")
                 el_root.set("type", "rigid_body")
                 el_root.set("mat", bc.material)
                 if bc.name is None:
@@ -1984,7 +1964,7 @@ class Feb40(AbstractFebObject):
             "output_stride": output_stride,
             "adaptor_re_solve": adaptor_re_solve,
             "solver": {
-                "type": solver_type,
+                "attr_type": solver_type,
                 "symmetric_stiffness": symmetric_stiffness,
                 "equation_scheme": equation_scheme,
                 "equation_order": equation_order,
@@ -2004,6 +1984,7 @@ class Feb40(AbstractFebObject):
                 "dtol": dtol,
                 "etol": etol,
                 "rtol": rtol,
+                "rhoi": rhoi,
                 "alpha": alpha,
                 "beta": beta,
                 "gamma": gamma,
@@ -2011,7 +1992,7 @@ class Feb40(AbstractFebObject):
                 "arc_length": arc_length,
                 "arc_length_scale": arc_length_scale,
                 "qn_method": {
-                    "type": qn_method_type,
+                    "attr_type": qn_method_type,
                     "max_ups": max_ups,
                     "max_buffer_size": max_buffer_size,
                     "cycle_buffer": cycle_buffer,
@@ -2019,7 +2000,7 @@ class Feb40(AbstractFebObject):
                 },
             },
             "time_stepper": {
-                "type": time_stepper_type,
+                "attr_type": time_stepper_type,
                 "max_retries": max_retries,
                 "opt_iter": opt_iter,
                 "dtmin": dtmin,
@@ -2035,18 +2016,32 @@ class Feb40(AbstractFebObject):
             if isinstance(value, dict):  # handle nested elements like time_stepper and analysis
                 sub_element = ET.SubElement(self.control, key)
                 for subkey, subvalue in value.items():
-                    subsub_element = ET.SubElement(sub_element, subkey)
-                    subsub_element.text = str(subvalue)
+                    if subkey.startswith("attr_"):
+                        sub_element.set(subkey[5:], str(subvalue))
+                    else:
+                        if isinstance(subvalue, dict):
+                            print(subkey, subvalue)
+                            subsub_element = ET.SubElement(sub_element, subkey)
+                            for subsubkey, subsubvalue in subvalue.items():
+                                if subsubkey.startswith("attr_"):
+                                    subsub_element.set(subsubkey[5:], str(subsubvalue))
+                                else:
+                                    subsubsub_element = ET.SubElement(subsub_element, subsubkey)
+                                    subsubsub_element.text = str(subsubvalue)
+                        else:
+                            subsub_element = ET.SubElement(sub_element, subkey)
+                            subsub_element.text = str(subvalue)
             else:
                 element = ET.SubElement(self.control, key)
                 element.text = str(value)
 
-    def setup_globals(self, T=0, R=0, Fc=0):
+    def setup_globals(self, T=0, P=0, R=0, Fc=0):
         """
         Set up or replace the globals settings in an FEBio .feb file.
 
         Args:
             T (float): Temperature constant.
+            P (float): Pressure constant.
             R (float): Universal gas constant.
             Fc (float): Force constant.
 
@@ -2067,6 +2062,7 @@ class Feb40(AbstractFebObject):
         # Add individual constants
         constants_dict = {
             "T": T,
+            "P": P,
             "R": R,
             "Fc": Fc
         }
