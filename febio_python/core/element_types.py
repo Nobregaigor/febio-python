@@ -1,5 +1,6 @@
 from enum import Enum, IntEnum
 
+
 class FEBioElementType(Enum):
     # Linear elements
     TRIANGLE = "tri3"
@@ -7,7 +8,7 @@ class FEBioElementType(Enum):
     TETRA = "tet4"
     WEDGE = "penta6"
     HEXAHEDRON = "hex8"
-    TRUSS = "truss" # Assuming linear element
+    TRUSS = "truss"  # Assuming linear element
     # Quadratic elements
     QUADRATIC_TRIANGLE = "tri6"
     QUADRATIC_QUAD = "quad8"
@@ -18,6 +19,7 @@ class FEBioElementType(Enum):
     BIQUADRATIC_QUAD = "quad9"
     TRIQUADRATIC_HEXAHEDRON = "hex27"
     HIGHER_ORDER_TETRA = "tet15"
+
 
 class FEBioElementValue(IntEnum):
     HEXAHEDRON = 0  # HEX
@@ -31,7 +33,8 @@ class FEBioElementValue(IntEnum):
     QUADRATIC_WEDGE = 13  # PENTA15
     TRIQUADRATIC_HEXAHEDRON = 9  # HEX27
     QUADRATIC_QUAD = 11  # QUAD8
-    HIGHER_ORDER_TETRA = 8 # TET15
+    HIGHER_ORDER_TETRA = 8  # TET15
+
 
 class NumberOfNodesPerElement(IntEnum):
     HEXAHEDRON = 8
@@ -45,7 +48,8 @@ class NumberOfNodesPerElement(IntEnum):
     QUADRATIC_WEDGE = 15
     TRIQUADRATIC_HEXAHEDRON = 27
     QUADRATIC_QUAD = 8
-    HIGHER_ORDER_TETRA = 15   
+    HIGHER_ORDER_TETRA = 15
+
 
 class FebioElementTypeToVTKElementType(Enum):
     # Linear elements
@@ -64,4 +68,3 @@ class FebioElementTypeToVTKElementType(Enum):
     quad9 = "BIQUADRATIC_QUAD"
     hex27 = "TRIQUADRATIC_HEXAHEDRON"
     tet15 = "HIGHER_ORDER_TETRA"
-

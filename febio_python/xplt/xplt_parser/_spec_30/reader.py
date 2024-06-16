@@ -19,20 +19,22 @@ from ._xplt_sections import (
     read_state,
 )
 
+
 def check_fileversion(bf, verbose):
     version = bf_helpers.read_bytes(bf)
     if (version == TAGS.VERSION_3_0.value):
-        console_log('Current version is: %d' % version, 2, verbose)
+        console_log(f'Current version is: {version}', 2, verbose)
     elif (version == 49):
-        console_log('Current spec version is: 3.0 -> %d | WARNING: Docs say version should be 8, but it is 49.' % version, 2, verbose)
+        console_log(f'Current spec version is: 3.0 -> {version} | WARNING: Docs say version should be 8, but it is 49.', 2, verbose)
     elif (version == 52):
-        console_log(f'Current spec version is: 3.0 -> %d | WARNING: Possible new spec_version (4.0), but missing Xplt reader for 4.0', 2, verbose)
+        console_log(f'Current spec version is: 3.0 -> {version} | WARNING: Possible new spec_version (4.0), but missing Xplt reader for 4.0', 2, verbose)
         return 3.0
     else:
         raise ValueError(
             f"Incorrect XPLIT file version: {version}, expected version: {TAGS.VERSION_2_5} or [{TAGS.VERSION_3_0} or 49]"
             # .format(version, int(TAGS.VERSION_2_5, base=16), int(TAGS.VERSION_3_0, base=16)))
         )
+
 
 def read_spec30(filepath: Path, verbose=0) -> Tuple[XpltMesh, States]:
 
@@ -43,7 +45,7 @@ def read_spec30(filepath: Path, verbose=0) -> Tuple[XpltMesh, States]:
         # - get file size and check if its not empty
         filesize = bf_helpers.get_file_size(bf)
         if filesize == 0:
-            raise(ValueError("Input xplit file size is zero. Check file."))
+            raise ValueError("Input xplit file size is zero. Check file.")
 
         # Part 2: check file format
         # ------------------------------------

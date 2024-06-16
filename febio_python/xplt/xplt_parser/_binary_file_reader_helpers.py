@@ -1,36 +1,37 @@
 import struct
 from enum import IntEnum
-from typing import Union
 from febio_python.core.enums import XPLT_TAGS as TAGS
 from febio_python.utils.log import console_log
 
 
 def get_file_size(bf):
     curr_pos = bf.tell()
-    
+
     bf.seek(0, 2)
     filesize = bf.tell()
     bf.seek(curr_pos)
 
     if filesize == 0:
-        raise(ValueError("File size is zero. Please, check file."))
+        raise ValueError("File size is zero. Please, check file.")
     return filesize
+
 
 def read_bytes(bf, nb=4, format="I"):
     """
     Read a specific number of bytes from a binary file and unpack them into a tuple or a single value.
-    
+
     Args:
     bf: Binary file object.
     nb: Number of bytes to read (default is 4).
     format: Format string for unpacking (default is "I" for an unsigned integer).
-    
+
     Returns:
     A single unpacked value if only one value is unpacked, otherwise a tuple of unpacked values.
     """
     data_bytes = bf.read(nb)
     unpacked_data = struct.unpack(format, data_bytes)
     return unpacked_data[0] if len(unpacked_data) == 1 else unpacked_data
+
 
 def search_block(f, BLOCK_TAG: IntEnum, max_depth: int = 5, cur_depth: int = 0, verbose: int = 0):
     # Log the start of a new search at the first depth level
@@ -73,16 +74,17 @@ def search_block(f, BLOCK_TAG: IntEnum, max_depth: int = 5, cur_depth: int = 0, 
             f.seek(ini_pos)  # Restore file position only at the topmost level
         return result
 
+
 def check_block(bf, BLOCK_TAG, filesize=-1, verbose=0):
     """
     Check if the current position in the binary file matches a specific block tag.
-    
+
     Args:
         bf: Binary file object.
         BLOCK_TAG: The specific block tag to check.
         filesize: Optional total size of the file for EOF checking.
         verbose: Verbosity level for logging.
-    
+
     Returns:
         1 if the block matches, 0 otherwise.
     """
