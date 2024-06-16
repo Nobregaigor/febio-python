@@ -613,9 +613,13 @@ class Feb30(AbstractFebObject):
         existing_nodesets = {nodeset.name: nodeset for nodeset in self.get_nodesets()}
 
         for nodeset in nodesets:
+            node_ids = nodeset.ids
             if nodeset.name in existing_nodesets:
                 # Append to existing NodeSet element
                 el_root = self.mesh.find(f".//NodeSet[@name='{nodeset.name}']")
+                # Merge the existing node IDs with the new ones, ensuring uniqueness
+                existing_ids = existing_nodesets[nodeset.name].ids
+                node_ids = np.unique(np.concatenate((existing_ids, node_ids)))
             else:
                 # Create a new NodeSet element if no existing one matches the name
                 el_root = ET.Element("NodeSet")
@@ -623,7 +627,7 @@ class Feb30(AbstractFebObject):
                 self.mesh.append(el_root)
 
             # Add node IDs as sub-elements
-            for node_id in nodeset.ids:
+            for node_id in node_ids:
                 subel = ET.SubElement(el_root, "node")
                 subel.set("id", str(int(node_id + 1)))  # Convert to one-based indexing
 
@@ -637,9 +641,13 @@ class Feb30(AbstractFebObject):
         existing_surfacesets = {surfset.name: surfset for surfset in self.get_surfacesets()}
 
         for surfset in surfacesets:
+            surface_ids = surfset.node_ids
             if surfset.name in existing_surfacesets:
                 # Append to existing SurfaceSet element
                 el_root = self.mesh.find(f".//SurfaceSet[@name='{surfset.name}']")
+                # Merge the existing node IDs with the new ones, ensuring uniqueness
+                existing_ids = existing_surfacesets[surfset.name].node_ids
+                surface_ids = np.unique(np.concatenate((existing_ids, surface_ids)))
             else:
                 # Create a new SurfaceSet element if no existing one matches the name
                 el_root = ET.Element("SurfaceSet")
@@ -647,7 +655,7 @@ class Feb30(AbstractFebObject):
                 self.mesh.append(el_root)
 
             # Add node IDs as sub-elements
-            for node_id in surfset.node_ids:
+            for node_id in surface_ids:
                 subel = ET.SubElement(el_root, "node")
                 subel.set("id", str(int(node_id + 1)))  # Convert to one-based indexing
 
@@ -661,9 +669,13 @@ class Feb30(AbstractFebObject):
         existing_elementsets = {elemset.name: elemset for elemset in self.get_elementsets()}
 
         for elemset in elementsets:
+            element_ids = elemset.ids
             if elemset.name in existing_elementsets:
                 # Append to existing ElementSet element
                 el_root = self.mesh.find(f".//ElementSet[@name='{elemset.name}']")
+                # Merge the existing element IDs with the new ones, ensuring uniqueness
+                existing_ids = existing_elementsets[elemset.name].ids
+                element_ids = np.unique(np.concatenate((existing_ids, element_ids)))
             else:
                 # Create a new ElementSet element if no existing one matches the name
                 el_root = ET.Element("ElementSet")
@@ -671,7 +683,7 @@ class Feb30(AbstractFebObject):
                 self.mesh.append(el_root)
 
             # Add element IDs as sub-elements
-            for elem_id in elemset.ids:
+            for elem_id in element_ids:
                 subel = ET.SubElement(el_root, "elem")
                 subel.set("id", str(int(elem_id + 1)))  # Convert to one-based indexing
 
