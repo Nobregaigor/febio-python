@@ -816,11 +816,11 @@ class Feb25(AbstractFebObject):
             self.boundary.append(el_root)
 
             # el_root.set("bc", bc.dof)
-            if hasattr(bc, "node_set"):
+            if hasattr(bc, "node_set") and bc.node_set is not None:
                 el_root.set("node_set", bc.node_set)
-            if hasattr(bc, "material"):
+            if hasattr(bc, "material") and bc.material is not None:
                 el_root.set("mat", bc.material)
-            if hasattr(bc, "dof"):
+            if hasattr(bc, "dof") and bc.dof is not None:
                 if not bc_type == "RigidBodyCondition":
                     el_root.set("bc", bc.dof)
                 else:
