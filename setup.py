@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="febio-python",
-    version="0.2.0",
+    version="0.2.01",
     author="Igor N",
     description="Collection of python modules to work with FEBio.",
     url="https://github.com/Nobregaigor/febio-python",
@@ -16,7 +16,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     entry_points={
         'console_scripts': ['febio-python=febio_python.cli.main:main'],
     },
