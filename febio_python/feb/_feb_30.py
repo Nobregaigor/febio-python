@@ -748,20 +748,18 @@ class Feb30(AbstractFebObject):
         Args:
             nodal_loads (list of NodalLoad): List of NodalLoad namedtuples, each containing a boundary condition, node set, scale, and load curve.
         """
-        # existing_nodal_loads = {load.node_set: load for load in self.get_nodal_loads()}
 
         for load in nodal_loads:
-            # if load.node_set in existing_nodal_loads:
-            #     # Append to existing NodalLoad element
-            #     el_root = self.loads.find(f".//nodal_load[@node_set='{load.node_set}']")
-            # else:
             # Create a new NodalLoad element if no existing one matches the node set
             el_root = ET.Element("nodal_load")
             el_root.set("node_set", load.node_set)
             self.loads.append(el_root)
 
-            # Setting the type attribute which is required in new version
+            # Setting the type attribute which is required in spec 3.0
             el_root.set("type", "nodal_load")
+            # Add name attribute if it exists
+            if load.name is not None:
+                el_root.set("name", str(load.name))
             # Setting the dof
             dof_element = ET.SubElement(el_root, "dof")
             dof_element.text = load.dof
