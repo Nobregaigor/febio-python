@@ -1,29 +1,25 @@
-# from febio_python.xplt import read_xplt
-from febio_python.xplt import read_xplt
-from febio_python.xplt.xplt_object import Xplt
-from time import time
 import pathlib
+import pyvista as pv    # For visualization
+from febio_python.container import FEBioContainer
+from febio_python.utils.pyvista_utils import febio_to_pyvista
+
 
 samples_dir = pathlib.Path(__file__).parent.parent / "samples"
-filepath = samples_dir / "sample2d_v3.xplt"
-
-
-def measure_performance(file_path, runs=50):
-    times = []
-    
-    for _ in range(runs):
-        start = time()
-        # Read xplt file
-        xplt_data = read_xplt(file_path, verbose=0)
-        elapsed_time = time() - start
-        times.append(elapsed_time)
-        
-    avg_time = sum(times) / len(times)
-    print(f"Average elapsed time over {runs} runs: {avg_time:.4f} seconds")
-    
-    return xplt_data
+filepath = samples_dir / "sample_cfd.xplt"
 
 if __name__ == "__main__":
-    data = measure_performance(filepath)
-    
-    xplt_obj = Xplt(filepath)
+    # read xplt file and load it into a container
+    container = FEBioContainer(xplt=filepath)
+    # print the xplt object
+    print(container.xplt)
+    # print(container.xplt)
+    last_grid = febio_to_pyvista(container)[-1]
+    # extract volumes (hexahedrons in this case):
+    last_grid = last_grid.extract_cells_by_type(pv.CellType.HEXAHEDRON)
+    # convert to nodal data (for visualization)
+    last_grid = last_grid.cell_data_to_point_data()
+    # get sample data:
+    fluid_stress = last_grid["fluid stress"]
+    # plot
+    last_grid.plot(scalars=fluid_stress[:, 0], cmap="coolwarm",
+                   scalar_bar_args={"title": "Fluid Stress - XX"}, show_edges=True)
