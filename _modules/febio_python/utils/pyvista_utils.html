@@ -343,8 +343,8 @@
     <span class="c1"># Add nodal sets, element sets, and surface sets</span>
     <span class="n">grid</span> <span class="o">=</span> <span class="n">add_nodalsets</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">container</span><span class="o">.</span><span class="n">feb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">grid</span> <span class="o">=</span> <span class="n">add_elementsets</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
-        <span class="n">grid</span> <span class="o">=</span> <span class="n">add_surfacesets</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">add_element_sets</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">add_surface_sets</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
 
         <span class="c1"># Add mesh data -&gt; point data, cell data</span>
         <span class="n">grid</span> <span class="o">=</span> <span class="n">add_nodaldata</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
@@ -361,14 +361,16 @@
         <span class="c1"># Add boundary conditions -&gt; point data (fixed boundary conditions), cell data (rigid body boundary conditions</span>
         <span class="n">grid</span> <span class="o">=</span> <span class="n">add_boundary_conditions</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
 
+    <span class="c1"># default return data:</span>
+    <span class="n">grid_or_list_of_grids</span> <span class="o">=</span> <span class="p">[</span><span class="n">grid</span><span class="p">]</span>
     <span class="c1"># Add data from xplt (results, state data)</span>
     <span class="k">if</span> <span class="n">container</span><span class="o">.</span><span class="n">xplt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># If states data is available, we should create a list of grids for each state</span>
         <span class="n">grid_or_list_of_grids</span> <span class="o">=</span> <span class="n">add_states_to_grid</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">apply_load_curves</span><span class="o">=</span><span class="n">apply_load_curves</span><span class="p">)</span>
 
-    <span class="c1"># Make sure to always return a list of grids</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">grid_or_list_of_grids</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">grid_or_list_of_grids</span><span class="p">]</span>
+    <span class="c1"># # Make sure to always return a list of grids</span>
+    <span class="c1"># if not isinstance(grid_or_list_of_grids, list):</span>
+    <span class="c1">#     return [grid_or_list_of_grids]</span>
 
     <span class="k">return</span> <span class="n">grid_or_list_of_grids</span></div>
 
@@ -482,9 +484,9 @@
 
 
 
-<div class="viewcode-block" id="add_elementsets">
-<a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_elementsets">[docs]</a>
-<span class="k">def</span> <span class="nf">add_elementsets</span><span class="p">(</span><span class="n">container</span><span class="p">:</span> <span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">:</span>
+<div class="viewcode-block" id="add_element_sets">
+<a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_element_sets">[docs]</a>
+<span class="k">def</span> <span class="nf">add_element_sets</span><span class="p">(</span><span class="n">container</span><span class="p">:</span> <span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adds element sets from the FEBioContainer to the PyVista UnstructuredGrid.</span>
 <span class="sd">    Element sets define specific groups of elements. This function maps these groups to the corresponding elements in the PyVista grids.</span>
@@ -513,9 +515,9 @@
 
 
 
-<div class="viewcode-block" id="add_surfacesets">
-<a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_surfacesets">[docs]</a>
-<span class="k">def</span> <span class="nf">add_surfacesets</span><span class="p">(</span><span class="n">container</span><span class="p">:</span> <span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">:</span>
+<div class="viewcode-block" id="add_surface_sets">
+<a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_surface_sets">[docs]</a>
+<span class="k">def</span> <span class="nf">add_surface_sets</span><span class="p">(</span><span class="n">container</span><span class="p">:</span> <span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">surfacesets</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: Surface sets are not yet supported.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">grid</span></div>

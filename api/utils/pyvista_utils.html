@@ -347,6 +347,31 @@ in complex models.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_element_sets">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_element_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_element_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_element_sets" title="Link to this definition">¶</a></dt>
+<dd><p>Adds element sets from the FEBioContainer to the PyVista UnstructuredGrid.
+Element sets define specific groups of elements. This function maps these groups to the corresponding elements in the PyVista grids.
+Element sets are converted to binary arrays (masks) where each element represents whether an element is part of the set,
+and these masks are stored in the ‘cell_data’ of the grid. The key for each element set is the name of the set.
+The reason we use binary arrays is to allow for easy visualization and analysis of element sets in PyVista; it also
+allows us to keep data consistent even after we “extract” parts of the mesh or apply filters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>container</strong> (<a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><em>FEBioContainer</em></a>) – The container containing element sets.</p></li>
+<li><p><strong>UnstructuredGrid</strong> (<em>pv.UnstructuredGrid</em>) – The UnstructuredGrid to which the element sets will be added.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated UnstructuredGrid with element sets added.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pv.UnstructuredGrid</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_elementdata">
 <span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_elementdata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_elementdata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_elementdata" title="Link to this definition">¶</a></dt>
 <dd><p>Adds element data from the FEBioContainer to the PyVista UnstructuredGrid.
@@ -370,31 +395,6 @@ NaNs are used to fill the gaps in the data arrays to ensure consistent dimension
 <p>This function assumes that the element data provided in the FEBioContainer is appropriately formatted and that element
 sets match the indices used in the data. If element sets are not properly aligned or if data is missing, NaNs are used
 to fill the gaps in the data arrays ensuring consistent dimensions across the grid.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_elementsets">
-<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_elementsets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_elementsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_elementsets" title="Link to this definition">¶</a></dt>
-<dd><p>Adds element sets from the FEBioContainer to the PyVista UnstructuredGrid.
-Element sets define specific groups of elements. This function maps these groups to the corresponding elements in the PyVista grids.
-Element sets are converted to binary arrays (masks) where each element represents whether an element is part of the set,
-and these masks are stored in the ‘cell_data’ of the grid. The key for each element set is the name of the set.
-The reason we use binary arrays is to allow for easy visualization and analysis of element sets in PyVista; it also
-allows us to keep data consistent even after we “extract” parts of the mesh or apply filters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>container</strong> (<a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><em>FEBioContainer</em></a>) – The container containing element sets.</p></li>
-<li><p><strong>UnstructuredGrid</strong> (<em>pv.UnstructuredGrid</em>) – The UnstructuredGrid to which the element sets will be added.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The updated UnstructuredGrid with element sets added.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pv.UnstructuredGrid</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -536,8 +536,8 @@ allows us to keep data consistent even after we “extract” parts of the mesh 
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_surfacesets">
-<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_surfacesets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_surfacesets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_surfacesets" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.add_surface_sets">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">add_surface_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#add_surface_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.add_surface_sets" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -652,8 +652,8 @@ MultiBlock format that PyVista can utilize effectively.</p>
             <ul>
 <li><a class="reference internal" href="#">pyvista_utils</a><ul>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_boundary_conditions"><code class="docutils literal notranslate"><span class="pre">add_boundary_conditions()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_element_sets"><code class="docutils literal notranslate"><span class="pre">add_element_sets()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_elementdata"><code class="docutils literal notranslate"><span class="pre">add_elementdata()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_elementsets"><code class="docutils literal notranslate"><span class="pre">add_elementsets()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_material"><code class="docutils literal notranslate"><span class="pre">add_material()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_nodaldata"><code class="docutils literal notranslate"><span class="pre">add_nodaldata()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_nodalload"><code class="docutils literal notranslate"><span class="pre">add_nodalload()</span></code></a></li>
@@ -661,7 +661,7 @@ MultiBlock format that PyVista can utilize effectively.</p>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_pressure_load"><code class="docutils literal notranslate"><span class="pre">add_pressure_load()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_states_to_grid"><code class="docutils literal notranslate"><span class="pre">add_states_to_grid()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_surface_data"><code class="docutils literal notranslate"><span class="pre">add_surface_data()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_surfacesets"><code class="docutils literal notranslate"><span class="pre">add_surfacesets()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_surface_sets"><code class="docutils literal notranslate"><span class="pre">add_surface_sets()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.create_unstructured_grid_from_febio_container"><code class="docutils literal notranslate"><span class="pre">create_unstructured_grid_from_febio_container()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.ensure_febio_container"><code class="docutils literal notranslate"><span class="pre">ensure_febio_container()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.febio_to_pyvista"><code class="docutils literal notranslate"><span class="pre">febio_to_pyvista()</span></code></a></li>

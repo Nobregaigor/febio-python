@@ -313,6 +313,14 @@
 
 
 
+<div class="viewcode-block" id="Surfaces">
+<a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.Surfaces">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Surfaces</span><span class="p">(</span><span class="n">Elements</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+    
+
 <div class="viewcode-block" id="NodeSet">
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.NodeSet">[docs]</a>
 <span class="nd">@dataclass</span>
@@ -381,13 +389,18 @@
 
 
 
-<div class="viewcode-block" id="PressureLoad">
-<a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.PressureLoad">[docs]</a>
+<div class="viewcode-block" id="SurfaceLoad">
+<a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.SurfaceLoad">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">PressureLoad</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">SurfaceLoad</span><span class="p">:</span>
     <span class="n">surface</span><span class="p">:</span> <span class="nb">str</span>    <span class="c1"># Name of the surface to which the load is applied</span>
-    <span class="n">attributes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>    <span class="c1"># Pressure load attributes (e.g. {&#39;lc&#39;: 1})</span>
-    <span class="n">multiplier</span><span class="p">:</span> <span class="nb">float</span></div>
+    <span class="n">load_curve</span><span class="p">:</span> <span class="nb">int</span>   <span class="c1"># Load curve ID</span>
+    <span class="n">scale</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]</span>    <span class="c1"># Load scale factor</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pressure&quot;</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>   <span class="c1"># Optional name for the load</span>
+    <span class="n">linear</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>     <span class="c1"># Linear pressure load</span>
+    <span class="n">symmetric_stiffness</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>   <span class="c1"># Symmetric stiffness matrix</span>
+    <span class="n">attributes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>    <span class="c1"># Pressure load attributes (e.g. {&#39;lc&#39;: 1})</span></div>
 
 
 
@@ -510,10 +523,18 @@
 <a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.GenericDomain">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">GenericDomain</span><span class="p">:</span>
-    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>    <span class="c1"># Domain ID</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># Domain name (must match at least one of the Elements of the model)</span>
-    <span class="n">mat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>    <span class="c1"># Material ID or name</span></div>
+    <span class="n">mat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>    <span class="c1"># Material ID or name</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>   <span class="c1"># Domain ID</span>
+    <span class="n">tag_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>    <span class="c1"># Optional tag name</span></div>
 
+    
+
+<div class="viewcode-block" id="SolidDomain">
+<a class="viewcode-back" href="../../../api/core/meta_data.html#febio_python.core.meta_data.SolidDomain">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">SolidDomain</span><span class="p">(</span><span class="n">GenericDomain</span><span class="p">):</span>
+    <span class="n">tag_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;SolidDomain&quot;</span></div>
 
 
 <div class="viewcode-block" id="ShellDomain">
@@ -522,7 +543,8 @@
 <span class="k">class</span> <span class="nc">ShellDomain</span><span class="p">(</span><span class="n">GenericDomain</span><span class="p">):</span>
     <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elastic-shell&quot;</span>  <span class="c1"># used for spec &gt;=4</span>
     <span class="n">shell_normal_nodal</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>     <span class="c1"># normal to the shell, used for spec &gt;=4</span>
-    <span class="n">shell_thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span>    <span class="c1"># shell thickness, used for spec &gt;=4</span></div>
+    <span class="n">shell_thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span>    <span class="c1"># shell thickness, used for spec &gt;=4</span>
+    <span class="n">tag_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ShellDomain&quot;</span></div>
 
 
 

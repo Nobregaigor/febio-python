@@ -802,9 +802,9 @@ Number of elements: 400
 <span class="n">load_curve</span> <span class="o">=</span> <span class="n">LoadCurve</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">interpolate_type</span><span class="o">=</span><span class="s2">&quot;smooth&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span>
 
 <span class="c1"># Add nodeset, nodal load and load curve to the feb object</span>
-<span class="n">feb</span><span class="o">.</span><span class="n">add_nodesets</span><span class="p">([</span><span class="n">nodeset</span><span class="p">])</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">add_node_sets</span><span class="p">([</span><span class="n">nodeset</span><span class="p">])</span>
 <span class="n">feb</span><span class="o">.</span><span class="n">add_nodal_loads</span><span class="p">([</span><span class="n">shear_load</span><span class="p">])</span>
-<span class="n">feb</span><span class="o">.</span><span class="n">add_loadcurves</span><span class="p">([</span><span class="n">load_curve</span><span class="p">])</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">add_load_curves</span><span class="p">([</span><span class="n">load_curve</span><span class="p">])</span>
 <span class="n">feb</span>
 </pre></div>
 </div>
@@ -912,7 +912,7 @@ Feb30(3.0):
 <span class="n">all_fix_condition</span> <span class="o">=</span> <span class="n">FixCondition</span><span class="p">(</span><span class="n">dof</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">node_set</span><span class="o">=</span><span class="s2">&quot;all_nodes&quot;</span><span class="p">)</span>
 
 <span class="c1"># Add nodeset and fix condition to the feb object</span>
-<span class="n">feb</span><span class="o">.</span><span class="n">add_nodesets</span><span class="p">([</span><span class="n">left_nodeset</span><span class="p">,</span> <span class="n">all_nodeset</span><span class="p">])</span>
+<span class="n">feb</span><span class="o">.</span><span class="n">add_node_sets</span><span class="p">([</span><span class="n">left_nodeset</span><span class="p">,</span> <span class="n">all_nodeset</span><span class="p">])</span>
 <span class="n">feb</span><span class="o">.</span><span class="n">add_boundary_conditions</span><span class="p">([</span><span class="n">left_fix_condition</span><span class="p">,</span> <span class="n">all_fix_condition</span><span class="p">])</span>
 </pre></div>
 </div>

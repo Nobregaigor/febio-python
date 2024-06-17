@@ -316,6 +316,17 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.add_element_sets">
+<span class="sig-name descname"><span class="pre">add_element_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elementsets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.ElementSet" title="febio_python.core.meta_data.ElementSet"><span class="pre">ElementSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.add_element_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.add_element_sets" title="Link to this definition">¶</a></dt>
+<dd><p>Adds element sets to Geometry, appending to existing element sets if they share the same name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>elementsets</strong> (<em>list</em><em> of </em><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.ElementSet" title="febio_python.core.meta_data.ElementSet"><em>ElementSet</em></a>) – List of ElementSet namedtuples, each containing a name and element IDs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.add_elements">
 <span class="sig-name descname"><span class="pre">add_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.Elements" title="febio_python.core.meta_data.Elements"><span class="pre">Elements</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.add_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.add_elements" title="Link to this definition">¶</a></dt>
 <dd><p>Adds elements to Geometry, appending to existing elements if they share the same name.
@@ -331,19 +342,8 @@ Automatically detects the highest element ID to ensure unique IDs for new elemen
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.add_elementsets">
-<span class="sig-name descname"><span class="pre">add_elementsets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elementsets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.ElementSet" title="febio_python.core.meta_data.ElementSet"><span class="pre">ElementSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.add_elementsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.add_elementsets" title="Link to this definition">¶</a></dt>
-<dd><p>Adds element sets to Geometry, appending to existing element sets if they share the same name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>elementsets</strong> (<em>list</em><em> of </em><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.ElementSet" title="febio_python.core.meta_data.ElementSet"><em>ElementSet</em></a>) – List of ElementSet namedtuples, each containing a name and element IDs.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.add_loadcurves">
-<span class="sig-name descname"><span class="pre">add_loadcurves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_curves</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.LoadCurve" title="febio_python.core.meta_data.LoadCurve"><span class="pre">LoadCurve</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.add_loadcurves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.add_loadcurves" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.add_load_curves">
+<span class="sig-name descname"><span class="pre">add_load_curves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_curves</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.LoadCurve" title="febio_python.core.meta_data.LoadCurve"><span class="pre">LoadCurve</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.add_load_curves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.add_load_curves" title="Link to this definition">¶</a></dt>
 <dd><p>Adds load curves to LoadData, appending to existing load curves if they share the same ID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -377,10 +377,21 @@ Automatically detects the highest element ID to ensure unique IDs for new elemen
 <dl class="py method">
 <dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.add_nodal_loads">
 <span class="sig-name descname"><span class="pre">add_nodal_loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodal_loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.NodalLoad" title="febio_python.core.meta_data.NodalLoad"><span class="pre">NodalLoad</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.add_nodal_loads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.add_nodal_loads" title="Link to this definition">¶</a></dt>
-<dd><p>Adds nodal loads to Loads, appending to existing nodal loads if they share the same node set.</p>
+<dd><p>Adds nodal loads to Loads.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>nodal_loads</strong> (<em>list</em><em> of </em><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.NodalLoad" title="febio_python.core.meta_data.NodalLoad"><em>NodalLoad</em></a>) – List of NodalLoad namedtuples, each containing a boundary condition, node set, scale, and load curve.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.add_node_sets">
+<span class="sig-name descname"><span class="pre">add_node_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodesets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.NodeSet" title="febio_python.core.meta_data.NodeSet"><span class="pre">NodeSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.add_node_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.add_node_sets" title="Link to this definition">¶</a></dt>
+<dd><p>Adds node sets to Geometry, appending to existing node sets if they share the same name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>nodesets</strong> (<em>list</em><em> of </em><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.NodeSet" title="febio_python.core.meta_data.NodeSet"><em>NodeSet</em></a>) – List of NodeSet namedtuples, each containing a name and node IDs.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -401,28 +412,6 @@ Automatically detects the highest node ID to ensure unique IDs for new nodes.</p
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.add_nodesets">
-<span class="sig-name descname"><span class="pre">add_nodesets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodesets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.NodeSet" title="febio_python.core.meta_data.NodeSet"><span class="pre">NodeSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.add_nodesets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.add_nodesets" title="Link to this definition">¶</a></dt>
-<dd><p>Adds node sets to Geometry, appending to existing node sets if they share the same name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>nodesets</strong> (<em>list</em><em> of </em><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.NodeSet" title="febio_python.core.meta_data.NodeSet"><em>NodeSet</em></a>) – List of NodeSet namedtuples, each containing a name and node IDs.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.add_pressure_loads">
-<span class="sig-name descname"><span class="pre">add_pressure_loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pressure_loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.PressureLoad" title="febio_python.core.meta_data.PressureLoad"><span class="pre">PressureLoad</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.add_pressure_loads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.add_pressure_loads" title="Link to this definition">¶</a></dt>
-<dd><p>Adds pressure loads to Loads, appending to existing pressure loads if they share the same surface.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>pressure_loads</strong> (<em>list</em><em> of </em><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.PressureLoad" title="febio_python.core.meta_data.PressureLoad"><em>PressureLoad</em></a>) – List of PressureLoad namedtuples, each containing a surface, attributes, and multiplier.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.add_surface_data">
 <span class="sig-name descname"><span class="pre">add_surface_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surface_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.SurfaceData" title="febio_python.core.meta_data.SurfaceData"><span class="pre">SurfaceData</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.add_surface_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.add_surface_data" title="Link to this definition">¶</a></dt>
 <dd><p>Adds surface data to MeshData, appending to existing surface data if they share the same surface set.</p>
@@ -434,12 +423,38 @@ Automatically detects the highest node ID to ensure unique IDs for new nodes.</p
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.add_surfacesets">
-<span class="sig-name descname"><span class="pre">add_surfacesets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surfacesets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.SurfaceSet" title="febio_python.core.meta_data.SurfaceSet"><span class="pre">SurfaceSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.add_surfacesets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.add_surfacesets" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.add_surface_loads">
+<span class="sig-name descname"><span class="pre">add_surface_loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pressure_loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.SurfaceLoad" title="febio_python.core.meta_data.SurfaceLoad"><span class="pre">SurfaceLoad</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.add_surface_loads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.add_surface_loads" title="Link to this definition">¶</a></dt>
+<dd><p>Adds pressure loads to Loads.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pressure_loads</strong> (<em>list</em><em> of </em><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.SurfaceLoad" title="febio_python.core.meta_data.SurfaceLoad"><em>SurfaceLoad</em></a>) – List of SurfaceLoad namedtuples, each containing a surface, attributes, and multiplier.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.add_surface_sets">
+<span class="sig-name descname"><span class="pre">add_surface_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surfacesets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.SurfaceSet" title="febio_python.core.meta_data.SurfaceSet"><span class="pre">SurfaceSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.add_surface_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.add_surface_sets" title="Link to this definition">¶</a></dt>
 <dd><p>Adds surface sets to Geometry, appending to existing surface sets if they share the same name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>surfacesets</strong> (<em>list</em><em> of </em><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.SurfaceSet" title="febio_python.core.meta_data.SurfaceSet"><em>SurfaceSet</em></a>) – List of SurfaceSet namedtuples, each containing a name and node IDs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.add_volume_elements">
+<span class="sig-name descname"><span class="pre">add_volume_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.Elements" title="febio_python.core.meta_data.Elements"><span class="pre">Elements</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.add_volume_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.add_volume_elements" title="Link to this definition">¶</a></dt>
+<dd><p>Adds elements to Geometry, appending to existing elements if they share the same name.
+Automatically detects the highest element ID to ensure unique IDs for new elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>elements</strong> (<em>list</em><em> of </em><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.Elements" title="febio_python.core.meta_data.Elements"><em>Elements</em></a>) – List of Elements namedtuples, each containing name, material, type, and connectivity.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If any element connectivity does not meet expected format or length.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -484,20 +499,20 @@ Automatically detects the highest node ID to ensure unique IDs for new nodes.</p
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.clear_element_sets">
+<span class="sig-name descname"><span class="pre">clear_element_sets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.clear_element_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.clear_element_sets" title="Link to this definition">¶</a></dt>
+<dd><p>Removes all element sets from Geometry.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.clear_elements">
 <span class="sig-name descname"><span class="pre">clear_elements</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.clear_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.clear_elements" title="Link to this definition">¶</a></dt>
 <dd><p>Removes all elements from Geometry.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.clear_elementsets">
-<span class="sig-name descname"><span class="pre">clear_elementsets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.clear_elementsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.clear_elementsets" title="Link to this definition">¶</a></dt>
-<dd><p>Removes all element sets from Geometry.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.clear_loadcurves">
-<span class="sig-name descname"><span class="pre">clear_loadcurves</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.clear_loadcurves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.clear_loadcurves" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.clear_load_curves">
+<span class="sig-name descname"><span class="pre">clear_load_curves</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.clear_load_curves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.clear_load_curves" title="Link to this definition">¶</a></dt>
 <dd><p>Removes all load curves from LoadData.</p>
 </dd></dl>
 
@@ -520,21 +535,15 @@ Automatically detects the highest node ID to ensure unique IDs for new nodes.</p
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.clear_nodes">
-<span class="sig-name descname"><span class="pre">clear_nodes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.clear_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.clear_nodes" title="Link to this definition">¶</a></dt>
-<dd><p>Removes all nodes from Geometry.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.clear_nodesets">
-<span class="sig-name descname"><span class="pre">clear_nodesets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.clear_nodesets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.clear_nodesets" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.clear_node_sets">
+<span class="sig-name descname"><span class="pre">clear_node_sets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.clear_node_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.clear_node_sets" title="Link to this definition">¶</a></dt>
 <dd><p>Removes all node sets from Geometry.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.clear_pressure_loads">
-<span class="sig-name descname"><span class="pre">clear_pressure_loads</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.clear_pressure_loads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.clear_pressure_loads" title="Link to this definition">¶</a></dt>
-<dd><p>Removes all pressure loads from Loads.</p>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.clear_nodes">
+<span class="sig-name descname"><span class="pre">clear_nodes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.clear_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.clear_nodes" title="Link to this definition">¶</a></dt>
+<dd><p>Removes all nodes from Geometry.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -550,8 +559,14 @@ Automatically detects the highest node ID to ensure unique IDs for new nodes.</p
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.clear_surfacesets">
-<span class="sig-name descname"><span class="pre">clear_surfacesets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.clear_surfacesets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.clear_surfacesets" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.clear_surface_loads">
+<span class="sig-name descname"><span class="pre">clear_surface_loads</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.clear_surface_loads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.clear_surface_loads" title="Link to this definition">¶</a></dt>
+<dd><p>Removes all pressure loads from Loads.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.clear_surface_sets">
+<span class="sig-name descname"><span class="pre">clear_surface_sets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.clear_surface_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.clear_surface_sets" title="Link to this definition">¶</a></dt>
 <dd><p>Removes all surface sets from Geometry.</p>
 </dd></dl>
 
@@ -562,8 +577,8 @@ Automatically detects the highest node ID to ensure unique IDs for new nodes.</p
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.get_elementsets">
-<span class="sig-name descname"><span class="pre">get_elementsets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.int64'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.ElementSet" title="febio_python.core.meta_data.ElementSet"><span class="pre">ElementSet</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.get_elementsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.get_elementsets" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.get_element_sets">
+<span class="sig-name descname"><span class="pre">get_element_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.int64'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.ElementSet" title="febio_python.core.meta_data.ElementSet"><span class="pre">ElementSet</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.get_element_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.get_element_sets" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a dict with keys representing node set names and values         representing corresponding node ids as a numpy array of specified dtype.
 :param dtype: Numpy dtype.
 :type dtype: np.dtype</p>
@@ -578,8 +593,8 @@ Automatically detects the highest node ID to ensure unique IDs for new nodes.</p
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.get_nodesets">
-<span class="sig-name descname"><span class="pre">get_nodesets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.int64'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.NodeSet" title="febio_python.core.meta_data.NodeSet"><span class="pre">NodeSet</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.get_nodesets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.get_nodesets" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.get_node_sets">
+<span class="sig-name descname"><span class="pre">get_node_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.int64'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.NodeSet" title="febio_python.core.meta_data.NodeSet"><span class="pre">NodeSet</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.get_node_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.get_node_sets" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a dict with keys representing node set names and values         representing corresponding node ids as a numpy array of specified dtype.
 :param dtype: Numpy dtype.
 :type dtype: np.dtype</p>
@@ -594,8 +609,8 @@ Automatically detects the highest node ID to ensure unique IDs for new nodes.</p
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.get_surfacesets">
-<span class="sig-name descname"><span class="pre">get_surfacesets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.int64'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.SurfaceSet" title="febio_python.core.meta_data.SurfaceSet"><span class="pre">SurfaceSet</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.get_surfacesets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.get_surfacesets" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.get_surface_sets">
+<span class="sig-name descname"><span class="pre">get_surface_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.int64'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.SurfaceSet" title="febio_python.core.meta_data.SurfaceSet"><span class="pre">SurfaceSet</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.get_surface_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.get_surface_sets" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a dict with keys representing node set names and values         representing corresponding node ids as a numpy array of specified dtype.
 :param dtype: Numpy dtype.
 :type dtype: np.dtype</p>
@@ -648,6 +663,17 @@ e.g. remove_boundary_conditions([“fix”], [“BC1”]), instead of removing a
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.remove_element_sets">
+<span class="sig-name descname"><span class="pre">remove_element_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.remove_element_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.remove_element_sets" title="Link to this definition">¶</a></dt>
+<dd><p>Removes element sets from Geometry by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>names</strong> (<em>list</em><em> of </em><em>str</em>) – List of element set names to remove.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.remove_elements">
 <span class="sig-name descname"><span class="pre">remove_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.remove_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.remove_elements" title="Link to this definition">¶</a></dt>
 <dd><p>Removes elements from Geometry by name.</p>
@@ -659,19 +685,8 @@ e.g. remove_boundary_conditions([“fix”], [“BC1”]), instead of removing a
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.remove_elementsets">
-<span class="sig-name descname"><span class="pre">remove_elementsets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.remove_elementsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.remove_elementsets" title="Link to this definition">¶</a></dt>
-<dd><p>Removes element sets from Geometry by name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>names</strong> (<em>list</em><em> of </em><em>str</em>) – List of element set names to remove.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.remove_loadcurves">
-<span class="sig-name descname"><span class="pre">remove_loadcurves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.remove_loadcurves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.remove_loadcurves" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.remove_load_curves">
+<span class="sig-name descname"><span class="pre">remove_load_curves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.remove_load_curves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.remove_load_curves" title="Link to this definition">¶</a></dt>
 <dd><p>Removes load curves from LoadData by ID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -714,19 +729,8 @@ e.g. remove_boundary_conditions([“fix”], [“BC1”]), instead of removing a
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.remove_nodes">
-<span class="sig-name descname"><span class="pre">remove_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.remove_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.remove_nodes" title="Link to this definition">¶</a></dt>
-<dd><p>Removes nodes from Geometry by name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>names</strong> (<em>list</em><em> of </em><em>str</em>) – List of node names to remove.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.remove_nodesets">
-<span class="sig-name descname"><span class="pre">remove_nodesets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.remove_nodesets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.remove_nodesets" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.remove_node_sets">
+<span class="sig-name descname"><span class="pre">remove_node_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.remove_node_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.remove_node_sets" title="Link to this definition">¶</a></dt>
 <dd><p>Removes node sets from Geometry by name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -736,12 +740,12 @@ e.g. remove_boundary_conditions([“fix”], [“BC1”]), instead of removing a
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.remove_pressure_loads">
-<span class="sig-name descname"><span class="pre">remove_pressure_loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surfaces</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.remove_pressure_loads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.remove_pressure_loads" title="Link to this definition">¶</a></dt>
-<dd><p>Removes pressure loads from Loads by surface.</p>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.remove_nodes">
+<span class="sig-name descname"><span class="pre">remove_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.remove_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.remove_nodes" title="Link to this definition">¶</a></dt>
+<dd><p>Removes nodes from Geometry by name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>surfaces</strong> (<em>list</em><em> of </em><em>str</em>) – List of surfaces to remove.</p>
+<dd class="field-odd"><p><strong>names</strong> (<em>list</em><em> of </em><em>str</em>) – List of node names to remove.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -758,8 +762,19 @@ e.g. remove_boundary_conditions([“fix”], [“BC1”]), instead of removing a
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.remove_surfacesets">
-<span class="sig-name descname"><span class="pre">remove_surfacesets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.remove_surfacesets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.remove_surfacesets" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.remove_surface_loads">
+<span class="sig-name descname"><span class="pre">remove_surface_loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surfaces</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.remove_surface_loads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.remove_surface_loads" title="Link to this definition">¶</a></dt>
+<dd><p>Removes pressure loads from Loads by surface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>surfaces</strong> (<em>list</em><em> of </em><em>str</em>) – List of surfaces to remove.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.remove_surface_sets">
+<span class="sig-name descname"><span class="pre">remove_surface_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.remove_surface_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.remove_surface_sets" title="Link to this definition">¶</a></dt>
 <dd><p>Removes surface sets from Geometry by name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -854,6 +869,17 @@ e.g. remove_boundary_conditions([“fix”], [“BC1”]), instead of removing a
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.update_element_sets">
+<span class="sig-name descname"><span class="pre">update_element_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elementsets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.ElementSet" title="febio_python.core.meta_data.ElementSet"><span class="pre">ElementSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.update_element_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.update_element_sets" title="Link to this definition">¶</a></dt>
+<dd><p>Updates element sets in Geometry by name, replacing existing element sets with the same name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>elementsets</strong> (<em>list</em><em> of </em><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.ElementSet" title="febio_python.core.meta_data.ElementSet"><em>ElementSet</em></a>) – List of ElementSet namedtuples, each containing a name and element IDs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.update_elements">
 <span class="sig-name descname"><span class="pre">update_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.Elements" title="febio_python.core.meta_data.Elements"><span class="pre">Elements</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.update_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.update_elements" title="Link to this definition">¶</a></dt>
 <dd><p>Updates elements in Geometry by name, replacing existing elements with the same name.</p>
@@ -865,19 +891,8 @@ e.g. remove_boundary_conditions([“fix”], [“BC1”]), instead of removing a
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.update_elementsets">
-<span class="sig-name descname"><span class="pre">update_elementsets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elementsets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.ElementSet" title="febio_python.core.meta_data.ElementSet"><span class="pre">ElementSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.update_elementsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.update_elementsets" title="Link to this definition">¶</a></dt>
-<dd><p>Updates element sets in Geometry by name, replacing existing element sets with the same name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>elementsets</strong> (<em>list</em><em> of </em><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.ElementSet" title="febio_python.core.meta_data.ElementSet"><em>ElementSet</em></a>) – List of ElementSet namedtuples, each containing a name and element IDs.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.update_loadcurves">
-<span class="sig-name descname"><span class="pre">update_loadcurves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_curves</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.LoadCurve" title="febio_python.core.meta_data.LoadCurve"><span class="pre">LoadCurve</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.update_loadcurves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.update_loadcurves" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.update_load_curves">
+<span class="sig-name descname"><span class="pre">update_load_curves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_curves</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.LoadCurve" title="febio_python.core.meta_data.LoadCurve"><span class="pre">LoadCurve</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.update_load_curves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.update_load_curves" title="Link to this definition">¶</a></dt>
 <dd><p>Updates load curves in LoadData by ID, replacing existing load curves with the same ID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -920,19 +935,8 @@ e.g. remove_boundary_conditions([“fix”], [“BC1”]), instead of removing a
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.update_nodes">
-<span class="sig-name descname"><span class="pre">update_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.Nodes" title="febio_python.core.meta_data.Nodes"><span class="pre">Nodes</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.update_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.update_nodes" title="Link to this definition">¶</a></dt>
-<dd><p>Updates nodes in Geometry by name, replacing existing nodes with the same name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>nodes</strong> (<em>list</em><em> of </em><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.Nodes" title="febio_python.core.meta_data.Nodes"><em>Nodes</em></a>) – List of Nodes namedtuples, each containing a name and coordinates.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.update_nodesets">
-<span class="sig-name descname"><span class="pre">update_nodesets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodesets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.NodeSet" title="febio_python.core.meta_data.NodeSet"><span class="pre">NodeSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.update_nodesets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.update_nodesets" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.update_node_sets">
+<span class="sig-name descname"><span class="pre">update_node_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodesets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.NodeSet" title="febio_python.core.meta_data.NodeSet"><span class="pre">NodeSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.update_node_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.update_node_sets" title="Link to this definition">¶</a></dt>
 <dd><p>Updates node sets in Geometry by name, replacing existing node sets with the same name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -942,12 +946,12 @@ e.g. remove_boundary_conditions([“fix”], [“BC1”]), instead of removing a
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.update_pressure_loads">
-<span class="sig-name descname"><span class="pre">update_pressure_loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pressure_loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.PressureLoad" title="febio_python.core.meta_data.PressureLoad"><span class="pre">PressureLoad</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.update_pressure_loads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.update_pressure_loads" title="Link to this definition">¶</a></dt>
-<dd><p>Updates pressure loads in Loads by surface, replacing existing pressure loads with the same surface.</p>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.update_nodes">
+<span class="sig-name descname"><span class="pre">update_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.Nodes" title="febio_python.core.meta_data.Nodes"><span class="pre">Nodes</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.update_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.update_nodes" title="Link to this definition">¶</a></dt>
+<dd><p>Updates nodes in Geometry by name, replacing existing nodes with the same name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>pressure_loads</strong> (<em>list</em><em> of </em><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.PressureLoad" title="febio_python.core.meta_data.PressureLoad"><em>PressureLoad</em></a>) – List of PressureLoad namedtuples, each containing a surface, attributes, and multiplier.</p>
+<dd class="field-odd"><p><strong>nodes</strong> (<em>list</em><em> of </em><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.Nodes" title="febio_python.core.meta_data.Nodes"><em>Nodes</em></a>) – List of Nodes namedtuples, each containing a name and coordinates.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -964,8 +968,19 @@ e.g. remove_boundary_conditions([“fix”], [“BC1”]), instead of removing a
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.update_surfacesets">
-<span class="sig-name descname"><span class="pre">update_surfacesets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surfacesets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.SurfaceSet" title="febio_python.core.meta_data.SurfaceSet"><span class="pre">SurfaceSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.update_surfacesets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.update_surfacesets" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.update_surface_loads">
+<span class="sig-name descname"><span class="pre">update_surface_loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pressure_loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.SurfaceLoad" title="febio_python.core.meta_data.SurfaceLoad"><span class="pre">SurfaceLoad</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.update_surface_loads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.update_surface_loads" title="Link to this definition">¶</a></dt>
+<dd><p>Updates pressure loads in Loads by surface, replacing existing pressure loads with the same surface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pressure_loads</strong> (<em>list</em><em> of </em><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.SurfaceLoad" title="febio_python.core.meta_data.SurfaceLoad"><em>SurfaceLoad</em></a>) – List of SurfaceLoad namedtuples, each containing a surface, attributes, and multiplier.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="febio_python.feb._feb_25.Feb25.update_surface_sets">
+<span class="sig-name descname"><span class="pre">update_surface_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surfacesets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/meta_data.html#febio_python.core.meta_data.SurfaceSet" title="febio_python.core.meta_data.SurfaceSet"><span class="pre">SurfaceSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/febio_python/feb/_feb_25.html#Feb25.update_surface_sets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.feb._feb_25.Feb25.update_surface_sets" title="Link to this definition">¶</a></dt>
 <dd><p>Updates surface sets in Geometry by name, replacing existing surface sets with the same name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1037,67 +1052,68 @@ e.g. remove_boundary_conditions([“fix”], [“BC1”]), instead of removing a
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25"><code class="docutils literal notranslate"><span class="pre">Feb25</span></code></a><ul>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_boundary_conditions"><code class="docutils literal notranslate"><span class="pre">Feb25.add_boundary_conditions()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_element_data"><code class="docutils literal notranslate"><span class="pre">Feb25.add_element_data()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_element_sets"><code class="docutils literal notranslate"><span class="pre">Feb25.add_element_sets()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_elements"><code class="docutils literal notranslate"><span class="pre">Feb25.add_elements()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_elementsets"><code class="docutils literal notranslate"><span class="pre">Feb25.add_elementsets()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_loadcurves"><code class="docutils literal notranslate"><span class="pre">Feb25.add_loadcurves()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_load_curves"><code class="docutils literal notranslate"><span class="pre">Feb25.add_load_curves()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_materials"><code class="docutils literal notranslate"><span class="pre">Feb25.add_materials()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_nodal_data"><code class="docutils literal notranslate"><span class="pre">Feb25.add_nodal_data()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_nodal_loads"><code class="docutils literal notranslate"><span class="pre">Feb25.add_nodal_loads()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_node_sets"><code class="docutils literal notranslate"><span class="pre">Feb25.add_node_sets()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_nodes"><code class="docutils literal notranslate"><span class="pre">Feb25.add_nodes()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_nodesets"><code class="docutils literal notranslate"><span class="pre">Feb25.add_nodesets()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_pressure_loads"><code class="docutils literal notranslate"><span class="pre">Feb25.add_pressure_loads()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_surface_data"><code class="docutils literal notranslate"><span class="pre">Feb25.add_surface_data()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_surfacesets"><code class="docutils literal notranslate"><span class="pre">Feb25.add_surfacesets()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_surface_loads"><code class="docutils literal notranslate"><span class="pre">Feb25.add_surface_loads()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_surface_sets"><code class="docutils literal notranslate"><span class="pre">Feb25.add_surface_sets()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.add_volume_elements"><code class="docutils literal notranslate"><span class="pre">Feb25.add_volume_elements()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear"><code class="docutils literal notranslate"><span class="pre">Feb25.clear()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_boundary_conditions"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_boundary_conditions()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_element_data"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_element_data()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_element_sets"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_element_sets()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_elements"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_elements()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_elementsets"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_elementsets()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_loadcurves"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_loadcurves()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_load_curves"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_load_curves()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_materials"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_materials()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_nodal_data"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_nodal_data()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_nodal_loads"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_nodal_loads()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_node_sets"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_node_sets()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_nodes"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_nodes()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_nodesets"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_nodesets()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_pressure_loads"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_pressure_loads()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_surface_data"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_surface_data()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_surface_elements"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_surface_elements()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_surfacesets"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_surfacesets()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_surface_loads"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_surface_loads()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_surface_sets"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_surface_sets()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.clear_volume_elements"><code class="docutils literal notranslate"><span class="pre">Feb25.clear_volume_elements()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.get_elementsets"><code class="docutils literal notranslate"><span class="pre">Feb25.get_elementsets()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.get_nodesets"><code class="docutils literal notranslate"><span class="pre">Feb25.get_nodesets()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.get_surfacesets"><code class="docutils literal notranslate"><span class="pre">Feb25.get_surfacesets()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.get_element_sets"><code class="docutils literal notranslate"><span class="pre">Feb25.get_element_sets()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.get_node_sets"><code class="docutils literal notranslate"><span class="pre">Feb25.get_node_sets()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.get_surface_sets"><code class="docutils literal notranslate"><span class="pre">Feb25.get_surface_sets()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_all_surface_elements"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_all_surface_elements()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_all_volume_elements"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_all_volume_elements()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_boundary_conditions"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_boundary_conditions()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_element_data"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_element_data()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_element_sets"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_element_sets()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_elements"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_elements()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_elementsets"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_elementsets()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_loadcurves"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_loadcurves()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_load_curves"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_load_curves()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_materials"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_materials()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_nodal_data"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_nodal_data()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_nodal_loads"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_nodal_loads()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_node_sets"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_node_sets()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_nodes"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_nodes()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_nodesets"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_nodesets()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_pressure_loads"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_pressure_loads()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_surface_data"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_surface_data()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_surfacesets"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_surfacesets()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_surface_loads"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_surface_loads()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.remove_surface_sets"><code class="docutils literal notranslate"><span class="pre">Feb25.remove_surface_sets()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.setup_controls"><code class="docutils literal notranslate"><span class="pre">Feb25.setup_controls()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.setup_globals"><code class="docutils literal notranslate"><span class="pre">Feb25.setup_globals()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.setup_output"><code class="docutils literal notranslate"><span class="pre">Feb25.setup_output()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_boundary_conditions"><code class="docutils literal notranslate"><span class="pre">Feb25.update_boundary_conditions()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_element_data"><code class="docutils literal notranslate"><span class="pre">Feb25.update_element_data()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_element_sets"><code class="docutils literal notranslate"><span class="pre">Feb25.update_element_sets()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_elements"><code class="docutils literal notranslate"><span class="pre">Feb25.update_elements()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_elementsets"><code class="docutils literal notranslate"><span class="pre">Feb25.update_elementsets()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_loadcurves"><code class="docutils literal notranslate"><span class="pre">Feb25.update_loadcurves()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_load_curves"><code class="docutils literal notranslate"><span class="pre">Feb25.update_load_curves()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_materials"><code class="docutils literal notranslate"><span class="pre">Feb25.update_materials()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_nodal_data"><code class="docutils literal notranslate"><span class="pre">Feb25.update_nodal_data()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_nodal_loads"><code class="docutils literal notranslate"><span class="pre">Feb25.update_nodal_loads()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_node_sets"><code class="docutils literal notranslate"><span class="pre">Feb25.update_node_sets()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_nodes"><code class="docutils literal notranslate"><span class="pre">Feb25.update_nodes()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_nodesets"><code class="docutils literal notranslate"><span class="pre">Feb25.update_nodesets()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_pressure_loads"><code class="docutils literal notranslate"><span class="pre">Feb25.update_pressure_loads()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_surface_data"><code class="docutils literal notranslate"><span class="pre">Feb25.update_surface_data()</span></code></a></li>
-<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_surfacesets"><code class="docutils literal notranslate"><span class="pre">Feb25.update_surfacesets()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_surface_loads"><code class="docutils literal notranslate"><span class="pre">Feb25.update_surface_loads()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.feb._feb_25.Feb25.update_surface_sets"><code class="docutils literal notranslate"><span class="pre">Feb25.update_surface_sets()</span></code></a></li>
 </ul>
 </li>
 </ul>
