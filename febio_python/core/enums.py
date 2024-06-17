@@ -86,8 +86,14 @@ class N_PTS_IN_ELEMENT(IntEnum):
 
 class SURFACE_EL_TYPE(IntEnum):
     tri3 = 3
+    TRIANGLE = 3
     quad4 = 4
+    QUAD = 4
     tri6 = 6
+    QUADRATIC_TRIANGLE = 6
+    quad8 = 8
+    QUADRATIC_QUAD = 8
+    
 
 # ==================================================================================
 # XPLT_TAGS
