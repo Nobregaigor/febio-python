@@ -310,7 +310,7 @@ class Feb25(AbstractFebObject):
         return nodal_loads
 
     @feb_instance_cache
-    def get_pressure_loads(self) -> List[SurfaceLoad]:
+    def get_surface_loads(self) -> List[SurfaceLoad]:
         pressure_loads_list = []
         for i, load in enumerate(self.loads.findall("surface_load")):
 
@@ -1184,7 +1184,7 @@ class Feb25(AbstractFebObject):
                 self.loads.remove(el)
                 continue
 
-    def remove_pressure_loads(self, surfaces: List[str]) -> None:
+    def remove_surface_loads(self, surfaces: List[str]) -> None:
         """
         Removes pressure loads from Loads by surface.
 
@@ -1355,7 +1355,7 @@ class Feb25(AbstractFebObject):
         for el in self.loads.findall(self.MAJOR_TAGS.NODALLOAD.value):
             self.loads.remove(el)
 
-    def clear_pressure_loads(self) -> None:
+    def clear_surface_loads(self) -> None:
         """
         Removes all pressure loads from Loads.
         """
@@ -1452,7 +1452,7 @@ class Feb25(AbstractFebObject):
         if nodal_loads:
             self.clear_nodal_loads()
         if pressure_loads:
-            self.clear_pressure_loads()
+            self.clear_surface_loads()
         if loadcurves:
             self.clear_loadcurves()
         if boundary_conditions:
@@ -1550,14 +1550,14 @@ class Feb25(AbstractFebObject):
         self.remove_nodal_loads([load.node_set for load in nodal_loads])
         self.add_nodal_loads(nodal_loads)
 
-    def update_pressure_loads(self, pressure_loads: List[SurfaceLoad]) -> None:
+    def update_surface_loads(self, pressure_loads: List[SurfaceLoad]) -> None:
         """
         Updates pressure loads in Loads by surface, replacing existing pressure loads with the same surface.
 
         Args:
             pressure_loads (list of SurfaceLoad): List of SurfaceLoad namedtuples, each containing a surface, attributes, and multiplier.
         """
-        self.remove_pressure_loads([load.surface for load in pressure_loads])
+        self.remove_surface_loads([load.surface for load in pressure_loads])
         self.add_surface_loads(pressure_loads)
 
     def update_loadcurves(self, load_curves: List[LoadCurve]) -> None:

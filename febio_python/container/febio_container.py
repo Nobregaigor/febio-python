@@ -194,7 +194,7 @@ class FEBioContainer():
     @property
     def pressure_loads(self) -> List[SurfaceLoad]:
         if self.feb is not None:
-            return self.feb.get_pressure_loads()
+            return self.feb.get_surface_loads()
         else:
             raise RuntimeError(
                 "Trying to access pressure load data without a FEB file. "

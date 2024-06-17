@@ -130,7 +130,7 @@ class AbstractFebObject(FebBaseObject, ABC):
     
     @feb_instance_cache
     @abstractmethod
-    def get_pressure_loads(self) -> List[SurfaceLoad]:
+    def get_surface_loads(self) -> List[SurfaceLoad]:
         pass
     
     @feb_instance_cache
@@ -325,7 +325,7 @@ class AbstractFebObject(FebBaseObject, ABC):
         pass
     
     @abstractmethod
-    def remove_pressure_loads(self, surfaces: List[str]) -> None:
+    def remove_surface_loads(self, surfaces: List[str]) -> None:
         """
         Removes pressure loads from Loads by surface.
 
@@ -460,7 +460,7 @@ class AbstractFebObject(FebBaseObject, ABC):
         pass
     
     @abstractmethod    
-    def clear_pressure_loads(self) -> None:
+    def clear_surface_loads(self) -> None:
         """
         Removes all pressure loads from Loads.
         """
@@ -556,7 +556,7 @@ class AbstractFebObject(FebBaseObject, ABC):
         if nodal_loads:
             self.clear_nodal_loads()
         if pressure_loads:
-            self.clear_pressure_loads()
+            self.clear_surface_loads()
         if loadcurves:
             self.clear_loadcurves()
         if boundary_conditions:
@@ -654,14 +654,14 @@ class AbstractFebObject(FebBaseObject, ABC):
         self.remove_nodal_loads([load.node_set for load in nodal_loads])
         self.add_nodal_loads(nodal_loads)
     
-    def update_pressure_loads(self, pressure_loads: List[SurfaceLoad]) -> None:
+    def update_surface_loads(self, pressure_loads: List[SurfaceLoad]) -> None:
         """
         Updates pressure loads in Loads by surface, replacing existing pressure loads with the same surface.
 
         Args:
             pressure_loads (list of SurfaceLoad): List of SurfaceLoad namedtuples, each containing a surface, attributes, and multiplier.
         """
-        self.remove_pressure_loads([load.surface for load in pressure_loads])
+        self.remove_surface_loads([load.surface for load in pressure_loads])
         self.add_surface_loads(pressure_loads)
     
     def update_loadcurves(self, load_curves: List[LoadCurve]) -> None:
