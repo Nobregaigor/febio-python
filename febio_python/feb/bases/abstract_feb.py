@@ -99,7 +99,7 @@ class AbstractFebObject(FebBaseObject, ABC):
     
     @feb_instance_cache
     @abstractmethod
-    def get_elementsets(self, dtype=np.int64) -> List[ElementSet]:
+    def get_element_sets(self, dtype=np.int64) -> List[ElementSet]:
         """
         Returns a dict with keys representing node set names and values \
         representing corresponding node ids as a numpy array of specified dtype.\
@@ -219,7 +219,7 @@ class AbstractFebObject(FebBaseObject, ABC):
         pass
     
     @abstractmethod
-    def add_elementsets(self, elementsets: List[ElementSet]) -> None:
+    def add_element_sets(self, elementsets: List[ElementSet]) -> None:
         pass
     
     # Materials
@@ -301,7 +301,7 @@ class AbstractFebObject(FebBaseObject, ABC):
         pass
     
     @abstractmethod
-    def remove_elementsets(self, names: List[str]) -> None:
+    def remove_element_sets(self, names: List[str]) -> None:
         pass
     
     # Materials
@@ -439,7 +439,7 @@ class AbstractFebObject(FebBaseObject, ABC):
         pass
     
     @abstractmethod    
-    def clear_elementsets(self) -> None:
+    def clear_element_sets(self) -> None:
         """
         Removes all element sets from Geometry.
         """
@@ -550,7 +550,7 @@ class AbstractFebObject(FebBaseObject, ABC):
         if surfacesets:
             self.clear_surface_sets()
         if elementsets:
-            self.clear_elementsets()
+            self.clear_element_sets()
         if materials:
             self.clear_materials()
         if nodal_loads:
@@ -618,15 +618,15 @@ class AbstractFebObject(FebBaseObject, ABC):
         self.remove_surface_sets([surfset.name for surfset in surfacesets])
         self.add_surface_sets(surfacesets)
     
-    def update_elementsets(self, elementsets: List[ElementSet]) -> None:
+    def update_element_sets(self, elementsets: List[ElementSet]) -> None:
         """
         Updates element sets in Geometry by name, replacing existing element sets with the same name.
 
         Args:
             elementsets (list of ElementSet): List of ElementSet namedtuples, each containing a name and element IDs.
         """
-        self.remove_elementsets([elemset.name for elemset in elementsets])
-        self.add_elementsets(elementsets)
+        self.remove_element_sets([elemset.name for elemset in elementsets])
+        self.add_element_sets(elementsets)
     
     # Materials
     # ------------------------------

@@ -159,7 +159,7 @@ class FEBioContainer():
     @property
     def elementsets(self) -> List[ElementSet]:
         if self.feb is not None:
-            return self.feb.get_elementsets()
+            return self.feb.get_element_sets()
         elif self.xplt is not None:
             raise RuntimeError("XPLT file does not save element sets. Please provide a FEB file.")
         else:

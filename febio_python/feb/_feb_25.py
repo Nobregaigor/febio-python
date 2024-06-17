@@ -181,7 +181,7 @@ class Feb25(AbstractFebObject):
         return nodeset_list
 
     @feb_instance_cache
-    def get_surfacesets(self, dtype=np.int64) -> List[SurfaceSet]:
+    def get_surface_sets(self, dtype=np.int64) -> List[SurfaceSet]:
         """
         Returns a dict with keys representing node set names and values \
         representing corresponding node ids as a numpy array of specified dtype.\
@@ -202,7 +202,7 @@ class Feb25(AbstractFebObject):
         return surfaceset_list
 
     @feb_instance_cache
-    def get_elementsets(self, dtype=np.int64) -> List[ElementSet]:
+    def get_element_sets(self, dtype=np.int64) -> List[ElementSet]:
         """
         Returns a dict with keys representing node set names and values \
         representing corresponding node ids as a numpy array of specified dtype.\
@@ -717,14 +717,14 @@ class Feb25(AbstractFebObject):
                 subel = ET.SubElement(el_root, "node")
                 subel.set("id", str(int(node_id + 1)))  # Convert to one-based indexing
 
-    def add_surfacesets(self, surfacesets: List[SurfaceSet]) -> None:
+    def add_surface_sets(self, surfacesets: List[SurfaceSet]) -> None:
         """
         Adds surface sets to Geometry, appending to existing surface sets if they share the same name.
 
         Args:
             surfacesets (list of SurfaceSet): List of SurfaceSet namedtuples, each containing a name and node IDs.
         """
-        existing_surfacesets = {surfset.name: surfset for surfset in self.get_surfacesets()}
+        existing_surfacesets = {surfset.name: surfset for surfset in self.get_surface_sets()}
 
         for surfset in surfacesets:
             surf_ids = surfset.node_ids
@@ -745,14 +745,14 @@ class Feb25(AbstractFebObject):
                 subel = ET.SubElement(el_root, "node")
                 subel.set("id", str(int(node_id + 1)))  # Convert to one-based indexing
 
-    def add_elementsets(self, elementsets: List[ElementSet]) -> None:
+    def add_element_sets(self, elementsets: List[ElementSet]) -> None:
         """
         Adds element sets to Geometry, appending to existing element sets if they share the same name.
 
         Args:
             elementsets (list of ElementSet): List of ElementSet namedtuples, each containing a name and element IDs.
         """
-        existing_elementsets = {elemset.name: elemset for elemset in self.get_elementsets()}
+        existing_elementsets = {elemset.name: elemset for elemset in self.get_element_sets()}
 
         for elemset in elementsets:
             elem_ids = elemset.ids
@@ -1116,7 +1116,7 @@ class Feb25(AbstractFebObject):
             if el is not None:
                 self.geometry.remove(el)
 
-    def remove_surfacesets(self, names: List[str]) -> None:
+    def remove_surface_sets(self, names: List[str]) -> None:
         """
         Removes surface sets from Geometry by name.
 
@@ -1128,7 +1128,7 @@ class Feb25(AbstractFebObject):
             if el is not None:
                 self.geometry.remove(el)
 
-    def remove_elementsets(self, names: List[str]) -> None:
+    def remove_element_sets(self, names: List[str]) -> None:
         """
         Removes element sets from Geometry by name.
 
@@ -1327,14 +1327,14 @@ class Feb25(AbstractFebObject):
         for el in self.geometry.findall(self.MAJOR_TAGS.NODESET.value):
             self.geometry.remove(el)
 
-    def clear_surfacesets(self) -> None:
+    def clear_surface_sets(self) -> None:
         """
         Removes all surface sets from Geometry.
         """
         for el in self.geometry.findall(self.MAJOR_TAGS.SURFACESET.value):
             self.geometry.remove(el)
 
-    def clear_elementsets(self) -> None:
+    def clear_element_sets(self) -> None:
         """
         Removes all element sets from Geometry.
         """
@@ -1444,9 +1444,9 @@ class Feb25(AbstractFebObject):
         if nodesets:
             self.clear_node_sets()
         if surfacesets:
-            self.clear_surfacesets()
+            self.clear_surface_sets()
         if elementsets:
-            self.clear_elementsets()
+            self.clear_element_sets()
         if materials:
             self.clear_materials()
         if nodal_loads:
@@ -1504,25 +1504,25 @@ class Feb25(AbstractFebObject):
         self.remove_node_sets([nodeset.name for nodeset in nodesets])
         self.add_node_sets(nodesets)
 
-    def update_surfacesets(self, surfacesets: List[SurfaceSet]) -> None:
+    def update_surface_sets(self, surfacesets: List[SurfaceSet]) -> None:
         """
         Updates surface sets in Geometry by name, replacing existing surface sets with the same name.
 
         Args:
             surfacesets (list of SurfaceSet): List of SurfaceSet namedtuples, each containing a name and node IDs.
         """
-        self.remove_surfacesets([surfset.name for surfset in surfacesets])
-        self.add_surfacesets(surfacesets)
+        self.remove_surface_sets([surfset.name for surfset in surfacesets])
+        self.add_surface_sets(surfacesets)
 
-    def update_elementsets(self, elementsets: List[ElementSet]) -> None:
+    def update_element_sets(self, elementsets: List[ElementSet]) -> None:
         """
         Updates element sets in Geometry by name, replacing existing element sets with the same name.
 
         Args:
             elementsets (list of ElementSet): List of ElementSet namedtuples, each containing a name and element IDs.
         """
-        self.remove_elementsets([elemset.name for elemset in elementsets])
-        self.add_elementsets(elementsets)
+        self.remove_element_sets([elemset.name for elemset in elementsets])
+        self.add_element_sets(elementsets)
 
     # Materials
     # ------------------------------
