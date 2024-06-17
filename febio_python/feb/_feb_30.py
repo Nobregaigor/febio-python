@@ -22,7 +22,6 @@ from febio_python.core import (
     LoadCurve,
     BoundaryCondition,
     FixCondition,
-    # FixedAxis,
     RigidBodyCondition,
     NodalData,
     SurfaceData,
