@@ -40,11 +40,18 @@ def febio_to_vtk(data:FEBioContainer, output_directory=None, stem=None, **febio_
     except Exception as e:
         raise RuntimeError(f"Error converting FEBioContainer to PyVista: {e}")
 
-    pbar = tqdm(all_grids, desc="Saving VTK files")
-    for grid in pbar:
-        timestep = grid.field_data["timestep"][0]
-        filename = f"{data_stem}_timestep_{timestep:.4f}.vtk"
+    if len(all_grids) == 1:
+        filename = f"{data_stem}.vtk"
         try:
-            grid.save(output_directory / filename)
+            all_grids[0].save(output_directory / filename)
         except Exception as e:
             print(f"Error saving {filename}: {e}")
+    else:
+        pbar = tqdm(all_grids, desc="Saving VTK files")
+        for grid in pbar:
+            timestep = grid.field_data["timestep"][0]
+            filename = f"{data_stem}_timestep_{timestep:.4f}.vtk"
+            try:
+                grid.save(output_directory / filename)
+            except Exception as e:
+                print(f"Error saving {filename}: {e}")
