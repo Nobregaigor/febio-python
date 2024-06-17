@@ -57,8 +57,8 @@ def febio_to_pyvista(data: Union[FEBioContainer, Feb25, Feb30], apply_load_curve
     # Add nodal sets, element sets, and surface sets
     grid = add_nodalsets(container, grid)
     if container.feb is not None:
-        grid = add_elementsets(container, grid)
-        grid = add_surfacesets(container, grid)
+        grid = add_element_sets(container, grid)
+        grid = add_surface_sets(container, grid)
 
         # Add mesh data -> point data, cell data
         grid = add_nodaldata(container, grid)
@@ -188,7 +188,7 @@ def add_nodalsets(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.Un
     return grid
 
 
-def add_elementsets(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
+def add_element_sets(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     """
     Adds element sets from the FEBioContainer to the PyVista UnstructuredGrid.
     Element sets define specific groups of elements. This function maps these groups to the corresponding elements in the PyVista grids.
@@ -216,7 +216,7 @@ def add_elementsets(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.
     return grid
 
 
-def add_surfacesets(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
+def add_surface_sets(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     if len(container.surfacesets) > 0:
         print("WARNING: Surface sets are not yet supported.")
     return grid
