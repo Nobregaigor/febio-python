@@ -153,7 +153,7 @@ if __name__ == "__main__":
         interpolate_type="linear",
         data=np.array([[0, 0], [1, 1]]))
     # Add the load curve to the FEB object
-    feb.add_loadcurves([lc])
+    feb.add_load_curves([lc])
     
     # --------------------------------------------------------------------
     # Write the FEB file

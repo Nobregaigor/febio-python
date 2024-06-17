@@ -135,7 +135,7 @@ class AbstractFebObject(FebBaseObject, ABC):
     
     @feb_instance_cache
     @abstractmethod
-    def get_loadcurves(self, dtype=np.float32) -> List[LoadCurve]:
+    def get_load_curves(self, dtype=np.float32) -> List[LoadCurve]:
         pass
         
     # Boundary conditions
@@ -241,7 +241,7 @@ class AbstractFebObject(FebBaseObject, ABC):
         pass
             
     @abstractmethod    
-    def add_loadcurves(self, load_curves: List[LoadCurve]) -> None:
+    def add_load_curves(self, load_curves: List[LoadCurve]) -> None:
         pass
     
     # Boundary conditions
@@ -335,7 +335,7 @@ class AbstractFebObject(FebBaseObject, ABC):
         pass
     
     @abstractmethod
-    def remove_loadcurves(self, ids: List[int]) -> None:
+    def remove_load_curves(self, ids: List[int]) -> None:
         """
         Removes load curves from LoadData by ID.
 
@@ -467,7 +467,7 @@ class AbstractFebObject(FebBaseObject, ABC):
         pass
     
     @abstractmethod    
-    def clear_loadcurves(self) -> None:
+    def clear_load_curves(self) -> None:
         """
         Removes all load curves from LoadData.
         """
@@ -558,7 +558,7 @@ class AbstractFebObject(FebBaseObject, ABC):
         if pressure_loads:
             self.clear_surface_loads()
         if loadcurves:
-            self.clear_loadcurves()
+            self.clear_load_curves()
         if boundary_conditions:
             self.clear_boundary_conditions()
         if nodal_data:
@@ -664,15 +664,15 @@ class AbstractFebObject(FebBaseObject, ABC):
         self.remove_surface_loads([load.surface for load in pressure_loads])
         self.add_surface_loads(pressure_loads)
     
-    def update_loadcurves(self, load_curves: List[LoadCurve]) -> None:
+    def update_load_curves(self, load_curves: List[LoadCurve]) -> None:
         """
         Updates load curves in LoadData by ID, replacing existing load curves with the same ID.
 
         Args:
             load_curves (list of LoadCurve): List of LoadCurve namedtuples, each containing an ID, type, and data.
         """
-        self.remove_loadcurves([curve.id for curve in load_curves])
-        self.add_loadcurves(load_curves)
+        self.remove_load_curves([curve.id for curve in load_curves])
+        self.add_load_curves(load_curves)
 
     # Boundary conditions
     # ------------------------------

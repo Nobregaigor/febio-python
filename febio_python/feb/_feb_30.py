@@ -324,7 +324,7 @@ class Feb30(AbstractFebObject):
         return pressure_loads_list
 
     @feb_instance_cache
-    def get_loadcurves(self, dtype=np.float32) -> List[LoadCurve]:
+    def get_load_curves(self, dtype=np.float32) -> List[LoadCurve]:
         load_curves_list = []
         for loadcurve_elem in self.loaddata.findall(".//load_controller"):
             load_curve_id = loadcurve_elem.attrib['id']
@@ -814,14 +814,14 @@ class Feb30(AbstractFebObject):
             for key, value in load.attributes.items():
                 el_root.set(key, str(value))
 
-    def add_loadcurves(self, load_curves: List[LoadCurve]) -> None:
+    def add_load_curves(self, load_curves: List[LoadCurve]) -> None:
         """
         Adds load curves to LoadData, appending to existing load curves if they share the same ID.
 
         Args:
             load_curves (list of LoadCurve): List of LoadCurve namedtuples, each containing an ID, type, and data.
         """
-        existing_load_curves = {curve.id: curve for curve in self.get_loadcurves()}
+        existing_load_curves = {curve.id: curve for curve in self.get_load_curves()}
 
         for curve in load_curves:
             if curve.id in existing_load_curves:
@@ -1197,7 +1197,7 @@ class Feb30(AbstractFebObject):
             if el is not None:
                 self.loads.remove(el)
 
-    def remove_loadcurves(self, ids: List[int]) -> None:
+    def remove_load_curves(self, ids: List[int]) -> None:
         """
         Removes load curves from LoadData by ID.
 
@@ -1372,7 +1372,7 @@ class Feb30(AbstractFebObject):
         for el in self.loads.findall(self.MAJOR_TAGS.SURFACELOAD.value):
             self.loads.remove(el)
 
-    def clear_loadcurves(self) -> None:
+    def clear_load_curves(self) -> None:
         """
         Removes all load curves from LoadData.
         """
@@ -1464,7 +1464,7 @@ class Feb30(AbstractFebObject):
         if pressure_loads:
             self.clear_surface_loads()
         if loadcurves:
-            self.clear_loadcurves()
+            self.clear_load_curves()
         if boundary_conditions:
             self.clear_boundary_conditions()
         if nodal_data:
@@ -1583,15 +1583,15 @@ class Feb30(AbstractFebObject):
         self.remove_surface_loads([load.surface for load in pressure_loads])
         self.add_surface_loads(pressure_loads)
 
-    def update_loadcurves(self, load_curves: List[LoadCurve]) -> None:
+    def update_load_curves(self, load_curves: List[LoadCurve]) -> None:
         """
         Updates load curves in LoadData by ID, replacing existing load curves with the same ID.
 
         Args:
             load_curves (list of LoadCurve): List of LoadCurve namedtuples, each containing an ID, type, and data.
         """
-        self.remove_loadcurves([curve.id for curve in load_curves])
-        self.add_loadcurves(load_curves)
+        self.remove_load_curves([curve.id for curve in load_curves])
+        self.add_load_curves(load_curves)
 
     # Boundary conditions
     # ------------------------------

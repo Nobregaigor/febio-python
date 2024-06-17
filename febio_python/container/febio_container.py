@@ -204,7 +204,7 @@ class FEBioContainer():
     @property
     def load_curves(self) -> List[LoadCurve]:
         if self.feb is not None:
-            return self.feb.get_loadcurves()
+            return self.feb.get_load_curves()
         else:
             raise RuntimeError(
                 "Trying to access load curve data without a FEB file. "

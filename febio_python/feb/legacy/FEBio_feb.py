@@ -81,7 +81,7 @@ class FEBio_feb(FEBio_xml_handler):
         except KeyError:
             return {}
 
-    def get_loadcurves(self, dtype: np.dtype = np.float32) -> dict:
+    def get_load_curves(self, dtype: np.dtype = np.float32) -> dict:
         try:
             return self.get_content_from_repeated_tags(self.LEAD_TAGS.LOADDATA, "loadcurve", dtype=dtype)
         except:
@@ -224,7 +224,7 @@ class FEBio_feb(FEBio_xml_handler):
         # get loads (for now we only support pressure loads)
         data["PRESSURE_LOADS"] = self.get_pressure_loads()
         # get load curves from data
-        data["LOAD_CURVES"] = self.get_loadcurves()
+        data["LOAD_CURVES"] = self.get_load_curves()
         # get boundary conditions from data
         data["BOUNDARY_CONDITIONS"] = self.get_boundary_conditions()
         return data
