@@ -2,7 +2,7 @@ febio_python.feb
 ================
 
 .. toctree::
-   :caption: API:
-
    feb
    feb25
+   feb30
+   feb40
