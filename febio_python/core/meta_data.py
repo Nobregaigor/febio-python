@@ -24,6 +24,11 @@ class Elements:
 
 
 @dataclass
+class Surfaces(Elements):
+    pass
+    
+
+@dataclass
 class NodeSet:
     name: str       # Name of the node set
     ids: ndarray[int]   # Node IDs as a 1-d array of integers
@@ -79,8 +84,13 @@ class NodalLoad:
 @dataclass
 class PressureLoad:
     surface: str    # Name of the surface to which the load is applied
-    attributes: Dict[str, Union[int, float, str]]    # Pressure load attributes (e.g. {'lc': 1})
-    multiplier: float
+    load_curve: int   # Load curve ID
+    scale: Union[float, str, tuple, ndarray]    # Load scale factor
+    type: str = "pressure"
+    name: str = None   # Optional name for the load
+    linear: bool = False     # Linear pressure load
+    symmetric_stiffness: bool = True   # Symmetric stiffness matrix
+    attributes: Dict[str, Union[int, float, str]] = None    # Pressure load attributes (e.g. {'lc': 1})
 
 
 @dataclass
