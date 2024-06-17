@@ -36,6 +36,7 @@ from .meta_data import (
     # Mesh Domains
     GenericDomain,
     ShellDomain,
+    SolidDomain
 )
 
 from .element_types import (

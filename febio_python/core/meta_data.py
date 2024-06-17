@@ -183,16 +183,22 @@ class ElementData:
 # ------------------------------
 @dataclass
 class GenericDomain:
-    id: int    # Domain ID
     name: str   # Domain name (must match at least one of the Elements of the model)
     mat: Union[int, str]    # Material ID or name
+    id: int = None   # Domain ID
+    tag_name: str = None    # Optional tag name
+    
 
+@dataclass
+class SolidDomain(GenericDomain):
+    tag_name: str = "SolidDomain"
 
 @dataclass
 class ShellDomain(GenericDomain):
     type: str = "elastic-shell"  # used for spec >=4
     shell_normal_nodal: float = 1.0     # normal to the shell, used for spec >=4
     shell_thickness: float = 0.01    # shell thickness, used for spec >=4
+    tag_name: str = "ShellDomain"
 
 
 # ================================
