@@ -10,6 +10,7 @@ from .enums import (
 from .meta_data import (
     Nodes,
     Elements,
+    Surfaces,
     NodeSet,
     SurfaceSet,
     ElementSet,
