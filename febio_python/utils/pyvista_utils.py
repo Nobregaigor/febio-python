@@ -75,14 +75,16 @@ def febio_to_pyvista(data: Union[FEBioContainer, Feb25, Feb30], apply_load_curve
         # Add boundary conditions -> point data (fixed boundary conditions), cell data (rigid body boundary conditions
         grid = add_boundary_conditions(container, grid)
 
+    # default return data:
+    grid_or_list_of_grids = [grid]
     # Add data from xplt (results, state data)
     if container.xplt is not None:
         # If states data is available, we should create a list of grids for each state
         grid_or_list_of_grids = add_states_to_grid(container, grid, apply_load_curves=apply_load_curves)
 
-    # Make sure to always return a list of grids
-    if not isinstance(grid_or_list_of_grids, list):
-        return [grid_or_list_of_grids]
+    # # Make sure to always return a list of grids
+    # if not isinstance(grid_or_list_of_grids, list):
+    #     return [grid_or_list_of_grids]
 
     return grid_or_list_of_grids
 
