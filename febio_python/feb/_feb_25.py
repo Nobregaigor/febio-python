@@ -11,12 +11,13 @@ from febio_python.core import (
     SURFACE_EL_TYPE,
     Nodes,
     Elements,
+    Surfaces,
     NodeSet,
     SurfaceSet,
     ElementSet,
     Material,
     NodalLoad,
-    PressureLoad,
+    SurfaceLoad,
     LoadCurve,
     BoundaryCondition,
     FixCondition,
@@ -63,17 +64,70 @@ class Feb25(AbstractFebObject):
         return listed_nodes
 
     @feb_instance_cache
-    def get_elements(self, dtype: np.dtype = np.int64) -> List[Elements]:
+    def get_elements(self, dtype: np.dtype = np.int64) -> List[Union[Elements, Surfaces]]:
+        volum_elems = self.get_volume_elements(dtype=dtype)
+        surf_elems = self.get_surface_elements(dtype=dtype)
+        return volum_elems + surf_elems
+
+    @feb_instance_cache
+    def get_surface_elements(self, dtype=np.int64) -> List[Surfaces]:
+        all_surfaces = []
+        # last_elem_id = 1
+        for surf_group in self.geometry.findall("Surface"):
+            # surf_type = surf_group.attrib.get("type")
+            mat_id = surf_group.attrib.get("mat", None)
+            surf_part_id = surf_group.attrib.get("part", None)
+            if mat_id is not None:
+                try:
+                    mat_id = int(mat_id)
+                except TypeError:
+                    pass
+            surf_name = surf_group.attrib.get("name")
+
+            connectivity = deque()
+            surf_ids = deque()
+            
+            # get first child element of the surf_group
+            surf_elem = surf_group[0]
+            surf_type = surf_elem.tag
+            
+            for elem in surf_group.findall(surf_type):
+                # Convert the comma-separated string of node indices into an array of integers
+                this_surf_connectivity = np.array(elem.text.split(','), dtype=dtype)
+                connectivity.append(this_surf_connectivity)
+                this_surf_id = int(elem.attrib["id"])
+                surf_ids.append(this_surf_id)
+
+            # Convert the list of surfent connectivities to a numpy array
+            connectivity = np.array(connectivity, dtype=dtype) - 1  # Convert to zero-based indexing
+            surf_ids = np.array(surf_ids, dtype=np.int64) - 1  # Convert to zero-based indexing
+            # num_surfs = connectivity.shape[0]
+            # surf_ids = np.arange(last_surf_id, last_surf_id + num_surfs, dtype=np.int64)
+            # Create an surfents instance for each surfent
+            surface = Surfaces(name=surf_name,
+                               mat=mat_id,
+                               part=surf_part_id,
+                               type=surf_type,
+                               connectivity=connectivity,
+                               ids=surf_ids)
+            all_surfaces.append(surface)
+            # last_elem_id += num_elems
+
+        return all_surfaces
+
+    @feb_instance_cache
+    def get_volume_elements(self, dtype=np.int64) -> List[Elements]:
         all_elements = []
         # last_elem_id = 1
         for elem_group in self.geometry.findall("Elements"):
             elem_type = elem_group.attrib.get("type")
-            mat_id = elem_group.attrib.get("mat")
+            mat_id = elem_group.attrib.get("mat", None)
             elem_part_id = elem_group.attrib.get("part", None)
-            try:
-                mat_id = int(mat_id)
-            except ValueError:
-                pass
+            if mat_id is not None:
+                try:
+                    mat_id = int(mat_id)
+                except TypeError:
+                    pass
             elem_name = elem_group.attrib.get("name")
 
             connectivity = deque()
@@ -101,28 +155,6 @@ class Feb25(AbstractFebObject):
             # last_elem_id += num_elems
 
         return all_elements
-
-    @feb_instance_cache
-    def get_surface_elements(self, dtype=np.int64) -> List[Elements]:
-        # get all elements
-        all_elements = self.get_elements(dtype=dtype)
-        # filter elements by surface type
-        filtered = []
-        for elem in all_elements:
-            if elem.type in SURFACE_EL_TYPE.__members__:
-                filtered.append(elem)
-        return filtered
-
-    @feb_instance_cache
-    def get_volume_elements(self, dtype=np.int64) -> List[Elements]:
-        # get all elements
-        all_elements = self.get_elements(dtype=dtype)
-        # filter elements by surface type
-        filtered = []
-        for elem in all_elements:
-            if elem.type not in SURFACE_EL_TYPE.__members__:
-                filtered.append(elem)
-        return filtered
 
     # Node, element, surface sets
     # ------------------------------
@@ -278,29 +310,39 @@ class Feb25(AbstractFebObject):
         return nodal_loads
 
     @feb_instance_cache
-    def get_pressure_loads(self) -> List[PressureLoad]:
+    def get_pressure_loads(self) -> List[SurfaceLoad]:
         pressure_loads_list = []
         for i, load in enumerate(self.loads.findall("surface_load")):
-            press = load.find("pressure")
-            if press is not None:
-                load_info = load.attrib
-                press_info = press.attrib
 
-                # Extract the pressure multiplier, handling possible non-numeric values
-                try:
-                    press_mult = float(press.text)
-                except ValueError:
-                    press_mult = press.text  # Keep as text if not convertible
-
-                # Create a PressureLoad named tuple for the current load
-                current_load = PressureLoad(
-                    surface=load_info.get("surface", f"UnnamedSurface{i}"),  # Default to index if no surface name
-                    attributes=press_info,
-                    multiplier=press_mult
-                )
-
-                # Append the created PressureLoad to the list
-                pressure_loads_list.append(current_load)
+            # get the attributes info (surface, name and type)
+            load_type = load.attrib.get("type")
+            surf = load.attrib.get("surface", f"UnnamedSurface{i}")
+            name = load.attrib.get("name", f"UnnamedSurfaceLoad{i}")
+            # get the pressue (lc attribute and data value)
+            el_press = load.find("pressure")
+            lc_curve = el_press.attrib.get("lc", 1)
+            scale = el_press.text
+            # scale is a string representing either: float, name
+            scale = float(scale) if scale.replace(".", "").isdigit() else scale
+            # get the linear and symmetric stiffness tags
+            linear_el = load.find("linear")
+            linear = bool(int(linear_el.text)) if linear_el is not None else False       
+            symm_el = load.find("symmetric_stiffness")
+            symm = bool(int(symm_el.text)) if symm_el is not None else True
+            
+            # Create a SurfaceLoad instance for the current load
+            current_load = SurfaceLoad(
+                surface=surf,
+                load_curve=lc_curve,
+                scale=scale,
+                type=load_type,
+                name=name,
+                linear=linear,
+                symmetric_stiffness=symm
+            )                
+            
+            # Append the created SurfaceLoad to the list
+            pressure_loads_list.append(current_load)
 
         return pressure_loads_list
 
@@ -521,56 +563,128 @@ class Feb25(AbstractFebObject):
         Raises:
             ValueError: If any element connectivity does not meet expected format or length.
         """
+        added_volumes = False
+        try:
+            self.add_volume_elements(elements)
+            added_volumes = True
+        except ValueError:
+            pass
+        
+        added_surfaces = True
+        try:
+            self.add_surface_elements(elements)
+            added_surfaces = True
+        except ValueError:
+            pass
+        
+        if not added_volumes and not added_surfaces:
+            raise ValueError("No valid elements found in the input list. Please check the element types and try again.")
+ 
+    def add_surface_elements(self, elements: List[Surfaces]) -> None:
+        # Filter elements by surface type
+        filtered = [elem for elem in elements if elem.type in SURFACE_EL_TYPE.__members__]
+        if len(filtered) == 0:
+            raise ValueError("No surface elements found in the input list. Try using add_volume_elements() instead.")
+        
+        # Retrieve existing elements and determine the last element ID
+        existing_surfaces_list = self.get_surface_elements()
+        last_surf_initial_id = existing_surfaces_list[-1].ids[-1] if existing_surfaces_list else 1
+        
+        existing_surfaces = {element.name: element for element in existing_surfaces_list}
+
+        for surface in filtered:
+            # Make sure the surface type is valid, it must be a valid FEBio surface type
+            # However, user can also use VTK surface types as input, but they must be
+            # converted to FEBio types
+            el_type = surface.type
+            # first, check if it is a VTK element type. FEBioElementType names
+            # are the same as VTK element types.
+            if el_type not in FEBioElementType.__members__.values():
+                if str(el_type).upper() in FEBioElementType.__members__.keys():
+                    el_type = FEBioElementType[el_type].value
+                else:
+                    raise TypeError(f"Element type {el_type} is not a valid FEBio element type.")
+
+            if surface.name in existing_surfaces:
+                # Append to existing Surfaces group
+                el_root = self.geometry.find(f".//Surfaces[@name='{surface.name}']")
+            else:
+                
+                el_root = ET.Element("Surface")
+                el_root.set("name", str(surface.name))
+
+                # Append new "Surfaces" at the end of the geometry
+                self.geometry.append(el_root)
+            
+            # Add element connectivities as sub-surfaces
+            for i, connectivity in enumerate(surface.connectivity):
+                subel = ET.SubElement(el_root, el_type)  # FEBio use element type as tag name for surface surfaces
+                # Set the element ID and convert the connectivity to a comma-separated string
+                subel.set("id", str(i + last_surf_initial_id)) 
+                subel.text = ",".join(map(str, connectivity + 1))  # Convert connectivity to comma-separated string
+
+            # Update the last_elem_initial_id for the next element group
+            last_surf_initial_id += len(surface.connectivity)
+
+    def add_volume_elements(self, elements: List[Elements]) -> None:
+        """
+        Adds elements to Geometry, appending to existing elements if they share the same name.
+        Automatically detects the highest element ID to ensure unique IDs for new elements.
+
+        Args:
+            elements (list of Elements): List of Elements namedtuples, each containing name, material, type, and connectivity.
+
+        Raises:
+            ValueError: If any element connectivity does not meet expected format or length.
+        """
+        # Filter elements by surface type
+        filtered = [elem for elem in elements if elem.type not in SURFACE_EL_TYPE.__members__]
+        if len(filtered) == 0:
+            raise ValueError("No surface elements found in the input list. Try using add_surface_elements() instead.")
+        
         # Retrieve existing elements and determine the last element ID
         existing_elements_list = self.get_elements()
-        last_initial_id = existing_elements_list[-1].ids[-1] if existing_elements_list else 1
+        last_elem_initial_id = existing_elements_list[-1].ids[-1] if existing_elements_list else 1
 
         existing_elements = {element.name: element for element in existing_elements_list}
 
-        for element in elements:
+        for element in filtered:
+            # Make sure the element type is valid, it must be a valid FEBio element type
+            # However, user can also use VTK element types as input, but they must be
+            # converted to FEBio types
+            el_type = element.type
+            # first, check if it is a VTK element type. FEBioElementType names
+            # are the same as VTK element types.
+            if el_type not in FEBioElementType.__members__.values():
+                if str(el_type).upper() in FEBioElementType.__members__.keys():
+                    el_type = FEBioElementType[el_type].value
+                else:
+                    raise TypeError(f"Element type {el_type} is not a valid FEBio element type.")
+
             if element.name in existing_elements:
                 # Append to existing Elements group
                 el_root = self.geometry.find(f".//Elements[@name='{element.name}']")
             else:
-                # Make sure the element type is valid, it must be a valid FEBio element type
-                # However, user can also use VTK element types as input, but they must be
-                # converted to FEBio types
-                el_type = element.type
-                # first, check if it is a VTK element type. FEBioElementType names
-                # are the same as VTK element types.
-                if el_type not in FEBioElementType.__members__.values():
-                    if str(el_type).upper() in FEBioElementType.__members__.keys():
-                        el_type = FEBioElementType[el_type].value
-                    else:
-                        raise ValueError(f"Element type {el_type} is not a valid FEBio element type.")
-
                 # Create a new Elements group if no existing one matches the name
                 el_root = ET.Element("Elements")
                 el_root.set("type", el_type)  # TYPE AND MAT MUST BE SET FIRST, OTHERWISE FEBIO WILL NOT RECOGNIZE THE ELEMENTS
-                el_root.set("mat", element.mat)
-                el_root.set("name", element.name)
-                self.geometry.append(el_root)  # Append new "Elements" at the end of the geometry
+                if element.mat is not None:
+                    el_root.set("mat", str(element.mat))
+                if element.name is not None:
+                    el_root.set("name", str(element.name))
+                
+                # Append new "Elements" at the end of the geometry
+                self.geometry.append(el_root)
+            
+            # Add element connectivities as sub-elements
             for i, connectivity in enumerate(element.connectivity):
                 subel = ET.SubElement(el_root, "elem")
-                subel.set("id", str(i + last_initial_id))
+                # Set the element ID and convert the connectivity to a comma-separated string
+                subel.set("id", str(i + last_elem_initial_id))
                 subel.text = ",".join(map(str, connectivity + 1))  # Convert connectivity to comma-separated string
 
-            # Update the last_initial_id for the next element group
-            last_initial_id += len(element.connectivity)
-
-    def add_surface_elements(self, elements: List[Elements]) -> None:
-        # Filter elements by surface type
-        filtered = [elem for elem in elements if elem.type in SURFACE_EL_TYPE.__members__]
-        if len(filtered) == 0:
-            raise ValueError("No surface elements found in the input list. Try using add_elements() instead.")
-        self.add_elements(filtered)
-
-    def add_volume_elements(self, elements: List[Elements]) -> None:
-        # Filter elements by volume type
-        filtered = [elem for elem in elements if elem.type not in SURFACE_EL_TYPE.__members__]
-        if len(filtered) == 0:
-            raise ValueError("No volume elements found in the input list. Try using add_elements() instead.")
-        self.add_elements(filtered)
+            # Update the last_elem_initial_id for the next element group
+            last_elem_initial_id += len(element.connectivity)
 
     # Node, element, surface sets
     # ------------------------------
@@ -697,19 +811,13 @@ class Feb25(AbstractFebObject):
 
     def add_nodal_loads(self, nodal_loads: List[NodalLoad]) -> None:
         """
-        Adds nodal loads to Loads, appending to existing nodal loads if they share the same node set.
+        Adds nodal loads to Loads.
 
         Args:
             nodal_loads (list of NodalLoad): List of NodalLoad namedtuples, each containing a boundary condition, node set, scale, and load curve.
         """
-        # existing_nodal_loads = {load.node_set: load for load in self.get_nodal_loads()}
 
         for load in nodal_loads:
-            # if load.node_set in existing_nodal_loads:
-            #     # Append to existing NodalLoad element
-            #     el_root = self.loads.find(f".//nodal_load[@node_set='{load.node_set}']")
-            # else:
-            #    Create a new NodalLoad element if no existing one matches the node set
             el_root = ET.Element("nodal_load")
             el_root.set("node_set", load.node_set)
             self.loads.append(el_root)
@@ -743,28 +851,55 @@ class Feb25(AbstractFebObject):
                 # add the nodal data
                 self.add_nodal_data([nodal_data])
 
-    def add_pressure_loads(self, pressure_loads: List[PressureLoad]) -> None:
+    def add_surface_loads(self, pressure_loads: List[SurfaceLoad]) -> None:
         """
-        Adds pressure loads to Loads, appending to existing pressure loads if they share the same surface.
+        Adds pressure loads to Loads.
 
         Args:
-            pressure_loads (list of PressureLoad): List of PressureLoad namedtuples, each containing a surface, attributes, and multiplier.
+            pressure_loads (list of SurfaceLoad): List of SurfaceLoad namedtuples, each containing a surface, attributes, and multiplier.
         """
-        existing_pressure_loads = {load.surface: load for load in self.get_pressure_loads()}
 
         for load in pressure_loads:
-            if load.surface in existing_pressure_loads:
-                # Append to existing PressureLoad element
-                el_root = self.loads.find(f".//surface_load[@surface='{load.surface}']")
-            else:
-                # Create a new PressureLoad element if no existing one matches the surface
-                el_root = ET.Element("surface_load")
-                el_root.set("surface", load.surface)
-                self.loads.append(el_root)
 
-            el_root.text = str(load.multiplier)
-            for key, value in load.attributes.items():
-                el_root.set(key, str(value))
+            # Create a new SurfaceLoad element if no existing one matches the surface
+            el_root = ET.Element("surface_load")
+            # set the type of surface load
+            el_root.set("type", str(load.type))
+            # set the surface name
+            el_root.set("surface", str(load.surface))
+            # set the name (optional)
+            if load.name is not None:
+                el_root.set("name", str(load.name))
+
+            # Add pressure tag, with load curve and scale data
+            el_pressure = ET.SubElement(el_root, "pressure")
+            el_pressure.set("lc", str(load.load_curve))
+            if load.scale is None:
+                el_pressure.text = "1.0"  # Default to 1.0 if no scale is provided
+            elif isinstance(load.scale, (str, int, float, np.number)):
+                el_pressure.text = str(load.scale)
+            elif isinstance(load.scale, np.ndarray):
+                # we need to add this as mesh data; and then reference it here
+                ref_data_name = f"surface_load_{load.surface}_scale"
+                el_pressure.text = f"1*{ref_data_name}"
+                # prepare the nodal data
+                surf_data = SurfaceData(surf_set=load.surface,
+                                         name=ref_data_name,
+                                         data=load.scale,
+                                         ids=np.arange(0, len(load.scale) + 1))
+                # add the surface data
+                self.add_surface_data([surf_data])
+            
+            # add linear tag with text data
+            el_linear = ET.SubElement(el_root, "linear")
+            el_linear.text = str(int(load.linear)) # convert boolean to int
+            
+            # add symmetric_stiffness tag with text data
+            el_symmetric_stiffness = ET.SubElement(el_root, "symmetric_stiffness")
+            el_symmetric_stiffness.text = str(int(load.symmetric_stiffness))            
+
+            # Append the new SurfaceLoad element to the list
+            self.loads.append(el_root)
 
     def add_loadcurves(self, load_curves: List[LoadCurve]) -> None:
         """
@@ -1415,15 +1550,15 @@ class Feb25(AbstractFebObject):
         self.remove_nodal_loads([load.node_set for load in nodal_loads])
         self.add_nodal_loads(nodal_loads)
 
-    def update_pressure_loads(self, pressure_loads: List[PressureLoad]) -> None:
+    def update_pressure_loads(self, pressure_loads: List[SurfaceLoad]) -> None:
         """
         Updates pressure loads in Loads by surface, replacing existing pressure loads with the same surface.
 
         Args:
-            pressure_loads (list of PressureLoad): List of PressureLoad namedtuples, each containing a surface, attributes, and multiplier.
+            pressure_loads (list of SurfaceLoad): List of SurfaceLoad namedtuples, each containing a surface, attributes, and multiplier.
         """
         self.remove_pressure_loads([load.surface for load in pressure_loads])
-        self.add_pressure_loads(pressure_loads)
+        self.add_surface_loads(pressure_loads)
 
     def update_loadcurves(self, load_curves: List[LoadCurve]) -> None:
         """

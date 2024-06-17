@@ -1,3 +1,3 @@
-from .feb import Feb
+from .feb import Feb, run
 from .xplt import Xplt
 from .container import FEBioContainer

@@ -9,7 +9,7 @@ from febio_python.core import (
     ElementSet,
     Material,
     NodalLoad,
-    PressureLoad,
+    SurfaceLoad,
     LoadCurve,
     BoundaryCondition,
     FixCondition,
@@ -48,9 +48,11 @@ class FEBioContainer():
         # We will compare the number of nodes and elements in the FEB and XPLT files.
         if self.feb is not None and self.xplt is not None:
             feb_node_count = sum([node.ids.size for node in self.feb.get_nodes()])
-            feb_elem_count = sum([elem.ids.size for elem in self.feb.get_elements()])
+            feb_elem_count = sum([elem.ids.size for elem in self.feb.get_volume_elements()])
+            # feb_surf_count = sum([surf.ids.size for surf in self.feb.get_surface_elements()])
             xplt_node_count = sum([node.ids.size for node in self.xplt.nodes])
             xplt_elem_count = sum([elem.ids.size for elem in self.xplt.elements])
+            # xplt_surf_count = sum([surf.ids.size for surf in self.xplt.surfaces])
 
             if feb_node_count != xplt_node_count:
                 raise ValueError("Number of nodes in FEB and XPLT files do not match."
@@ -190,7 +192,7 @@ class FEBioContainer():
                 "To access nodal load data, provide a FEB file.")
 
     @property
-    def pressure_loads(self) -> List[PressureLoad]:
+    def pressure_loads(self) -> List[SurfaceLoad]:
         if self.feb is not None:
             return self.feb.get_pressure_loads()
         else:

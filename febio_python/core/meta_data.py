@@ -82,7 +82,7 @@ class NodalLoad:
 
 
 @dataclass
-class PressureLoad:
+class SurfaceLoad:
     surface: str    # Name of the surface to which the load is applied
     load_curve: int   # Load curve ID
     scale: Union[float, str, tuple, ndarray]    # Load scale factor

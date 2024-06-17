@@ -17,7 +17,7 @@ from febio_python.core import (
     ElementSet,
     Material,
     NodalLoad,
-    PressureLoad,
+    SurfaceLoad,
     LoadCurve,
     BoundaryCondition,
     FixCondition,
@@ -334,7 +334,7 @@ class Feb40(AbstractFebObject):
         return nodal_loads
 
     @feb_instance_cache
-    def get_pressure_loads(self) -> List[PressureLoad]:
+    def get_pressure_loads(self) -> List[SurfaceLoad]:
         pressure_loads_list = []
         for i, load in enumerate(self.loads.findall(self.MAJOR_TAGS.SURFACELOAD.value)):
             press = load.find("pressure")
@@ -348,14 +348,14 @@ class Feb40(AbstractFebObject):
                 except ValueError:
                     press_mult = press.text  # Keep as text if not convertible
 
-                # Create a PressureLoad named tuple for the current load
-                current_load = PressureLoad(
+                # Create a SurfaceLoad named tuple for the current load
+                current_load = SurfaceLoad(
                     surface=load_info.get("surface", f"UnnamedSurface{i}"),  # Default to index if no surface name
                     attributes=press_info,
                     multiplier=press_mult
                 )
 
-                # Append the created PressureLoad to the list
+                # Append the created SurfaceLoad to the list
                 pressure_loads_list.append(current_load)
 
         return pressure_loads_list
@@ -911,21 +911,21 @@ class Feb40(AbstractFebObject):
             # Append the new NodalLoad element to the 'loads' container
             self.loads.append(el_root)
 
-    def add_pressure_loads(self, pressure_loads: List[PressureLoad]) -> None:
+    def add_surface_loads(self, pressure_loads: List[SurfaceLoad]) -> None:
         """
         Adds pressure loads to Loads, appending to existing pressure loads if they share the same surface.
 
         Args:
-            pressure_loads (list of PressureLoad): List of PressureLoad namedtuples, each containing a surface, attributes, and multiplier.
+            pressure_loads (list of SurfaceLoad): List of SurfaceLoad namedtuples, each containing a surface, attributes, and multiplier.
         """
         existing_pressure_loads = {load.surface: load for load in self.get_pressure_loads()}
 
         for load in pressure_loads:
             if load.surface in existing_pressure_loads:
-                # Append to existing PressureLoad element
+                # Append to existing SurfaceLoad element
                 el_root = self.loads.find(f".//surface_load[@surface='{load.surface}']")
             else:
-                # Create a new PressureLoad element if no existing one matches the surface
+                # Create a new SurfaceLoad element if no existing one matches the surface
                 el_root = ET.Element("surface_load")
                 el_root.set("surface", load.surface)
                 self.loads.append(el_root)
@@ -1751,15 +1751,15 @@ class Feb40(AbstractFebObject):
         self.remove_nodal_loads([load.node_set for load in nodal_loads])
         self.add_nodal_loads(nodal_loads)
 
-    def update_pressure_loads(self, pressure_loads: List[PressureLoad]) -> None:
+    def update_pressure_loads(self, pressure_loads: List[SurfaceLoad]) -> None:
         """
         Updates pressure loads in Loads by surface, replacing existing pressure loads with the same surface.
 
         Args:
-            pressure_loads (list of PressureLoad): List of PressureLoad namedtuples, each containing a surface, attributes, and multiplier.
+            pressure_loads (list of SurfaceLoad): List of SurfaceLoad namedtuples, each containing a surface, attributes, and multiplier.
         """
         self.remove_pressure_loads([load.surface for load in pressure_loads])
-        self.add_pressure_loads(pressure_loads)
+        self.add_surface_loads(pressure_loads)
 
     def update_loadcurves(self, load_curves: List[LoadCurve]) -> None:
         """

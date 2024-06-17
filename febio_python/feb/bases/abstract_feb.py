@@ -16,7 +16,7 @@ from febio_python.core import (
     ElementSet,
     Material,
     NodalLoad,
-    PressureLoad,
+    SurfaceLoad,
     LoadCurve,
     BoundaryCondition,
     FixCondition,
@@ -130,7 +130,7 @@ class AbstractFebObject(FebBaseObject, ABC):
     
     @feb_instance_cache
     @abstractmethod
-    def get_pressure_loads(self) -> List[PressureLoad]:
+    def get_pressure_loads(self) -> List[SurfaceLoad]:
         pass
     
     @feb_instance_cache
@@ -237,7 +237,7 @@ class AbstractFebObject(FebBaseObject, ABC):
         pass
     
     @abstractmethod
-    def add_pressure_loads(self, pressure_loads: List[PressureLoad]) -> None:
+    def add_surface_loads(self, pressure_loads: List[SurfaceLoad]) -> None:
         pass
             
     @abstractmethod    
@@ -654,15 +654,15 @@ class AbstractFebObject(FebBaseObject, ABC):
         self.remove_nodal_loads([load.node_set for load in nodal_loads])
         self.add_nodal_loads(nodal_loads)
     
-    def update_pressure_loads(self, pressure_loads: List[PressureLoad]) -> None:
+    def update_pressure_loads(self, pressure_loads: List[SurfaceLoad]) -> None:
         """
         Updates pressure loads in Loads by surface, replacing existing pressure loads with the same surface.
 
         Args:
-            pressure_loads (list of PressureLoad): List of PressureLoad namedtuples, each containing a surface, attributes, and multiplier.
+            pressure_loads (list of SurfaceLoad): List of SurfaceLoad namedtuples, each containing a surface, attributes, and multiplier.
         """
         self.remove_pressure_loads([load.surface for load in pressure_loads])
-        self.add_pressure_loads(pressure_loads)
+        self.add_surface_loads(pressure_loads)
     
     def update_loadcurves(self, load_curves: List[LoadCurve]) -> None:
         """

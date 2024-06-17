@@ -16,7 +16,7 @@ from .meta_data import (
     ElementSet,
     Material,
     NodalLoad,
-    PressureLoad,
+    SurfaceLoad,
     LoadCurve,
     BoundaryCondition,
     FixCondition,
