@@ -141,7 +141,7 @@ class FEBioContainer():
     @property
     def nodesets(self) -> List[NodeSet]:
         if self.feb is not None:
-            return self.feb.get_nodesets()
+            return self.feb.get_node_sets()
         elif self.xplt is not None:
             return self.xplt.nodesets
         else:
@@ -150,7 +150,7 @@ class FEBioContainer():
     @property
     def surfacesets(self) -> List[SurfaceSet]:
         if self.feb is not None:
-            return self.feb.get_surfacesets()
+            return self.feb.get_surface_sets()
         elif self.xplt is not None:
             raise RuntimeError("XPLT file does not save surface sets. Please provide a FEB file.")
         else:

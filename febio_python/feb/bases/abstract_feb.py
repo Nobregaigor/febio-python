@@ -69,7 +69,7 @@ class AbstractFebObject(FebBaseObject, ABC):
 
     @feb_instance_cache
     @abstractmethod
-    def get_nodesets(self, dtype=np.int64) -> List[NodeSet]:
+    def get_node_sets(self, dtype=np.int64) -> List[NodeSet]:
         """
         Returns a dict with keys representing node set names and values \
         representing corresponding node ids as a numpy array of specified dtype.\
@@ -84,7 +84,7 @@ class AbstractFebObject(FebBaseObject, ABC):
     
     @feb_instance_cache
     @abstractmethod
-    def get_surfacesets(self, dtype=np.int64) -> List[SurfaceSet]:
+    def get_surface_sets(self, dtype=np.int64) -> List[SurfaceSet]:
         """
         Returns a dict with keys representing node set names and values \
         representing corresponding node ids as a numpy array of specified dtype.\
@@ -211,11 +211,11 @@ class AbstractFebObject(FebBaseObject, ABC):
     # ------------------------------
     
     @abstractmethod
-    def add_nodesets(self, nodesets: List[NodeSet]) -> None:
+    def add_node_sets(self, nodesets: List[NodeSet]) -> None:
         pass
     
     @abstractmethod
-    def add_surfacesets(self, surfacesets: List[SurfaceSet]) -> None:
+    def add_surface_sets(self, surfacesets: List[SurfaceSet]) -> None:
         pass
     
     @abstractmethod
@@ -293,11 +293,11 @@ class AbstractFebObject(FebBaseObject, ABC):
     # ------------------------------
     
     @abstractmethod
-    def remove_nodesets(self, names: List[str]) -> None:
+    def remove_node_sets(self, names: List[str]) -> None:
         pass
     
     @abstractmethod
-    def remove_surfacesets(self, names: List[str]) -> None:
+    def remove_surface_sets(self, names: List[str]) -> None:
         pass
     
     @abstractmethod
@@ -425,14 +425,14 @@ class AbstractFebObject(FebBaseObject, ABC):
         pass
     
     @abstractmethod    
-    def clear_nodesets(self) -> None:
+    def clear_node_sets(self) -> None:
         """
         Removes all node sets from Geometry.
         """
         pass
     
     @abstractmethod    
-    def clear_surfacesets(self) -> None:
+    def clear_surface_sets(self) -> None:
         """
         Removes all surface sets from Geometry.
         """
@@ -546,9 +546,9 @@ class AbstractFebObject(FebBaseObject, ABC):
         if volumes:
             self.clear_volume_elements()
         if nodesets:
-            self.clear_nodesets()
+            self.clear_node_sets()
         if surfacesets:
-            self.clear_surfacesets()
+            self.clear_surface_sets()
         if elementsets:
             self.clear_elementsets()
         if materials:
@@ -598,25 +598,25 @@ class AbstractFebObject(FebBaseObject, ABC):
     # Node, element, surface sets
     # ------------------------------
     
-    def update_nodesets(self, nodesets: List[NodeSet]) -> None:
+    def update_node_sets(self, nodesets: List[NodeSet]) -> None:
         """
         Updates node sets in Geometry by name, replacing existing node sets with the same name.
 
         Args:
             nodesets (list of NodeSet): List of NodeSet namedtuples, each containing a name and node IDs.
         """
-        self.remove_nodesets([nodeset.name for nodeset in nodesets])
-        self.add_nodesets(nodesets)
+        self.remove_node_sets([nodeset.name for nodeset in nodesets])
+        self.add_node_sets(nodesets)
     
-    def update_surfacesets(self, surfacesets: List[SurfaceSet]) -> None:
+    def update_surface_sets(self, surfacesets: List[SurfaceSet]) -> None:
         """
         Updates surface sets in Geometry by name, replacing existing surface sets with the same name.
 
         Args:
             surfacesets (list of SurfaceSet): List of SurfaceSet namedtuples, each containing a name and node IDs.
         """
-        self.remove_surfacesets([surfset.name for surfset in surfacesets])
-        self.add_surfacesets(surfacesets)
+        self.remove_surface_sets([surfset.name for surfset in surfacesets])
+        self.add_surface_sets(surfacesets)
     
     def update_elementsets(self, elementsets: List[ElementSet]) -> None:
         """

@@ -120,7 +120,7 @@ if __name__ == "__main__":
     # Create the node set
     node_set = NodeSet(name="FixedNodes", ids=left_nodes)
     # Add the node set to the FEB object
-    feb.add_nodesets([node_set])
+    feb.add_node_sets([node_set])
     
     # create the fixed boundary condition
     fixed = FixCondition(

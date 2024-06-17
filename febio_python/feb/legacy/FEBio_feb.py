@@ -90,7 +90,7 @@ class FEBio_feb(FEBio_xml_handler):
     # ---
     # wrappers for 'get_ids_from_repeated_tags'
 
-    def get_nodesets(self, dtype=np.int64) -> dict:
+    def get_node_sets(self, dtype=np.int64) -> dict:
         """
           Returns a dict with keys representing node set names and values \
           representing corresponding node ids as a numpy array of specified dtype.\
@@ -103,7 +103,7 @@ class FEBio_feb(FEBio_xml_handler):
                 dict: {tag_name: [node_ids]}
 
             Example:
-                feb.get_nodesets()
+                feb.get_node_sets()
         """
         try:
             return self.get_ids_from_repeated_tags(FEB_LEAD_TAGS.GEOMETRY, "NodeSet", dtype=dtype)
@@ -214,7 +214,7 @@ class FEBio_feb(FEBio_xml_handler):
         data["NODES"] = self.get_nodes()
         data["ELEMENTS"] = self.get_elements()
         # get mesh elements (nodesets and surfaces)
-        data["NODESETS"] = self.get_nodesets()
+        data["NODESETS"] = self.get_node_sets()
         data["SURFACES"] = self.get_surfaces()
         # get additional mesh data
         data["ELEMENT_DATA"] = self.get_element_data()
@@ -296,7 +296,7 @@ class FEBio_feb(FEBio_xml_handler):
 
             self.geometry().extend([el_root])
 
-    def add_nodesets(self, nodesets: list) -> None:
+    def add_node_sets(self, nodesets: list) -> None:
         """
           Adds nodesets to Geometry tree element.
           'nodesets' should be a dictionary with keys representing nodeset name
