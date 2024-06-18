@@ -67,6 +67,7 @@ Contents
    installation
    usage
    getting_started/index
+   modules/index
 
 .. toctree::
    :maxdepth: 2
