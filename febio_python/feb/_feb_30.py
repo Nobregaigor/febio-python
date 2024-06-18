@@ -64,13 +64,43 @@ class Feb30(AbstractFebObject):
         return listed_nodes
 
     @feb_instance_cache
-    def get_elements(self, dtype: np.dtype = np.int64) -> List[Union[Elements, Surfaces]]:
-        volum_elems = self.get_volume_elements(dtype=dtype)
-        surf_elems = self.get_surface_elements(dtype=dtype)
-        return volum_elems + surf_elems
+    def get_elements(self, dtype: np.dtype = np.int64) -> List[Elements]:
+        all_elements = []
+        # last_elem_id = 0 # Initialize the last element ID to 0
+        for elem_group in self.mesh.findall("Elements"):
+            elem_type = elem_group.attrib.get("type")
+            elem_name = elem_group.attrib.get("name", None)
+            elem_part = elem_group.attrib.get("part", None)
+            elem_mat = elem_group.attrib.get("mat", None)
+
+            if elem_mat is not None:
+                elem_mat = int(elem_mat)
+
+            connectivity = deque()
+            elem_ids = deque()
+            for elem in elem_group.findall("elem"):
+                # Convert the comma-separated string of node indices into an array of integers
+                this_elem_connectivity = np.array(elem.text.split(','), dtype=dtype)
+                connectivity.append(this_elem_connectivity)
+                this_elem_id = int(elem.attrib["id"])
+                elem_ids.append(this_elem_id)
+
+            # Convert the list of element connectivities to a numpy array
+            connectivity = np.array(connectivity, dtype=dtype) - 1  # Correct ids to zero-based indexing
+            # num_elems = connectivity.shape[0]
+            elem_ids = np.array(elem_ids, dtype=np.int64) - 1  # Correct ids to zero-based indexing
+            # Create an Elements instance for each element
+            element = Elements(name=elem_name,
+                               mat=elem_mat,
+                               part=elem_part,
+                               type=elem_type,
+                               connectivity=connectivity,
+                               ids=elem_ids)
+            all_elements.append(element)
+        return all_elements
 
     @feb_instance_cache
-    def get_surface_elements(self, dtype=np.int64) -> List[Surfaces]:
+    def get_surfaces(self, dtype=np.int64) -> List[Surfaces]:
         all_surfaces = []
         for surf_group in self.mesh.findall("Surface"):
             mat_id = surf_group.attrib.get("mat", None)
@@ -105,42 +135,6 @@ class Feb30(AbstractFebObject):
                                ids=surf_ids)
             all_surfaces.append(surface)
         return all_surfaces
-
-    @feb_instance_cache
-    def get_volume_elements(self, dtype=np.int64) -> List[Elements]:
-        all_elements = []
-        # last_elem_id = 0 # Initialize the last element ID to 0
-        for elem_group in self.mesh.findall("Elements"):
-            elem_type = elem_group.attrib.get("type")
-            elem_name = elem_group.attrib.get("name", None)
-            elem_part = elem_group.attrib.get("part", None)
-            elem_mat = elem_group.attrib.get("mat", None)
-
-            if elem_mat is not None:
-                elem_mat = int(elem_mat)
-
-            connectivity = deque()
-            elem_ids = deque()
-            for elem in elem_group.findall("elem"):
-                # Convert the comma-separated string of node indices into an array of integers
-                this_elem_connectivity = np.array(elem.text.split(','), dtype=dtype)
-                connectivity.append(this_elem_connectivity)
-                this_elem_id = int(elem.attrib["id"])
-                elem_ids.append(this_elem_id)
-
-            # Convert the list of element connectivities to a numpy array
-            connectivity = np.array(connectivity, dtype=dtype) - 1  # Correct ids to zero-based indexing
-            # num_elems = connectivity.shape[0]
-            elem_ids = np.array(elem_ids, dtype=np.int64) - 1  # Correct ids to zero-based indexing
-            # Create an Elements instance for each element
-            element = Elements(name=elem_name,
-                               mat=elem_mat,
-                               part=elem_part,
-                               type=elem_type,
-                               connectivity=connectivity,
-                               ids=elem_ids)
-            all_elements.append(element)
-        return all_elements
 
     # Node, element, surface sets
     # ------------------------------
@@ -569,35 +563,49 @@ class Feb30(AbstractFebObject):
             # Update the last_initial_id for the next node group
             last_initial_id += len(node.coordinates)
 
-    def add_elements(self, elements: List[Elements]) -> None:
-        """
-        Adds elements to Geometry, appending to existing elements if they share the same name.
-        Automatically detects the highest element ID to ensure unique IDs for new elements.
+    def add_elements(self, elements: List[Elements]) -> None:                
+        # Retrieve existing elements and determine the last element ID
+        existing_elements_list = self.get_elements()
+        last_initial_id = existing_elements_list[-1].ids[-1] if existing_elements_list else 1  # when adding elements, FEBio starts from 1
 
-        Args:
-            elements (list of Elements): List of Elements namedtuples, each containing name, material, type, and connectivity.
+        existing_elements = {element.name: element for element in existing_elements_list}
 
-        Raises:
-            ValueError: If any element connectivity does not meet expected format or length.
-        """
-        added_volumes = False
-        try:
-            self.add_volume_elements(elements)
-            added_volumes = True
-        except ValueError:
-            pass
-        
-        added_surfaces = True
-        try:
-            self.add_surface_elements(elements)
-            added_surfaces = True
-        except ValueError:
-            pass
-        
-        if not added_volumes and not added_surfaces:
-            raise ValueError("No valid elements found in the input list. Please check the element types and try again.")
+        for element in elements:
+            if element.name in existing_elements:
+                # Append to existing Elements group
+                el_root = self.mesh.find(f".//Elements[@name='{element.name}']")
+            else:
+                # Make sure the element type is valid, it must be a valid FEBio element type
+                # However, user can also use VTK element types as input, but they must be
+                # converted to FEBio types
+                el_type = element.type
+                # first, check if it is a VTK element type. FEBioElementType names
+                # are the same as VTK element types.
+                if el_type not in FEBioElementType.__members__.values():
+                    if str(el_type).upper() in FEBioElementType.__members__.keys():
+                        el_type = FEBioElementType[el_type].value
+                    else:
+                        raise ValueError(f"Element type {el_type} is not a valid FEBio element type.")
+
+                # Create a new Elements group if no existing one matches the name
+                el_root = ET.Element("Elements")
+                el_root.set("type", el_type)
+                if element.name is not None:
+                    el_root.set("name", str(element.name))
+                if element.part is not None:
+                    el_root.set("part", str(element.part))
+                if element.mat is not None:
+                    el_root.set("mat", str(element.mat))
+                self.mesh.append(el_root)  # Append new "Elements" at the end of the geometry
+            for i, connectivity in enumerate(element.connectivity):
+                subel = ET.SubElement(el_root, "elem")
+                subel.set("id", str(i + last_initial_id))
+                subel.text = ",".join(map(str, connectivity + 1))  # Convert connectivity to comma-separated string
+
+            # Update the last_initial_id for the next element group
+            last_initial_id += len(element.connectivity)
  
-    def add_surface_elements(self, elements: List[Surfaces]) -> None:
+    def add_surfaces(self, elements: List[Surfaces]) -> None:
         # Filter elements by surface type
         filtered = [elem for elem in elements if elem.type in SURFACE_EL_TYPE.__members__]
         if len(filtered) == 0:
@@ -642,53 +650,6 @@ class Feb30(AbstractFebObject):
 
             # Update the last_elem_initial_id for the next element group
             last_surf_initial_id += len(surface.connectivity)
-
-    def add_volume_elements(self, elements: List[Elements]) -> None:
-        # Filter elements by volume type
-        filtered = [elem for elem in elements if elem.type not in SURFACE_EL_TYPE.__members__]
-        if len(filtered) == 0:
-            raise ValueError("No volume elements found in the input list. Try using add_elements() instead.")
-                
-        # Retrieve existing elements and determine the last element ID
-        existing_elements_list = self.get_elements()
-        last_initial_id = existing_elements_list[-1].ids[-1] if existing_elements_list else 1  # when adding elements, FEBio starts from 1
-
-        existing_elements = {element.name: element for element in existing_elements_list}
-
-        for element in filtered:
-            if element.name in existing_elements:
-                # Append to existing Elements group
-                el_root = self.mesh.find(f".//Elements[@name='{element.name}']")
-            else:
-                # Make sure the element type is valid, it must be a valid FEBio element type
-                # However, user can also use VTK element types as input, but they must be
-                # converted to FEBio types
-                el_type = element.type
-                # first, check if it is a VTK element type. FEBioElementType names
-                # are the same as VTK element types.
-                if el_type not in FEBioElementType.__members__.values():
-                    if str(el_type).upper() in FEBioElementType.__members__.keys():
-                        el_type = FEBioElementType[el_type].value
-                    else:
-                        raise ValueError(f"Element type {el_type} is not a valid FEBio element type.")
-
-                # Create a new Elements group if no existing one matches the name
-                el_root = ET.Element("Elements")
-                el_root.set("type", el_type)
-                if element.name is not None:
-                    el_root.set("name", str(element.name))
-                if element.part is not None:
-                    el_root.set("part", str(element.part))
-                if element.mat is not None:
-                    el_root.set("mat", str(element.mat))
-                self.mesh.append(el_root)  # Append new "Elements" at the end of the geometry
-            for i, connectivity in enumerate(element.connectivity):
-                subel = ET.SubElement(el_root, "elem")
-                subel.set("id", str(i + last_initial_id))
-                subel.text = ",".join(map(str, connectivity + 1))  # Convert connectivity to comma-separated string
-
-            # Update the last_initial_id for the next element group
-            last_initial_id += len(element.connectivity)
 
     # Node, element, surface sets
     # ------------------------------

@@ -36,7 +36,10 @@ from .meta_data import (
     # Mesh Domains
     GenericDomain,
     ShellDomain,
-    SolidDomain
+    SolidDomain,
+    # Discrete
+    DiscreteSet,
+    DiscreteMaterial,
 )
 
 from .element_types import (

@@ -26,7 +26,7 @@ class Elements:
 @dataclass
 class Surfaces(Elements):
     pass
-    
+
 
 @dataclass
 class NodeSet:
@@ -46,6 +46,13 @@ class ElementSet:
     ids: ndarray[int]       # Element IDs as a 1-d array of integers
 
 
+@dataclass
+class DiscreteSet:
+    name: str  # Name of the discrete set
+    src: Union[ndarray[int], str]  # Source node set or surface set
+    dst: Union[ndarray[int], str]  # Destination node set or surface set
+    dmat: int  # Discrete material ID
+
 # Materials
 # ------------------------------
 @dataclass
@@ -55,6 +62,11 @@ class Material:
     name: str   # Material name (will be used to attach a domain or element set to the material)
     parameters: Dict[str, Union[int, float, str]]   # Material parameters (e.g. {'E': 1e6, 'v': 0.3})
     attributes: Dict[str, Union[int, float, str]] = None    # Optional TAG attributes (e.g. {'density': 1e3})
+
+
+@dataclass
+class DiscreteMaterial(Material):
+    pass
 
 
 # Loads
@@ -119,7 +131,6 @@ class BoundaryCondition:
 @dataclass
 class FixCondition(BoundaryCondition):
     type: str = "fix"       # Default type is 'fix'
-
     def __post_init__(self):
         if self.node_set is None:
             raise ValueError(f"node_set cannot be None for {self.__class__.__name__}")
@@ -147,6 +158,8 @@ class ZeroShellDisplacementCondition(FixCondition):
 class RigidBodyCondition(BoundaryCondition):
     material: Union[int, str]   # Material ID or name
     dof: str        # Degree of freedom (e.g. 'x', 'y', 'z')
+    name: str = None    # Optional name for the boundary condition
+    type: str = "rigid body"    # Default type is 'rigid body'
 
 
 # Mesh data

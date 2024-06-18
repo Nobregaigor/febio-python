@@ -48,7 +48,7 @@ class FEBioContainer():
         # We will compare the number of nodes and elements in the FEB and XPLT files.
         if self.feb is not None and self.xplt is not None:
             feb_node_count = sum([node.ids.size for node in self.feb.get_nodes()])
-            feb_elem_count = sum([elem.ids.size for elem in self.feb.get_volume_elements()])
+            feb_elem_count = sum([elem.ids.size for elem in self.feb.get_elements()])
             # feb_surf_count = sum([surf.ids.size for surf in self.feb.get_surface_elements()])
             xplt_node_count = sum([node.ids.size for node in self.xplt.nodes])
             xplt_elem_count = sum([elem.ids.size for elem in self.xplt.elements])
@@ -111,27 +111,9 @@ class FEBioContainer():
     @property
     def surfaces(self) -> List[Elements]:
         if self.feb is not None:
-            return self.feb.get_surface_elements()
+            return self.feb.get_surfaces()
         elif self.xplt is not None:
             return self.xplt.surfaces
-        else:
-            raise ValueError("No FEB or XPLT file is provided")
-
-    @property
-    def volumes(self) -> List[Elements]:
-        if self.feb is not None:
-            return self.feb.get_volume_elements()
-        elif self.xplt is not None:
-            return self.xplt.volumes
-        else:
-            raise ValueError("No FEB or XPLT file is provided")
-
-    @property
-    def mesh_domains(self) -> List[Union[GenericDomain, XpltMeshPart]]:
-        if self.feb is not None:
-            return self.feb.get_mesh_domains()
-        elif self.xplt is not None:
-            return self.xplt.parts
         else:
             raise ValueError("No FEB or XPLT file is provided")
 

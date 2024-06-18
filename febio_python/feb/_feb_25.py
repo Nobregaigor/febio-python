@@ -28,6 +28,8 @@ from febio_python.core import (
     ElementData,
     GenericDomain,
     FEBioElementType,
+    DiscreteSet,
+    DiscreteMaterial
 )
 
 from ._caching import feb_instance_cache
@@ -64,13 +66,48 @@ class Feb25(AbstractFebObject):
         return listed_nodes
 
     @feb_instance_cache
-    def get_elements(self, dtype: np.dtype = np.int64) -> List[Union[Elements, Surfaces]]:
-        volum_elems = self.get_volume_elements(dtype=dtype)
-        surf_elems = self.get_surface_elements(dtype=dtype)
-        return volum_elems + surf_elems
+    def get_elements(self, dtype: np.dtype = np.int64) -> List[Elements]:
+        all_elements = []
+        # last_elem_id = 1
+        for elem_group in self.geometry.findall("Elements"):
+            elem_type = elem_group.attrib.get("type")
+            mat_id = elem_group.attrib.get("mat", None)
+            elem_part_id = elem_group.attrib.get("part", None)
+            if mat_id is not None:
+                try:
+                    mat_id = int(mat_id)
+                except TypeError:
+                    pass
+            elem_name = elem_group.attrib.get("name")
+
+            connectivity = deque()
+            elem_ids = deque()
+            for elem in elem_group.findall("elem"):
+                # Convert the comma-separated string of node indices into an array of integers
+                this_elem_connectivity = np.array(elem.text.split(','), dtype=dtype)
+                connectivity.append(this_elem_connectivity)
+                this_elem_id = int(elem.attrib["id"])
+                elem_ids.append(this_elem_id)
+
+            # Convert the list of element connectivities to a numpy array
+            connectivity = np.array(connectivity, dtype=dtype) - 1  # Convert to zero-based indexing
+            elem_ids = np.array(elem_ids, dtype=np.int64) - 1  # Convert to zero-based indexing
+            # num_elems = connectivity.shape[0]
+            # elem_ids = np.arange(last_elem_id, last_elem_id + num_elems, dtype=np.int64)
+            # Create an Elements instance for each element
+            element = Elements(name=elem_name,
+                               mat=mat_id,
+                               part=elem_part_id,
+                               type=elem_type,
+                               connectivity=connectivity,
+                               ids=elem_ids)
+            all_elements.append(element)
+            # last_elem_id += num_elems
+
+        return all_elements
 
     @feb_instance_cache
-    def get_surface_elements(self, dtype=np.int64) -> List[Surfaces]:
+    def get_surfaces(self, dtype=np.int64) -> List[Surfaces]:
         all_surfaces = []
         # last_elem_id = 1
         for surf_group in self.geometry.findall("Surface"):
@@ -114,47 +151,6 @@ class Feb25(AbstractFebObject):
             # last_elem_id += num_elems
 
         return all_surfaces
-
-    @feb_instance_cache
-    def get_volume_elements(self, dtype=np.int64) -> List[Elements]:
-        all_elements = []
-        # last_elem_id = 1
-        for elem_group in self.geometry.findall("Elements"):
-            elem_type = elem_group.attrib.get("type")
-            mat_id = elem_group.attrib.get("mat", None)
-            elem_part_id = elem_group.attrib.get("part", None)
-            if mat_id is not None:
-                try:
-                    mat_id = int(mat_id)
-                except TypeError:
-                    pass
-            elem_name = elem_group.attrib.get("name")
-
-            connectivity = deque()
-            elem_ids = deque()
-            for elem in elem_group.findall("elem"):
-                # Convert the comma-separated string of node indices into an array of integers
-                this_elem_connectivity = np.array(elem.text.split(','), dtype=dtype)
-                connectivity.append(this_elem_connectivity)
-                this_elem_id = int(elem.attrib["id"])
-                elem_ids.append(this_elem_id)
-
-            # Convert the list of element connectivities to a numpy array
-            connectivity = np.array(connectivity, dtype=dtype) - 1  # Convert to zero-based indexing
-            elem_ids = np.array(elem_ids, dtype=np.int64) - 1  # Convert to zero-based indexing
-            # num_elems = connectivity.shape[0]
-            # elem_ids = np.arange(last_elem_id, last_elem_id + num_elems, dtype=np.int64)
-            # Create an Elements instance for each element
-            element = Elements(name=elem_name,
-                               mat=mat_id,
-                               part=elem_part_id,
-                               type=elem_type,
-                               connectivity=connectivity,
-                               ids=elem_ids)
-            all_elements.append(element)
-            # last_elem_id += num_elems
-
-        return all_elements
 
     # Node, element, surface sets
     # ------------------------------
@@ -508,6 +504,73 @@ class Feb25(AbstractFebObject):
 
         return elem_data_list
 
+    @feb_instance_cache
+    def get_discrete_sets(self, dtype=np.int64, find_related_nodesets=True) -> List[DiscreteSet]:
+        
+        # get all node sets by name and ids (for reference)
+        node_sets_by_name = {n.name: n.ids for n in self.get_node_sets()}
+        # find all discrete sets
+        discrete_sets = self.geometry.findall("DiscreteSet")
+        discrete_set_list = []
+        for dset in discrete_sets:
+            # get name
+            name = dset.attrib.get("name", None)
+            
+            # Try to get the related discrete material
+            mat_id = None # default value 
+            # find discrete data associated with the set (if any)
+            all_related_discrete_data = self.discrete.findall("discrete")
+            related_discrete_data = [d for d in all_related_discrete_data if d.attrib.get("discrete_set", None) == name]
+            if len(related_discrete_data) > 0:
+                # get first data
+                dset_related_data = related_discrete_data[0]
+                # get the material id
+                mat_id = dset_related_data.attrib.get("dmat", None)
+            
+            # get the source and destination node sets
+            dset_ids = deque()
+            for delem in dset.findall("delem"):
+                # src and dst are in delem text and are comma separated
+                src, dst = delem.text.split(",")
+                src, dst = int(src), int(dst)
+                dset_ids.append((src, dst))
+            
+            # transform to numpy array
+            dset_ids = np.array(dset_ids, dtype=dtype)
+            
+            # get the source and destination node sets
+            src_ids = dset_ids[:, 0]
+            dst_ids = dset_ids[:, 1]
+            
+            # default values
+            src = src_ids
+            dst = dst_ids
+            
+            # Try to match with any existing node set
+            if find_related_nodesets:
+                src_names = [k for k, v in node_sets_by_name.items() if np.array_equal(v, src_ids)]
+                dst_names = [k for k, v in node_sets_by_name.items() if np.array_equal(v, dst_ids)]
+
+                # If there is only one match, use it
+                if len(src_names) == 1:
+                    src = src_names[0]
+                
+                if len(dst_names) == 1:
+                    dst = dst_names[0]
+                
+            # Create a DiscreteSet instance
+            current_dset = DiscreteSet(
+                name=name,
+                src=src,
+                dst=dst,
+                dmat=mat_id
+            )
+
+            # Add the DiscreteSet instance to the list
+            discrete_set_list.append(current_dset)
+            
+        return discrete_set_list 
+
     # =========================================================================================================
     # Add methods
     # =========================================================================================================
@@ -521,14 +584,14 @@ class Feb25(AbstractFebObject):
         Automatically detects the highest node ID to ensure unique IDs for new nodes.
 
         Args:
-            nodes (list of Nodes): List of Nodes namedtuples, each containing a name and coordinates.
+            nodes (list of Nodes): List of Nodes objects, each containing a name and coordinates.
 
         Raises:
             ValueError: If any node coordinates do not consist of three elements.
         """
         # Retrieve existing nodes and determine the last node ID
         existing_nodes_list = self.get_nodes()
-        last_initial_id = existing_nodes_list[-1].ids[-1] if existing_nodes_list else 1
+        last_initial_id = existing_nodes_list[-1].ids[-1] + 1 if existing_nodes_list else 0
 
         existing_nodes = {node_elem.name: node_elem for node_elem in existing_nodes_list}
 
@@ -546,7 +609,7 @@ class Feb25(AbstractFebObject):
                 if len(node_xyz) != 3:  # Ensure each node has exactly three coordinates
                     raise ValueError(f"Node {i + last_initial_id} does not have the correct number of coordinates. It should contain [x, y, z] values.")
                 subel = ET.SubElement(el_root, "node")
-                subel.set("id", str(i + last_initial_id))
+                subel.set("id", str(i + last_initial_id + 1))
                 subel.text = ",".join(map(str, node_xyz))  # Convert coordinates to comma-separated string
 
             # Update the last_initial_id for the next node group
@@ -558,36 +621,63 @@ class Feb25(AbstractFebObject):
         Automatically detects the highest element ID to ensure unique IDs for new elements.
 
         Args:
-            elements (list of Elements): List of Elements namedtuples, each containing name, material, type, and connectivity.
+            elements (list of Elements): List of Elements objects, each containing name, material, type, and connectivity.
 
         Raises:
             ValueError: If any element connectivity does not meet expected format or length.
         """
-        added_volumes = False
-        try:
-            self.add_volume_elements(elements)
-            added_volumes = True
-        except ValueError:
-            pass
-        
-        added_surfaces = True
-        try:
-            self.add_surface_elements(elements)
-            added_surfaces = True
-        except ValueError:
-            pass
-        
-        if not added_volumes and not added_surfaces:
-            raise ValueError("No valid elements found in the input list. Please check the element types and try again.")
- 
-    def add_surface_elements(self, elements: List[Surfaces]) -> None:
-        # Filter elements by surface type
-        filtered = [elem for elem in elements if elem.type in SURFACE_EL_TYPE.__members__]
-        if len(filtered) == 0:
-            raise ValueError("No surface elements found in the input list. Try using add_volume_elements() instead.")
-        
         # Retrieve existing elements and determine the last element ID
-        existing_surfaces_list = self.get_surface_elements()
+        existing_elements_list = self.get_elements()
+        last_elem_initial_id = existing_elements_list[-1].ids[-1] if existing_elements_list else 1
+
+        existing_elements = {element.name: element for element in existing_elements_list}
+
+        for element in elements:
+            # Make sure the element type is valid, it must be a valid FEBio element type
+            # However, user can also use VTK element types as input, but they must be
+            # converted to FEBio types
+            el_type = element.type
+            # first, check if it is a VTK element type. FEBioElementType names
+            # are the same as VTK element types.
+            if el_type not in FEBioElementType.__members__.values():
+                if str(el_type).upper() in FEBioElementType.__members__.keys():
+                    el_type = FEBioElementType[el_type].value
+                else:
+                    raise TypeError(f"Element type {el_type} is not a valid FEBio element type.")
+
+            if element.name in existing_elements:
+                # Append to existing Elements group
+                el_root = self.geometry.find(f".//Elements[@name='{element.name}']")
+            else:
+                # Create a new Elements group if no existing one matches the name
+                el_root = ET.Element("Elements")
+                el_root.set("type", el_type)  # TYPE AND MAT MUST BE SET FIRST, OTHERWISE FEBIO WILL NOT RECOGNIZE THE ELEMENTS
+                if element.mat is not None:
+                    el_root.set("mat", str(element.mat))
+                if element.name is not None:
+                    el_root.set("name", str(element.name))
+                
+                # Append new "Elements" at the end of the geometry
+                self.geometry.append(el_root)
+            
+            # Add element connectivities as sub-elements
+            for i, connectivity in enumerate(element.connectivity):
+                subel = ET.SubElement(el_root, "elem")
+                # Set the element ID and convert the connectivity to a comma-separated string
+                subel.set("id", str(i + last_elem_initial_id))
+                subel.text = ",".join(map(str, connectivity + 1))  # Convert connectivity to comma-separated string
+
+            # Update the last_elem_initial_id for the next element group
+            last_elem_initial_id += len(element.connectivity)
+
+    def add_surfaces(self, surfaces: List[Surfaces]) -> None:
+        # Filter surfaces by surface type
+        filtered = [elem for elem in surfaces if elem.type in SURFACE_EL_TYPE.__members__]
+        if len(filtered) == 0:
+            raise ValueError("No surface surfaces found in the input list. Try using add_volume_surfaces() instead.")
+        
+        # Retrieve existing surfaces and determine the last element ID
+        existing_surfaces_list = self.get_surfaces()
         last_surf_initial_id = existing_surfaces_list[-1].ids[-1] if existing_surfaces_list else 1
         
         existing_surfaces = {element.name: element for element in existing_surfaces_list}
@@ -626,66 +716,6 @@ class Feb25(AbstractFebObject):
             # Update the last_elem_initial_id for the next element group
             last_surf_initial_id += len(surface.connectivity)
 
-    def add_volume_elements(self, elements: List[Elements]) -> None:
-        """
-        Adds elements to Geometry, appending to existing elements if they share the same name.
-        Automatically detects the highest element ID to ensure unique IDs for new elements.
-
-        Args:
-            elements (list of Elements): List of Elements namedtuples, each containing name, material, type, and connectivity.
-
-        Raises:
-            ValueError: If any element connectivity does not meet expected format or length.
-        """
-        # Filter elements by surface type
-        filtered = [elem for elem in elements if elem.type not in SURFACE_EL_TYPE.__members__]
-        if len(filtered) == 0:
-            raise ValueError("No surface elements found in the input list. Try using add_surface_elements() instead.")
-        
-        # Retrieve existing elements and determine the last element ID
-        existing_elements_list = self.get_elements()
-        last_elem_initial_id = existing_elements_list[-1].ids[-1] if existing_elements_list else 1
-
-        existing_elements = {element.name: element for element in existing_elements_list}
-
-        for element in filtered:
-            # Make sure the element type is valid, it must be a valid FEBio element type
-            # However, user can also use VTK element types as input, but they must be
-            # converted to FEBio types
-            el_type = element.type
-            # first, check if it is a VTK element type. FEBioElementType names
-            # are the same as VTK element types.
-            if el_type not in FEBioElementType.__members__.values():
-                if str(el_type).upper() in FEBioElementType.__members__.keys():
-                    el_type = FEBioElementType[el_type].value
-                else:
-                    raise TypeError(f"Element type {el_type} is not a valid FEBio element type.")
-
-            if element.name in existing_elements:
-                # Append to existing Elements group
-                el_root = self.geometry.find(f".//Elements[@name='{element.name}']")
-            else:
-                # Create a new Elements group if no existing one matches the name
-                el_root = ET.Element("Elements")
-                el_root.set("type", el_type)  # TYPE AND MAT MUST BE SET FIRST, OTHERWISE FEBIO WILL NOT RECOGNIZE THE ELEMENTS
-                if element.mat is not None:
-                    el_root.set("mat", str(element.mat))
-                if element.name is not None:
-                    el_root.set("name", str(element.name))
-                
-                # Append new "Elements" at the end of the geometry
-                self.geometry.append(el_root)
-            
-            # Add element connectivities as sub-elements
-            for i, connectivity in enumerate(element.connectivity):
-                subel = ET.SubElement(el_root, "elem")
-                # Set the element ID and convert the connectivity to a comma-separated string
-                subel.set("id", str(i + last_elem_initial_id))
-                subel.text = ",".join(map(str, connectivity + 1))  # Convert connectivity to comma-separated string
-
-            # Update the last_elem_initial_id for the next element group
-            last_elem_initial_id += len(element.connectivity)
-
     # Node, element, surface sets
     # ------------------------------
 
@@ -694,7 +724,7 @@ class Feb25(AbstractFebObject):
         Adds node sets to Geometry, appending to existing node sets if they share the same name.
 
         Args:
-            nodesets (list of NodeSet): List of NodeSet namedtuples, each containing a name and node IDs.
+            nodesets (list of NodeSet): List of NodeSet objects, each containing a name and node IDs.
         """
         existing_nodesets = {nodeset.name: nodeset for nodeset in self.get_node_sets()}
 
@@ -722,7 +752,7 @@ class Feb25(AbstractFebObject):
         Adds surface sets to Geometry, appending to existing surface sets if they share the same name.
 
         Args:
-            surfacesets (list of SurfaceSet): List of SurfaceSet namedtuples, each containing a name and node IDs.
+            surfacesets (list of SurfaceSet): List of SurfaceSet objects, each containing a name and node IDs.
         """
         existing_surfacesets = {surfset.name: surfset for surfset in self.get_surface_sets()}
 
@@ -750,7 +780,7 @@ class Feb25(AbstractFebObject):
         Adds element sets to Geometry, appending to existing element sets if they share the same name.
 
         Args:
-            elementsets (list of ElementSet): List of ElementSet namedtuples, each containing a name and element IDs.
+            elementsets (list of ElementSet): List of ElementSet objects, each containing a name and element IDs.
         """
         existing_elementsets = {elemset.name: elemset for elemset in self.get_element_sets()}
 
@@ -773,6 +803,86 @@ class Feb25(AbstractFebObject):
                 subel = ET.SubElement(el_root, "elem")
                 subel.set("id", str(int(elem_id + 1)))  # Convert to one-based indexing
 
+    def add_discrete_sets(self, discrete_sets: List[DiscreteSet]) -> None:
+        """
+        Adds discrete sets to Geometry, appending to existing discrete sets if they share the same name.
+
+        Args:
+            discrete_sets (list of DiscreteSet): List of DiscreteSet objects, each containing a name and element IDs.
+        """
+        existing_discrete_sets = {dset.name: dset for dset in self.get_discrete_sets(find_related_nodesets=False)}
+        nodesets_by_name = {nodeset.name: nodeset.ids for nodeset in self.get_node_sets()}
+        
+        for dset in discrete_sets:
+            already_exists = dset.name in existing_discrete_sets
+            src_ids = dset.src
+            dst_ids = dset.dst
+            
+            if isinstance(src_ids, str):  # then it is a nodeset.
+                # Find the node set with the same name
+                node_set = nodesets_by_name.get(src_ids, None)
+                # If the node set does not exist, raise an error
+                if node_set is None:
+                    raise ValueError(
+                        f"Trying to create a DiscreteSet {dset.name} with "
+                        f"source node set {src_ids}, but the node set does not exist. "
+                        "Please, create the node set first and try again.")
+                # Get the node IDs from the node set
+                src_ids = node_set  # ids
+            else:
+                # make sure the source is a numpy array
+                src_ids = np.array(src_ids, dtype=np.int64)
+
+            # make sure it is one-based indexing
+            src_ids = src_ids + 1
+
+            # same for dst
+            if isinstance(dst_ids, str):  # then it is a nodeset.
+                # Find the node set with the same name
+                node_set = nodesets_by_name.get(dst_ids, None)
+                # If the node set does not exist, raise an error
+                if node_set is None:
+                    raise ValueError(
+                        f"Trying to create a DiscreteSet {dset.name} with "
+                        f"destination node set {dst_ids}, but the node set does not exist. "
+                        "Please, create the node set first and try again.")
+                # Get the node IDs from the node set
+                dst_ids = node_set
+            else:
+                # make sure the destination is a numpy array
+                dst_ids = np.array(dst_ids, dtype=np.int64)
+            # make sure it is one-based indexing
+            dst_ids = dst_ids + 1
+            
+            # Combine the source and destination IDs
+            src_dst = np.column_stack((src_ids, dst_ids))
+            if already_exists:
+                # Append to existing DiscreteSet element
+                el_root = self.geometry.find(f".//DiscreteSet[@name='{dset.name}']")
+                # Merge the existing element IDs with the new ones and remove duplicates
+                existing_src = existing_discrete_sets[dset.name].src
+                existing_dst = existing_discrete_sets[dset.name].dst
+                existing_ids = np.column_stack((existing_src, existing_dst))
+                src_dst = np.unique(np.concatenate((existing_ids, src_dst)))
+            else:
+                # Create a new DiscreteSet element if no existing one matches the name
+                el_root = ET.Element("DiscreteSet")
+                el_root.set("name", dset.name)
+                self.geometry.append(el_root)
+
+            # Add element IDs as sub-elements
+            for src, dst in zip(src_ids, dst_ids):
+                subel = ET.SubElement(el_root, "delem")
+                subel.text = f"{src},{dst}"
+                
+            # Add the discrete material if it exists
+            if dset.dmat is not None and not already_exists:
+                # Create a new DiscreteData element if no existing one matches the name
+                el_data = ET.Element("discrete")
+                el_data.set("discrete_set", dset.name)
+                el_data.set("dmat", str(dset.dmat))
+                self.discrete.append(el_data)
+
     # Materials
     # ------------------------------
 
@@ -781,7 +891,7 @@ class Feb25(AbstractFebObject):
         Adds materials to Material, appending to existing materials if they share the same ID.
 
         Args:
-            materials (list of Material): List of Material namedtuples, each containing an ID, type, parameters, name, and attributes.
+            materials (list of Material): List of Material objects, each containing an ID, type, parameters, name, and attributes.
         """
         existing_materials = {material.id: material for material in self.get_materials()}
 
@@ -806,6 +916,52 @@ class Feb25(AbstractFebObject):
                 subel = ET.SubElement(el_root, key)
                 subel.text = str(value)
 
+    def add_discrete_materials(self, materials: List[DiscreteMaterial]) -> None:
+        """
+        Adds discrete materials to Discrete.
+
+        Args:
+            materials (list of Material): List of Material objects, each containing an ID, type, parameters, name, and attributes.
+        """
+
+        for material in materials:
+            # Create a new Material element if no existing one matches the ID
+            el_root = ET.Element("discrete_material")
+            el_root.set("id", str(material.id))
+            el_root.set("type", material.type)
+            el_root.set("name", material.name)
+
+            # Add parameters as sub-elements
+            mat_params: dict = material.parameters
+            if not isinstance(mat_params, dict):
+                raise ValueError(f"Material parameters should be a dictionary, not {type(mat_params)}")
+            for key, value in mat_params.items():
+                subel = ET.SubElement(el_root, key)
+                subel.text = str(value)
+            
+            # discrete materials must be at the top, 
+            # and ordered by id
+            # thus, we cannot simply append the new material
+            # This results in error: self.discrete.append(el_root)
+            
+            # we need to find the correct position to insert the new material
+            # we need to find the last material with an id smaller than the new material
+            # and insert the new material after that
+            # if no such material exists, we insert the new material at the beginning
+            
+            # find all discrete materials
+            all_discrete_materials = self.discrete.findall("discrete_material")
+            # find the last material with an id smaller than the new material
+            last_id = -1
+            for i, mat in enumerate(all_discrete_materials):
+                if int(mat.attrib["id"]) < material.id:
+                    last_id = i
+            # insert the new material after the last material with an id smaller than the new material
+            if last_id == -1:
+                self.discrete.insert(0, el_root)
+            else:
+                self.discrete.insert(last_id + 1, el_root)
+
     # Loads
     # ------------------------------
 
@@ -814,7 +970,7 @@ class Feb25(AbstractFebObject):
         Adds nodal loads to Loads.
 
         Args:
-            nodal_loads (list of NodalLoad): List of NodalLoad namedtuples, each containing a boundary condition, node set, scale, and load curve.
+            nodal_loads (list of NodalLoad): List of NodalLoad objects, each containing a boundary condition, node set, scale, and load curve.
         """
 
         for load in nodal_loads:
@@ -856,7 +1012,7 @@ class Feb25(AbstractFebObject):
         Adds pressure loads to Loads.
 
         Args:
-            pressure_loads (list of SurfaceLoad): List of SurfaceLoad namedtuples, each containing a surface, attributes, and multiplier.
+            pressure_loads (list of SurfaceLoad): List of SurfaceLoad objects, each containing a surface, attributes, and multiplier.
         """
 
         for load in pressure_loads:
@@ -906,7 +1062,7 @@ class Feb25(AbstractFebObject):
         Adds load curves to LoadData, appending to existing load curves if they share the same ID.
 
         Args:
-            load_curves (list of LoadCurve): List of LoadCurve namedtuples, each containing an ID, type, and data.
+            load_curves (list of LoadCurve): List of LoadCurve objects, each containing an ID, type, and data.
         """
         existing_load_curves = {curve.id: curve for curve in self.get_load_curves()}
 
@@ -928,35 +1084,31 @@ class Feb25(AbstractFebObject):
     # Boundary conditions
     # ------------------------------
 
-    def add_boundary_conditions(self, boundary_conditions: List[Union[FixCondition, RigidBodyCondition, BoundaryCondition]]) -> None:
+    def add_boundary_conditions(self, boundary_conditions: List[BoundaryCondition]) -> None:
         """
-        Adds boundary conditions to Boundary, appending to existing boundary conditions if they share the same type.
+        Adds boundary conditions to Boundary.
 
         Args:
-            boundary_conditions (list of Union[FixCondition, RigidBodyCondition, BoundaryCondition]): List of boundary condition namedtuples.
+            boundary_conditions (list of BoundaryCondition): List of boundary condition objects.
         """
-        # existing_boundary_conditions = {bc.type: bc for bc in self.get_boundary_conditions()}
 
         for bc in boundary_conditions:
-            # if bc.type in existing_boundary_conditions:
-            #     # Append to existing BoundaryCondition element
-            #     el_root = self.boundary.find(f".//{bc.type}")
-            # else:
-            # Create a new BoundaryCondition element if no existing one matches the type
             bc_type = bc.type if hasattr(bc, "type") else bc.__class__.__name__
             if bc_type == "FixCondition":
                 el_root = ET.Element("fix")
             else:
-                el_root = ET.Element(bc_type)
+                bc_type_tag = bc_type.replace(" ", "_")
+                el_root = ET.Element(bc_type_tag)
             self.boundary.append(el_root)
 
-            # el_root.set("bc", bc.dof)
             if hasattr(bc, "node_set") and bc.node_set is not None:
                 el_root.set("node_set", bc.node_set)
             if hasattr(bc, "material") and bc.material is not None:
-                el_root.set("mat", bc.material)
+                el_root.set("mat", str(bc.material))
+            if hasattr(bc, "name") and bc.name is not None:
+                el_root.set("name", str(bc.name))
             if hasattr(bc, "dof") and bc.dof is not None:
-                if not bc_type == "RigidBodyCondition":
+                if not bc_type == "rigid body":
                     el_root.set("bc", bc.dof)
                 else:
                     for fixed in bc.dof.split(","):
@@ -971,7 +1123,7 @@ class Feb25(AbstractFebObject):
         Adds nodal data to MeshData, appending to existing nodal data if they share the same node set.
 
         Args:
-            nodal_data (list of NodalData): List of NodalData namedtuples, each containing a node set, name, and data.
+            nodal_data (list of NodalData): List of NodalData objects, each containing a node set, name, and data.
         """
         existing_nodal_data = {data.node_set: data for data in self.get_nodal_data()}
 
@@ -1003,7 +1155,7 @@ class Feb25(AbstractFebObject):
         Adds surface data to MeshData, appending to existing surface data if they share the same surface set.
 
         Args:
-            surface_data (list of SurfaceData): List of SurfaceData namedtuples, each containing a surface set, name, and data.
+            surface_data (list of SurfaceData): List of SurfaceData objects, each containing a surface set, name, and data.
         """
         existing_surface_data = {data.node_set: data for data in self.get_surface_data()}
 
@@ -1028,7 +1180,7 @@ class Feb25(AbstractFebObject):
         Adds element data to MeshData, appending to existing element data if they share the same element set.
 
         Args:
-            element_data (list of ElementData): List of ElementData namedtuples, each containing an element set, name, and data.
+            element_data (list of ElementData): List of ElementData objects, each containing an element set, name, and data.
         """
         existing_element_data = {data.elem_set: data for data in self.get_element_data()}
 
@@ -1140,6 +1292,21 @@ class Feb25(AbstractFebObject):
             if el is not None:
                 self.geometry.remove(el)
 
+    def remove_discrete_sets(self, names: List[str]) -> None:
+        """
+        Removes discrete sets from Geometry by name.
+
+        Args:
+            names (list of str): List of discrete set names to remove.
+        """
+        for name in names:
+            el = self.geometry.find(f".//DiscreteSet[@name='{name}']")
+            if el is not None:
+                self.geometry.remove(el)
+            el = self.discrete.find(f".//discrete[@discrete_set='{name}']")
+            if el is not None:
+                self.discrete.remove(el)
+
     # Materials
     # ------------------------------
 
@@ -1162,6 +1329,27 @@ class Feb25(AbstractFebObject):
             el = self.material.find(f".//material[@type='{id}']")
             if el is not None:
                 self.material.remove(el)
+                continue
+
+    def remove_discrete_materials(self, ids: List[Union[str, int]]) -> None:
+        """
+        Removes discrete materials from Discrete by ID, name or type.
+
+        Args:
+            ids (list of int): List of discrete material IDs, types, remove.
+        """
+        for id in ids:
+            el = self.discrete.find(f".//discrete_material[@id='{id}']")
+            if el is not None:
+                self.discrete.remove(el)
+                continue
+            el = self.discrete.find(f".//discrete_material[@name='{id}']")
+            if el is not None:
+                self.discrete.remove(el)
+                continue
+            el = self.discrete.find(f".//discrete_material[@type='{id}']")
+            if el is not None:
+                self.discrete.remove(el)
                 continue
 
     # Loads
@@ -1397,6 +1585,22 @@ class Feb25(AbstractFebObject):
         for el in self.meshdata.findall(self.MAJOR_TAGS.ELEMENTDATA.value):
             self.meshdata.remove(el)
 
+    def clear_discrete_sets(self) -> None:
+        """
+        Removes all discrete sets from Geometry.
+        """
+        for el in self.geometry.findall(self.MAJOR_TAGS.DISCRETESET.value):
+            self.geometry.remove(el)
+        for el in self.discrete.findall(self.MAJOR_TAGS.DISCRETE.value):
+            self.discrete.remove(el)
+    
+    def clear_discrete_materials(self) -> None:
+        """
+        Removes all discrete materials from Discrete.
+        """
+        for el in self.discrete.findall(self.MAJOR_TAGS.DISCRETEMATERIAL.value):
+            self.discrete.remove(el)
+
     def clear(self,
               nodes=True,
               elements=True,
@@ -1476,7 +1680,7 @@ class Feb25(AbstractFebObject):
         Updates nodes in Geometry by name, replacing existing nodes with the same name.
 
         Args:
-            nodes (list of Nodes): List of Nodes namedtuples, each containing a name and coordinates.
+            nodes (list of Nodes): List of Nodes objects, each containing a name and coordinates.
         """
         self.remove_nodes([node.name for node in nodes])
         self.add_nodes(nodes)
@@ -1486,7 +1690,7 @@ class Feb25(AbstractFebObject):
         Updates elements in Geometry by name, replacing existing elements with the same name.
 
         Args:
-            elements (list of Elements): List of Elements namedtuples, each containing name, material, type, and connectivity.
+            elements (list of Elements): List of Elements objects, each containing name, material, type, and connectivity.
         """
         self.remove_elements([element.name for element in elements])
         self.add_elements(elements)
@@ -1499,7 +1703,7 @@ class Feb25(AbstractFebObject):
         Updates node sets in Geometry by name, replacing existing node sets with the same name.
 
         Args:
-            nodesets (list of NodeSet): List of NodeSet namedtuples, each containing a name and node IDs.
+            nodesets (list of NodeSet): List of NodeSet objects, each containing a name and node IDs.
         """
         self.remove_node_sets([nodeset.name for nodeset in nodesets])
         self.add_node_sets(nodesets)
@@ -1509,7 +1713,7 @@ class Feb25(AbstractFebObject):
         Updates surface sets in Geometry by name, replacing existing surface sets with the same name.
 
         Args:
-            surfacesets (list of SurfaceSet): List of SurfaceSet namedtuples, each containing a name and node IDs.
+            surfacesets (list of SurfaceSet): List of SurfaceSet objects, each containing a name and node IDs.
         """
         self.remove_surface_sets([surfset.name for surfset in surfacesets])
         self.add_surface_sets(surfacesets)
@@ -1519,7 +1723,7 @@ class Feb25(AbstractFebObject):
         Updates element sets in Geometry by name, replacing existing element sets with the same name.
 
         Args:
-            elementsets (list of ElementSet): List of ElementSet namedtuples, each containing a name and element IDs.
+            elementsets (list of ElementSet): List of ElementSet objects, each containing a name and element IDs.
         """
         self.remove_element_sets([elemset.name for elemset in elementsets])
         self.add_element_sets(elementsets)
@@ -1532,7 +1736,7 @@ class Feb25(AbstractFebObject):
         Updates materials in Material by ID, replacing existing materials with the same ID.
 
         Args:
-            materials (list of Material): List of Material namedtuples, each containing an ID, type, parameters, name, and attributes.
+            materials (list of Material): List of Material objects, each containing an ID, type, parameters, name, and attributes.
         """
         self.remove_materials([material.id for material in materials])
         self.add_materials(materials)
@@ -1545,7 +1749,7 @@ class Feb25(AbstractFebObject):
         Updates nodal loads in Loads by node set, replacing existing nodal loads with the same node set.
 
         Args:
-            nodal_loads (list of NodalLoad): List of NodalLoad namedtuples, each containing a boundary condition, node set, scale, and load curve.
+            nodal_loads (list of NodalLoad): List of NodalLoad objects, each containing a boundary condition, node set, scale, and load curve.
         """
         self.remove_nodal_loads([load.node_set for load in nodal_loads])
         self.add_nodal_loads(nodal_loads)
@@ -1555,7 +1759,7 @@ class Feb25(AbstractFebObject):
         Updates pressure loads in Loads by surface, replacing existing pressure loads with the same surface.
 
         Args:
-            pressure_loads (list of SurfaceLoad): List of SurfaceLoad namedtuples, each containing a surface, attributes, and multiplier.
+            pressure_loads (list of SurfaceLoad): List of SurfaceLoad objects, each containing a surface, attributes, and multiplier.
         """
         self.remove_surface_loads([load.surface for load in pressure_loads])
         self.add_surface_loads(pressure_loads)
@@ -1565,7 +1769,7 @@ class Feb25(AbstractFebObject):
         Updates load curves in LoadData by ID, replacing existing load curves with the same ID.
 
         Args:
-            load_curves (list of LoadCurve): List of LoadCurve namedtuples, each containing an ID, type, and data.
+            load_curves (list of LoadCurve): List of LoadCurve objects, each containing an ID, type, and data.
         """
         self.remove_load_curves([curve.id for curve in load_curves])
         self.add_load_curves(load_curves)
@@ -1578,7 +1782,7 @@ class Feb25(AbstractFebObject):
         Updates boundary conditions in Boundary, replacing existing boundary conditions with the same type.
 
         Args:
-            boundary_conditions (list of Union[FixCondition, RigidBodyCondition, BoundaryCondition]): List of boundary condition namedtuples.
+            boundary_conditions (list of Union[FixCondition, RigidBodyCondition, BoundaryCondition]): List of boundary condition objects.
         """
         bc_types = [bc.type for bc in boundary_conditions]
         bc_bcs = []
@@ -1598,7 +1802,7 @@ class Feb25(AbstractFebObject):
         Updates nodal data in MeshData by node set, replacing existing nodal data with the same node set.
 
         Args:
-            nodal_data (list of NodalData): List of NodalData namedtuples, each containing a node set, name, and data.
+            nodal_data (list of NodalData): List of NodalData objects, each containing a node set, name, and data.
         """
         self.remove_nodal_data([data.node_set for data in nodal_data])
         self.add_nodal_data(nodal_data)
@@ -1608,7 +1812,7 @@ class Feb25(AbstractFebObject):
         Updates surface data in MeshData by surface set, replacing existing surface data with the same surface set.
 
         Args:
-            surface_data (list of SurfaceData): List of SurfaceData namedtuples, each containing a surface set, name, and data.
+            surface_data (list of SurfaceData): List of SurfaceData objects, each containing a surface set, name, and data.
         """
         self.remove_surface_data([data.node_set for data in surface_data])
         self.add_surface_data(surface_data)
@@ -1618,7 +1822,7 @@ class Feb25(AbstractFebObject):
         Updates element data in MeshData by element set, replacing existing element data with the same element set.
 
         Args:
-            element_data (list of ElementData): List of ElementData namedtuples, each containing an element set, name, and data.
+            element_data (list of ElementData): List of ElementData objects, each containing an element set, name, and data.
         """
         self.remove_element_data([data.node_set for data in element_data])
         self.add_element_data(element_data)

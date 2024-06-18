@@ -12,6 +12,7 @@ from febio_python.core import (
     FEBioElementType,
     Nodes,
     Elements,
+    Surfaces,
     NodeSet,
     SurfaceSet,
     ElementSet,
@@ -103,26 +104,41 @@ class Feb40(AbstractFebObject):
         return all_elements
 
     @feb_instance_cache
-    def get_surface_elements(self, dtype=np.int64) -> List[Elements]:
-        # get all elements
-        all_elements = self.get_elements(dtype=dtype)
-        # filter elements by surface type
-        filtered = []
-        for elem in all_elements:
-            if elem.type in SURFACE_EL_TYPE.__members__:
-                filtered.append(elem)
-        return filtered
+    def get_surfaces(self, dtype=np.int64) -> List[Surfaces]:
+        all_surfaces = []
+        for surf_group in self.mesh.findall("Surface"):
+            mat_id = surf_group.attrib.get("mat", None)
+            surf_part_id = surf_group.attrib.get("part", None)
+            if mat_id is not None:
+                try:
+                    mat_id = int(mat_id)
+                except TypeError:
+                    pass
+            surf_name = surf_group.attrib.get("name")
+            connectivity = deque()
+            surf_ids = deque()
+            # get first child element of the surf_group
+            surf_elem = surf_group[0]
+            surf_type = surf_elem.tag
+            for elem in surf_group.findall(surf_type):
+                # Convert the comma-separated string of node indices into an array of integers
+                this_surf_connectivity = np.array(elem.text.split(','), dtype=dtype)
+                connectivity.append(this_surf_connectivity)
+                this_surf_id = int(elem.attrib["id"])
+                surf_ids.append(this_surf_id)
 
-    @feb_instance_cache
-    def get_volume_elements(self, dtype=np.int64) -> List[Elements]:
-        # get all elements
-        all_elements = self.get_elements(dtype=dtype)
-        # filter elements by surface type
-        filtered = []
-        for elem in all_elements:
-            if elem.type not in SURFACE_EL_TYPE.__members__:
-                filtered.append(elem)
-        return filtered
+            # Convert the list of surfent connectivities to a numpy array
+            connectivity = np.array(connectivity, dtype=dtype) - 1  # Convert to zero-based indexing
+            surf_ids = np.array(surf_ids, dtype=np.int64) - 1  # Convert to zero-based indexing
+            # Create an surfents instance for each surfent
+            surface = Surfaces(name=surf_name,
+                               mat=mat_id,
+                               part=surf_part_id,
+                               type=surf_type,
+                               connectivity=connectivity,
+                               ids=surf_ids)
+            all_surfaces.append(surface)
+        return all_surfaces
 
     # Node, element, surface sets
     # ------------------------------
@@ -662,19 +678,51 @@ class Feb40(AbstractFebObject):
             # Update the last_initial_id for the next element group
             last_initial_id += len(element.connectivity)
 
-    def add_surface_elements(self, elements: List[Elements]) -> None:
+    def add_surfaces(self, elements: List[Surfaces]) -> None:
         # Filter elements by surface type
         filtered = [elem for elem in elements if elem.type in SURFACE_EL_TYPE.__members__]
         if len(filtered) == 0:
-            raise ValueError("No surface elements found in the input list. Try using add_elements() instead.")
-        self.add_elements(filtered)
+            raise ValueError("No surface elements found in the input list. Try using add_volume_elements() instead.")
+        
+        # Retrieve existing elements and determine the last element ID
+        existing_surfaces_list = self.get_surface_elements()
+        last_surf_initial_id = existing_surfaces_list[-1].ids[-1] if existing_surfaces_list else 1
+        
+        existing_surfaces = {element.name: element for element in existing_surfaces_list}
 
-    def add_volume_elements(self, elements: List[Elements]) -> None:
-        # Filter elements by volume type
-        filtered = [elem for elem in elements if elem.type not in SURFACE_EL_TYPE.__members__]
-        if len(filtered) == 0:
-            raise ValueError("No volume elements found in the input list. Try using add_elements() instead.")
-        self.add_elements(filtered)
+        for surface in filtered:
+            # Make sure the surface type is valid, it must be a valid FEBio surface type
+            # However, user can also use VTK surface types as input, but they must be
+            # converted to FEBio types
+            el_type = surface.type
+            # first, check if it is a VTK element type. FEBioElementType names
+            # are the same as VTK element types.
+            if el_type not in FEBioElementType.__members__.values():
+                if str(el_type).upper() in FEBioElementType.__members__.keys():
+                    el_type = FEBioElementType[el_type].value
+                else:
+                    raise TypeError(f"Element type {el_type} is not a valid FEBio element type.")
+
+            if surface.name in existing_surfaces:
+                # Append to existing Surfaces group
+                el_root = self.mesh.find(f".//Surfaces[@name='{surface.name}']")
+            else:
+                
+                el_root = ET.Element("Surface")
+                el_root.set("name", str(surface.name))
+
+                # Append new "Surfaces" at the end of the geometry
+                self.mesh.append(el_root)
+            
+            # Add element connectivities as sub-surfaces
+            for i, connectivity in enumerate(surface.connectivity):
+                subel = ET.SubElement(el_root, el_type)  # FEBio use element type as tag name for surface surfaces
+                # Set the element ID and convert the connectivity to a comma-separated string
+                subel.set("id", str(i + last_surf_initial_id)) 
+                subel.text = ",".join(map(str, connectivity + 1))  # Convert connectivity to comma-separated string
+
+            # Update the last_elem_initial_id for the next element group
+            last_surf_initial_id += len(surface.connectivity)
 
     # Node, element, surface sets
     # ------------------------------

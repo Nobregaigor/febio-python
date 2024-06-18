@@ -109,7 +109,7 @@ if __name__ == "__main__":
         type="QUAD",
         connectivity=surf_cells_mapped)
     # Add the surface to the FEB object
-    feb.add_surface_elements([surfaces])
+    feb.add_surfaces([surfaces])
 
     # --------------------------------------------------------------------
     # Define the boundary conditions

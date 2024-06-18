@@ -11,6 +11,7 @@ from abc import abstractmethod, ABC
 from febio_python.core import (
     Nodes,
     Elements,
+    Surfaces,
     NodeSet,
     SurfaceSet,
     ElementSet,
@@ -56,12 +57,7 @@ class AbstractFebObject(FebBaseObject, ABC):
 
     @feb_instance_cache
     @abstractmethod
-    def get_surface_elements(self, dtype=np.int64) -> List[Elements]:
-        pass
-
-    @feb_instance_cache
-    @abstractmethod
-    def get_volume_elements(self, dtype=np.int64) -> List[Elements]:
+    def get_surfaces(self, dtype: np.int64) -> List[Surfaces]:
         pass
 
     # Node, element, surface sets
@@ -200,12 +196,12 @@ class AbstractFebObject(FebBaseObject, ABC):
         pass
 
     @abstractmethod
-    def add_surface_elements(self, elements: List[Elements]) -> None:
+    def add_surfaces(self, elements: List[Surfaces]) -> None:
         pass
     
-    @abstractmethod
-    def add_volume_elements(self, elements: List[Elements]) -> None:
-        pass
+    # @abstractmethod
+    # def add_volume_elements(self, elements: List[Elements]) -> None:
+    #     pass
     
     # Node, element, surface sets
     # ------------------------------

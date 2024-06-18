@@ -56,6 +56,9 @@ class FEB_MAJOR_TAGS(Enum):
     ELEMENTS = "Elements"
     ELEMENTSET = "ElementSet"  # Need to check this
     ELEMENTDATA = "ElementData"
+    DISCRETESET = "DiscreteSet"
+    DISCRETE = "discrete"
+    DISCRETEMATERIAL = "discrete_material"
     SURFACE = "Surface"
     SURFACESET = "SurfaceSet"  # Need to check this
     SURFACE_DATA = "SurfaceData"
@@ -66,6 +69,7 @@ class FEB_MAJOR_TAGS(Enum):
     SURFACELOAD = "surface_load"
 
     SHELLDOMAIN = "ShellDomain"
+    SOLIDDOMAIN = "SolidDomain"
 
 
 class ELEM_TYPES(Enum):

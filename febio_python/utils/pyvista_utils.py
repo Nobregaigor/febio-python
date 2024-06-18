@@ -120,10 +120,10 @@ def create_unstructured_grid_from_febio_container(container: FEBioContainer) -> 
         pv.UnstructuredGrid: A UnstructuredGrid object containing the mesh data.
     """
     nodes: List[Nodes] = container.nodes
-    volumes: List[Elements] = container.volumes
+    elements: List[Elements] = container.elements
     surfaces: List[Elements] = container.surfaces
 
-    elements = deepcopy(volumes) + deepcopy(surfaces)  # deep copy to avoid modifying the original data
+    all_elements = deepcopy(elements) + deepcopy(surfaces)  # deep copy to avoid modifying the original data
 
     # create a MultiBlock object
     # First, stack all the node coordinates; this will be the points of the mesh
@@ -133,7 +133,7 @@ def create_unstructured_grid_from_febio_container(container: FEBioContainer) -> 
     # This is a dictionary that maps the element type to the connectivity
     cells_dict = OrderedDict()
     domain_identifiers = []
-    for i, elem in enumerate(elements):
+    for i, elem in enumerate(all_elements):
         elem_type: str = elem.type
         connectivity: np.ndarray = elem.connectivity  # FEBio uses 1-based indexing
         if elem_type in FebioElementTypeToVTKElementType.__members__.keys():
@@ -398,7 +398,7 @@ def add_material(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.Uns
         params_array = np.full((grid.n_cells, num_params), np.nan)
 
         # Assign values to the parameter array
-        for i, value in enumerate(params_values):
+        for i, (name, value) in enumerate(zip(params_names, params_values)):
             # Directly assign scalar values
             if isinstance(value, (int, float)):
                 params_array[:, i] = value
@@ -407,7 +407,10 @@ def add_material(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.Uns
                 if value in grid.cell_data.keys():
                     params_array[:, i] = grid.cell_data[value]
                 else:
-                    raise ValueError(f"Value {value} is not a valid cell data for material {mat_name}")
+                    # raise ValueError(f"Value {value} is not a valid cell data for material {mat_name}")
+                    print(f"Value {value} is not a valid cell data for material {mat_name}"
+                          f"Adding it as a field data instead: mat_parameter:{name}:{mat_id}")
+                    grid.field_data[f"mat_parameter:{name}:{mat_id}"] = [value]
             else:
                 raise ValueError(f"Unsupported material parameter format for {value} in material {mat_name}")
 
