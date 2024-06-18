@@ -28,7 +28,9 @@ from febio_python.core import (
     ElementData,
     GenericDomain,
     ShellDomain,
-    SolidDomain
+    SolidDomain,
+    DiscreteSet,
+    DiscreteMaterial
 )
 
 from ._caching import feb_instance_cache
@@ -204,6 +206,73 @@ class Feb30(AbstractFebObject):
             value -= 1
             elementset_list.append(ElementSet(name=key, ids=value))
         return elementset_list
+
+    @feb_instance_cache
+    def get_discrete_sets(self, dtype=np.int64, find_related_nodesets=True) -> List[DiscreteSet]:
+        
+        # get all node sets by name and ids (for reference)
+        node_sets_by_name = {n.name: n.ids for n in self.get_node_sets()}
+        # find all discrete sets
+        discrete_sets = self.geometry.findall("DiscreteSet")
+        discrete_set_list = []
+        for dset in discrete_sets:
+            # get name
+            name = dset.attrib.get("name", None)
+            
+            # Try to get the related discrete material
+            mat_id = None # default value 
+            # find discrete data associated with the set (if any)
+            all_related_discrete_data = self.discrete.findall("discrete")
+            related_discrete_data = [d for d in all_related_discrete_data if d.attrib.get("discrete_set", None) == name]
+            if len(related_discrete_data) > 0:
+                # get first data
+                dset_related_data = related_discrete_data[0]
+                # get the material id
+                mat_id = dset_related_data.attrib.get("dmat", None)
+            
+            # get the source and destination node sets
+            dset_ids = deque()
+            for delem in dset.findall("delem"):
+                # src and dst are in delem text and are comma separated
+                src, dst = delem.text.split(",")
+                src, dst = int(src), int(dst)
+                dset_ids.append((src, dst))
+            
+            # transform to numpy array
+            dset_ids = np.array(dset_ids, dtype=dtype)
+            
+            # get the source and destination node sets
+            src_ids = dset_ids[:, 0]
+            dst_ids = dset_ids[:, 1]
+            
+            # default values
+            src = src_ids
+            dst = dst_ids
+            
+            # Try to match with any existing node set
+            if find_related_nodesets:
+                src_names = [k for k, v in node_sets_by_name.items() if np.array_equal(v, src_ids)]
+                dst_names = [k for k, v in node_sets_by_name.items() if np.array_equal(v, dst_ids)]
+
+                # If there is only one match, use it
+                if len(src_names) == 1:
+                    src = src_names[0]
+                
+                if len(dst_names) == 1:
+                    dst = dst_names[0]
+                
+            # Create a DiscreteSet instance
+            current_dset = DiscreteSet(
+                name=name,
+                src=src,
+                dst=dst,
+                dmat=mat_id
+            )
+
+            # Add the DiscreteSet instance to the list
+            discrete_set_list.append(current_dset)
+            
+        return discrete_set_list 
 
     # Mesh Domains
     # ------------------------------
@@ -612,7 +681,7 @@ class Feb30(AbstractFebObject):
             raise ValueError("No surface elements found in the input list. Try using add_volume_elements() instead.")
         
         # Retrieve existing elements and determine the last element ID
-        existing_surfaces_list = self.get_surface_elements()
+        existing_surfaces_list = self.get_surfaces()
         last_surf_initial_id = existing_surfaces_list[-1].ids[-1] if existing_surfaces_list else 1
         
         existing_surfaces = {element.name: element for element in existing_surfaces_list}
@@ -738,6 +807,86 @@ class Feb30(AbstractFebObject):
                 subel = ET.SubElement(el_root, "elem")
                 subel.set("id", str(int(elem_id + 1)))  # Convert to one-based indexing
 
+    def add_discrete_sets(self, discrete_sets: List[DiscreteSet]) -> None:
+        """
+        Adds discrete sets to Geometry, appending to existing discrete sets if they share the same name.
+
+        Args:
+            discrete_sets (list of DiscreteSet): List of DiscreteSet objects, each containing a name and element IDs.
+        """
+        existing_discrete_sets = {dset.name: dset for dset in self.get_discrete_sets(find_related_nodesets=False)}
+        nodesets_by_name = {nodeset.name: nodeset.ids for nodeset in self.get_node_sets()}
+        
+        for dset in discrete_sets:
+            already_exists = dset.name in existing_discrete_sets
+            src_ids = dset.src
+            dst_ids = dset.dst
+            
+            if isinstance(src_ids, str):  # then it is a nodeset.
+                # Find the node set with the same name
+                node_set = nodesets_by_name.get(src_ids, None)
+                # If the node set does not exist, raise an error
+                if node_set is None:
+                    raise ValueError(
+                        f"Trying to create a DiscreteSet {dset.name} with "
+                        f"source node set {src_ids}, but the node set does not exist. "
+                        "Please, create the node set first and try again.")
+                # Get the node IDs from the node set
+                src_ids = node_set  # ids
+            else:
+                # make sure the source is a numpy array
+                src_ids = np.array(src_ids, dtype=np.int64)
+
+            # make sure it is one-based indexing
+            src_ids = src_ids + 1
+
+            # same for dst
+            if isinstance(dst_ids, str):  # then it is a nodeset.
+                # Find the node set with the same name
+                node_set = nodesets_by_name.get(dst_ids, None)
+                # If the node set does not exist, raise an error
+                if node_set is None:
+                    raise ValueError(
+                        f"Trying to create a DiscreteSet {dset.name} with "
+                        f"destination node set {dst_ids}, but the node set does not exist. "
+                        "Please, create the node set first and try again.")
+                # Get the node IDs from the node set
+                dst_ids = node_set
+            else:
+                # make sure the destination is a numpy array
+                dst_ids = np.array(dst_ids, dtype=np.int64)
+            # make sure it is one-based indexing
+            dst_ids = dst_ids + 1
+            
+            # Combine the source and destination IDs
+            src_dst = np.column_stack((src_ids, dst_ids))
+            if already_exists:
+                # Append to existing DiscreteSet element
+                el_root = self.geometry.find(f".//DiscreteSet[@name='{dset.name}']")
+                # Merge the existing element IDs with the new ones and remove duplicates
+                existing_src = existing_discrete_sets[dset.name].src
+                existing_dst = existing_discrete_sets[dset.name].dst
+                existing_ids = np.column_stack((existing_src, existing_dst))
+                src_dst = np.unique(np.concatenate((existing_ids, src_dst)))
+            else:
+                # Create a new DiscreteSet element if no existing one matches the name
+                el_root = ET.Element("DiscreteSet")
+                el_root.set("name", dset.name)
+                self.geometry.append(el_root)
+
+            # Add element IDs as sub-elements
+            for src, dst in zip(src_ids, dst_ids):
+                subel = ET.SubElement(el_root, "delem")
+                subel.text = f"{src},{dst}"
+                
+            # Add the discrete material if it exists
+            if dset.dmat is not None and not already_exists:
+                # Create a new DiscreteData element if no existing one matches the name
+                el_data = ET.Element("discrete")
+                el_data.set("discrete_set", dset.name)
+                el_data.set("dmat", str(dset.dmat))
+                self.discrete.append(el_data)
+
     # Mesh Domains
     # ------------------------------
 
@@ -788,6 +937,52 @@ class Feb30(AbstractFebObject):
             for key, value in material.parameters.items():
                 subel = ET.SubElement(el_root, key)
                 subel.text = str(value)
+
+    def add_discrete_materials(self, materials: List[DiscreteMaterial]) -> None:
+        """
+        Adds discrete materials to Discrete.
+
+        Args:
+            materials (list of Material): List of Material objects, each containing an ID, type, parameters, name, and attributes.
+        """
+
+        for material in materials:
+            # Create a new Material element if no existing one matches the ID
+            el_root = ET.Element("discrete_material")
+            el_root.set("id", str(material.id))
+            el_root.set("type", material.type)
+            el_root.set("name", material.name)
+
+            # Add parameters as sub-elements
+            mat_params: dict = material.parameters
+            if not isinstance(mat_params, dict):
+                raise ValueError(f"Material parameters should be a dictionary, not {type(mat_params)}")
+            for key, value in mat_params.items():
+                subel = ET.SubElement(el_root, key)
+                subel.text = str(value)
+            
+            # discrete materials must be at the top, 
+            # and ordered by id
+            # thus, we cannot simply append the new material
+            # This results in error: self.discrete.append(el_root)
+            
+            # we need to find the correct position to insert the new material
+            # we need to find the last material with an id smaller than the new material
+            # and insert the new material after that
+            # if no such material exists, we insert the new material at the beginning
+            
+            # find all discrete materials
+            all_discrete_materials = self.discrete.findall("discrete_material")
+            # find the last material with an id smaller than the new material
+            last_id = -1
+            for i, mat in enumerate(all_discrete_materials):
+                if int(mat.attrib["id"]) < material.id:
+                    last_id = i
+            # insert the new material after the last material with an id smaller than the new material
+            if last_id == -1:
+                self.discrete.insert(0, el_root)
+            else:
+                self.discrete.insert(last_id + 1, el_root)
 
     # Loads
     # ------------------------------
@@ -847,7 +1042,7 @@ class Feb30(AbstractFebObject):
         Adds pressure loads to Loads.
 
         Args:
-            pressure_loads (list of SurfaceLoad): List of SurfaceLoad namedtuples, each containing a surface, attributes, and multiplier.
+            pressure_loads (list of SurfaceLoad): List of SurfaceLoad objects, each containing a surface, attributes, and multiplier.
         """
 
         for load in pressure_loads:
