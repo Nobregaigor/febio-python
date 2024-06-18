@@ -213,7 +213,7 @@ class Feb30(AbstractFebObject):
         # get all node sets by name and ids (for reference)
         node_sets_by_name = {n.name: n.ids for n in self.get_node_sets()}
         # find all discrete sets
-        discrete_sets = self.geometry.findall("DiscreteSet")
+        discrete_sets = self.mesh.findall("DiscreteSet")
         discrete_set_list = []
         for dset in discrete_sets:
             # get name
@@ -862,7 +862,7 @@ class Feb30(AbstractFebObject):
             src_dst = np.column_stack((src_ids, dst_ids))
             if already_exists:
                 # Append to existing DiscreteSet element
-                el_root = self.geometry.find(f".//DiscreteSet[@name='{dset.name}']")
+                el_root = self.mesh.find(f".//DiscreteSet[@name='{dset.name}']")
                 # Merge the existing element IDs with the new ones and remove duplicates
                 existing_src = existing_discrete_sets[dset.name].src
                 existing_dst = existing_discrete_sets[dset.name].dst
@@ -872,7 +872,7 @@ class Feb30(AbstractFebObject):
                 # Create a new DiscreteSet element if no existing one matches the name
                 el_root = ET.Element("DiscreteSet")
                 el_root.set("name", dset.name)
-                self.geometry.append(el_root)
+                self.mesh.append(el_root)
 
             # Add element IDs as sub-elements
             for src, dst in zip(src_ids, dst_ids):
@@ -1386,6 +1386,21 @@ class Feb30(AbstractFebObject):
             if el is not None:
                 self.mesh.remove(el)
 
+    def remove_discrete_sets(self, names: List[str]) -> None:
+        """
+        Removes discrete sets from Geometry by name.
+
+        Args:
+            names (list of str): List of discrete set names to remove.
+        """
+        for name in names:
+            el = self.mesh.find(f".//DiscreteSet[@name='{name}']")
+            if el is not None:
+                self.mesh.remove(el)
+            el = self.discrete.find(f".//discrete[@discrete_set='{name}']")
+            if el is not None:
+                self.discrete.remove(el)
+
     # Mesh Domains
     # ------------------------------
 
@@ -1429,6 +1444,27 @@ class Feb30(AbstractFebObject):
             el = self.material.find(f".//material[@type='{id}']")
             if el is not None:
                 self.material.remove(el)
+                continue
+
+    def remove_discrete_materials(self, ids: List[Union[str, int]]) -> None:
+        """
+        Removes discrete materials from Discrete by ID, name or type.
+
+        Args:
+            ids (list of int): List of discrete material IDs, types, remove.
+        """
+        for id in ids:
+            el = self.discrete.find(f".//discrete_material[@id='{id}']")
+            if el is not None:
+                self.discrete.remove(el)
+                continue
+            el = self.discrete.find(f".//discrete_material[@name='{id}']")
+            if el is not None:
+                self.discrete.remove(el)
+                continue
+            el = self.discrete.find(f".//discrete_material[@type='{id}']")
+            if el is not None:
+                self.discrete.remove(el)
                 continue
 
     # Loads
@@ -1680,6 +1716,22 @@ class Feb30(AbstractFebObject):
         for el in self.meshdata.findall(self.MAJOR_TAGS.ELEMENTDATA.value):
             self.meshdata.remove(el)
 
+    def clear_discrete_sets(self) -> None:
+        """
+        Removes all discrete sets from Geometry.
+        """
+        for el in self.mesh.findall(self.MAJOR_TAGS.DISCRETESET.value):
+            self.mesh.remove(el)
+        for el in self.discrete.findall(self.MAJOR_TAGS.DISCRETE.value):
+            self.discrete.remove(el)
+    
+    def clear_discrete_materials(self) -> None:
+        """
+        Removes all discrete materials from Discrete.
+        """
+        for el in self.discrete.findall(self.MAJOR_TAGS.DISCRETEMATERIAL.value):
+            self.discrete.remove(el)
+
     def clear(self,
               nodes=True,
               elements=True,
@@ -1695,7 +1747,10 @@ class Feb30(AbstractFebObject):
               boundary_conditions=True,
               nodal_data=True,
               surface_data=True,
-              element_data=True) -> None:
+              element_data=True,
+              discrete_sets=True,
+              discrete_materials=True
+              ) -> None:
         """
         Clears the FEBio model of all data, based on the specified options.
 
@@ -1715,6 +1770,8 @@ class Feb30(AbstractFebObject):
             nodal_data (bool): Remove all nodal data.
             surface_data (bool): Remove all surface data.
             element_data (bool): Remove all element data.
+            discrete_sets (bool): Remove all discrete sets.
+            discrete_materials (bool): Remove all discrete materials.
         """
         if nodes:
             self.clear_nodes()
@@ -1746,6 +1803,10 @@ class Feb30(AbstractFebObject):
             self.clear_surface_data()
         if element_data:
             self.clear_element_data()
+        if discrete_sets:
+            self.clear_discrete_sets()
+        if discrete_materials:
+            self.clear_discrete_materials()
 
     # =========================================================================================================
     # Update methods
