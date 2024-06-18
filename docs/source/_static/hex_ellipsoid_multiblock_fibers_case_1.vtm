@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<VTKFile type="vtkMultiBlockDataSet" version="1.0" byte_order="LittleEndian" header_type="UInt32" compressor="vtkZLibDataCompressor">
+  <vtkMultiBlockDataSet>
+    <DataSet index="0" name="grid" file="hex_ellipsoid_multiblock_fibers_case_1/hex_ellipsoid_multiblock_fibers_case_1_0.vtu"/>
+    <DataSet index="1" name="selected_load_surface" file="hex_ellipsoid_multiblock_fibers_case_1/hex_ellipsoid_multiblock_fibers_case_1_1.vtu"/>
+  </vtkMultiBlockDataSet>
+</VTKFile>
