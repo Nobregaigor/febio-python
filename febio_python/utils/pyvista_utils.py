@@ -1,12 +1,10 @@
 import pyvista as pv
 import numpy as np
 from copy import deepcopy
-
+from pathlib import Path
 from febio_python import FEBioContainer
-from febio_python.feb._feb_25 import Feb25
-from febio_python.feb._feb_30 import Feb30
-from febio_python.feb._feb_40 import Feb40
-
+from febio_python.feb import FebType
+from febio_python.xplt import Xplt
 
 # from febio_python.feb import Feb
 from febio_python.core import (
@@ -17,14 +15,14 @@ from febio_python.core import (
     States,
     StateData
 )
-from typing import Union, List
+from typing import Union, List, Tuple
 
 from febio_python.core.element_types import FebioElementTypeToVTKElementType
 # from copy import deepcopy
 from collections import OrderedDict
 
 
-def febio_to_pyvista(data: Union[FEBioContainer, Feb25, Feb30], apply_load_curves=True) -> List[pv.UnstructuredGrid]:
+def febio_to_pyvista(data: Union[str, Path, FEBioContainer, Tuple, FebType, Xplt], apply_load_curves=True) -> List[pv.UnstructuredGrid]:
     """
     Converts FEBio simulation data into a PyVista MultiBlock structure for advanced visualization and analysis.
     This function orchestrates a series of operations to transfer all pertinent data from FEBio into a structured
@@ -93,14 +91,29 @@ def febio_to_pyvista(data: Union[FEBioContainer, Feb25, Feb30], apply_load_curve
 # =============================================================================
 
 
-def ensure_febio_container(data: Union[FEBioContainer, Feb25, Feb30, Feb40]) -> FEBioContainer:
+def ensure_febio_container(data: Union[FEBioContainer, FebType]) -> FEBioContainer:
     """Ensure the input data is a FEBioContainer object."""
-    if isinstance(data, (Feb25, Feb30, Feb40)):
+    if isinstance(data, (str, Path)):
+        # ensure it is a path:
+        filepath = Path(data)
+        # make sure it is a file and exists:
+        if not filepath.is_file():
+            raise FileNotFoundError(f"File {filepath} not found.")
+        # try to get the file extension:
+        extension = filepath.suffix
+        if extension == ".feb":
+            return FEBioContainer(feb=filepath)
+        elif extension == ".xplt":
+            return FEBioContainer(xplt=filepath)    
+    elif isinstance(data, tuple):
+        feb_data, xplt_data = data
+        return FEBioContainer(feb=feb_data, xplt=xplt_data)            
+    elif isinstance(data, (FebType)):
         return FEBioContainer(feb=data)
     elif isinstance(data, FEBioContainer):
         return data
     else:
-        raise ValueError("Input data must be a Feb or FEBioContainer object")
+        raise ValueError("Input data must be a Path, Feb or Xplt or FEBioContainer object")
 
 # =============================================================================
 # Create mesh (multiblock) from FEBioContainer
