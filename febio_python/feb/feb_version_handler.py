@@ -6,11 +6,16 @@ from typing import Union
 from xml.etree import ElementTree as ET
 from pathlib import Path
 
+from typing import Union
+
+# Create a type for the different versions of FEB
+FebType = Union[Feb25, Feb30, Feb40]
+
 
 def Feb(filepath: Union[str, Path] = None,
         tree: Union[ET.ElementTree, None] = None,
         root: Union[ET.Element, None] = None,
-        version: float = None) -> Union[Feb25, Feb30, Feb40]:
+        version: float = None) -> FebType:
     """Create a FEB object based on the version of the FEB.
     """
     # version = determine_version(filepath)
