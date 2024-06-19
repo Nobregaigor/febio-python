@@ -347,13 +347,18 @@
 <span class="kn">from</span> <span class="nn">xml.etree</span> <span class="kn">import</span> <span class="n">ElementTree</span> <span class="k">as</span> <span class="n">ET</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="c1"># Create a type for the different versions of FEB</span>
+<span class="n">FebType</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb40</span><span class="p">]</span>
+
 
 <div class="viewcode-block" id="Feb">
 <a class="viewcode-back" href="../../../api/feb/feb.html#febio_python.feb.Feb">[docs]</a>
 <span class="k">def</span> <span class="nf">Feb</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">tree</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">version</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb40</span><span class="p">]:</span>
+        <span class="n">version</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FebType</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a FEB object based on the version of the FEB.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># version = determine_version(filepath)</span>

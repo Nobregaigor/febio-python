@@ -342,12 +342,10 @@
 <span></span><span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">febio_python</span> <span class="kn">import</span> <span class="n">FEBioContainer</span>
-<span class="kn">from</span> <span class="nn">febio_python.feb._feb_25</span> <span class="kn">import</span> <span class="n">Feb25</span>
-<span class="kn">from</span> <span class="nn">febio_python.feb._feb_30</span> <span class="kn">import</span> <span class="n">Feb30</span>
-<span class="kn">from</span> <span class="nn">febio_python.feb._feb_40</span> <span class="kn">import</span> <span class="n">Feb40</span>
-
+<span class="kn">from</span> <span class="nn">febio_python.feb</span> <span class="kn">import</span> <span class="n">FebType</span>
+<span class="kn">from</span> <span class="nn">febio_python.xplt</span> <span class="kn">import</span> <span class="n">Xplt</span>
 
 <span class="c1"># from febio_python.feb import Feb</span>
 <span class="kn">from</span> <span class="nn">febio_python.core</span> <span class="kn">import</span> <span class="p">(</span>
@@ -358,7 +356,7 @@
     <span class="n">States</span><span class="p">,</span>
     <span class="n">StateData</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span> <span class="nn">febio_python.core.element_types</span> <span class="kn">import</span> <span class="n">FebioElementTypeToVTKElementType</span>
 <span class="c1"># from copy import deepcopy</span>
@@ -367,7 +365,7 @@
 
 <div class="viewcode-block" id="febio_to_pyvista">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.febio_to_pyvista">[docs]</a>
-<span class="k">def</span> <span class="nf">febio_to_pyvista</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">],</span> <span class="n">apply_load_curves</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">febio_to_pyvista</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">FebType</span><span class="p">,</span> <span class="n">Xplt</span><span class="p">],</span> <span class="n">apply_load_curves</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts FEBio simulation data into a PyVista MultiBlock structure for advanced visualization and analysis.</span>
 <span class="sd">    This function orchestrates a series of operations to transfer all pertinent data from FEBio into a structured</span>
@@ -439,14 +437,29 @@
 
 <div class="viewcode-block" id="ensure_febio_container">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.ensure_febio_container">[docs]</a>
-<span class="k">def</span> <span class="nf">ensure_febio_container</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb40</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FEBioContainer</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">ensure_febio_container</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">FebType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FEBioContainer</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure the input data is a FEBioContainer object.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb40</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
+        <span class="c1"># ensure it is a path:</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1"># make sure it is a file and exists:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filepath</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+        <span class="c1"># try to get the file extension:</span>
+        <span class="n">extension</span> <span class="o">=</span> <span class="n">filepath</span><span class="o">.</span><span class="n">suffix</span>
+        <span class="k">if</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;.feb&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">feb</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;.xplt&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">xplt</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>    
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="n">feb_data</span><span class="p">,</span> <span class="n">xplt_data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="k">return</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">feb</span><span class="o">=</span><span class="n">feb_data</span><span class="p">,</span> <span class="n">xplt</span><span class="o">=</span><span class="n">xplt_data</span><span class="p">)</span>            
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">FebType</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">feb</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">FEBioContainer</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">data</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input data must be a Feb or FEBioContainer object&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input data must be a Path, Feb or Xplt or FEBioContainer object&quot;</span><span class="p">)</span></div>
 
 
 <span class="c1"># =============================================================================</span>
