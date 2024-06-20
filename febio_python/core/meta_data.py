@@ -86,11 +86,11 @@ class NodalLoad:
         if self.type != "nodal_load" or self.type != "nodal_force":
             raise ValueError(f"Invalid type {self.type} for {self.__class__.__name__}"
                              "Valid types are 'nodal_load' and 'nodal_force'")
-        if self.type == "nodal_force" and not isinstance(self, (tuple, ndarray)):
+        if self.type == "nodal_force" and not isinstance(self.scale, (tuple, ndarray)):
             raise ValueError(f"Invalid scale {self.scale} for {self.__class__.__name__}"
                              "Scale must be a tuple or ndarray when type='nodal_force'")
         if self.type == "nodal_load" and self.dof is None:
-            raise ValueError(f"dof cannot be None for {self.__class__.__name__}")
+            raise ValueError("dof cannot be None when type='nodal_load'")
 
 
 @dataclass

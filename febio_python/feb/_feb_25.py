@@ -894,6 +894,7 @@ class Feb25(AbstractFebObject):
             materials (list of Material): List of Material objects, each containing an ID, type, parameters, name, and attributes.
         """
         existing_materials = {material.id: material for material in self.get_materials()}
+        element_by_mat = {element.mat: element for element in self.get_elements()}
 
         for material in materials:
             if material.id in existing_materials or str(material.id) in existing_materials:
@@ -914,7 +915,31 @@ class Feb25(AbstractFebObject):
                 raise ValueError(f"Material parameters should be a dictionary, not {type(mat_params)}")
             for key, value in mat_params.items():
                 subel = ET.SubElement(el_root, key)
-                subel.text = str(value)
+                if isinstance(value, (int, float, np.number)):
+                    subel.text = str(value)
+                elif isinstance(value, np.ndarray):
+                    # then we must add as mesh data
+                    ref_data_name = f"material_{material.id}_{key}"
+                    related_elem = element_by_mat.get(material.id, None)
+                    # Make sure the element exists
+                    if related_elem is None:
+                        raise ValueError(f"Material with ID {material.id} does not exist in the geometry."
+                                         "Cannot add material parameter as mesh data. Please, add the Elements first.")
+                    # Make sure that data is the same length as the number of elements
+                    if len(value) != related_elem.ids.size:
+                        raise ValueError(f"Material parameter '{key}' must have the same length as the number of elements.")
+                    # prepare the element data
+                    elem_data = ElementData(elem_set=related_elem.name,
+                                            name=ref_data_name,
+                                            data=value,
+                                            ids=related_elem.ids)
+                    # add the element data
+                    self.add_element_data([elem_data])
+                    # add the reference to the material
+                    subel.text = f"{ref_data_name}"
+                else:
+                    # if it is not a number or an array, we just add it as text    
+                    subel.text = str(value)
 
     def add_discrete_materials(self, materials: List[DiscreteMaterial]) -> None:
         """
@@ -988,7 +1013,8 @@ class Feb25(AbstractFebObject):
                 scale_subel.text = str(load.scale)
             elif isinstance(load.scale, np.ndarray):
                 # we need to add this as mesh data; and then reference it here
-                ref_data_name = f"nodal_load_{load.node_set}_scale"
+                ref_data_name = f"nodal_load_{load.node_set}_{load.dof}_scale"
+                
                 scale_subel.text = f"1*{ref_data_name}"
                 # we need to retrieve the node ids for this node set
                 nodesets = self.get_node_sets()
@@ -1120,23 +1146,23 @@ class Feb25(AbstractFebObject):
 
     def add_nodal_data(self, nodal_data: List[NodalData]) -> None:
         """
-        Adds nodal data to MeshData, appending to existing nodal data if they share the same node set.
+        Adds nodal data to MeshData
 
         Args:
             nodal_data (list of NodalData): List of NodalData objects, each containing a node set, name, and data.
         """
-        existing_nodal_data = {data.node_set: data for data in self.get_nodal_data()}
+        # existing_nodal_data = {data.name: data for data in self.get_nodal_data()}
 
         for data in nodal_data:
-            if data.node_set in existing_nodal_data:
-                # Append to existing NodalData element
-                el_root = self.meshdata.find(f".//{self.MAJOR_TAGS.NODEDATA.value}[@node_set='{data.node_set}']")
-            else:
-                # Create a new NodalData element if no existing one matches the node set
-                el_root = ET.Element(self.MAJOR_TAGS.NODEDATA.value)
-                el_root.set("node_set", data.node_set)
-                el_root.set("name", data.name)
-                self.meshdata.append(el_root)
+            # if data.name in existing_nodal_data:
+            #     # Append to existing NodalData element
+            #     el_root = self.meshdata.find(f".//{self.MAJOR_TAGS.NODEDATA.value}[@name='{data.name}']")
+            # else:
+            # Create a new NodalData element if no existing one matches the node set
+            el_root = ET.Element(self.MAJOR_TAGS.NODEDATA.value)
+            el_root.set("node_set", data.node_set)
+            el_root.set("name", data.name)
+            self.meshdata.append(el_root)
 
             # Add node IDs and data as sub-elements
             for i, node_data in enumerate(data.data):
@@ -1182,21 +1208,32 @@ class Feb25(AbstractFebObject):
         Args:
             element_data (list of ElementData): List of ElementData objects, each containing an element set, name, and data.
         """
-        existing_element_data = {data.elem_set: data for data in self.get_element_data()}
+        # existing_element_data = {data.elem_set: data for data in self.get_element_data()}
 
         for data in element_data:
-            if data.elem_set in existing_element_data:
-                # Append to existing ElementData element
-                el_root = self.meshdata.find(f".//{self.MAJOR_TAGS.ELEMENTDATA.value}[@elem_set='{data.elem_set}']")
-            else:
-                # Create a new ElementData element if no existing one matches the element set
-                el_root = ET.Element(self.MAJOR_TAGS.ELEMENTDATA.value)
-                el_root.set("elem_set", data.elem_set)
-                if data.name is not None:
-                    el_root.set("name", data.name)
-                if data.var is not None:
-                    el_root.set("var", data.var)
-                self.meshdata.append(el_root)
+            # if data.elem_set in existing_element_data:
+            #     # Append to existing ElementData element
+            #     el_root = self.meshdata.find(f".//{self.MAJOR_TAGS.ELEMENTDATA.value}[@elem_set='{data.elem_set}']")
+            # else:
+            # Create a new ElementData element if no existing one matches the element set
+            el_root = ET.Element(self.MAJOR_TAGS.ELEMENTDATA.value)
+            el_root.set("elem_set", data.elem_set)
+            if data.name is not None:
+                el_root.set("name", data.name)
+            if data.var is not None:
+                el_root.set("var", data.var)
+            if data.data_type is not None:
+                el_root.set("datatype", data.data_type)
+            else:  # try to assume based on 
+                if isinstance(data.data, np.ndarray):
+                    if data.data.ndim == 1:
+                        el_root.set("datatype", "scalar")
+                    else:
+                        if data.data.shape[1] == 3:
+                            el_root.set("datatype", "vector")
+                        else:
+                            el_root.set("datatype", "matrix")
+            self.meshdata.append(el_root)
 
             for i, elem_data in enumerate(data.data):
                 subel = ET.SubElement(el_root, "elem")

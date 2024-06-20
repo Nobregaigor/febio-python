@@ -3,7 +3,7 @@ import numpy as np
 from copy import deepcopy
 from pathlib import Path
 from febio_python import FEBioContainer
-from febio_python.feb import FebType
+from febio_python.feb import FebType, Feb25, Feb30, Feb40
 from febio_python.xplt import Xplt
 
 # from febio_python.feb import Feb
@@ -108,7 +108,7 @@ def ensure_febio_container(data: Union[FEBioContainer, FebType]) -> FEBioContain
     elif isinstance(data, tuple):
         feb_data, xplt_data = data
         return FEBioContainer(feb=feb_data, xplt=xplt_data)            
-    elif isinstance(data, (FebType)):
+    elif isinstance(data, (Feb25, Feb30, Feb40)):
         return FEBioContainer(feb=data)
     elif isinstance(data, FEBioContainer):
         return data
@@ -268,7 +268,7 @@ def add_nodaldata(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.Un
 
             # Create a full data array with NaNs and assign the actual data
             full_data = np.full((grid.n_points, data.shape[1]), np.nan)
-            full_data[related_nodeset.ids] = data  # Adjusting for zero indexing
+            full_data[related_nodeset.ids] = data
             grid.point_data[name] = full_data
 
     return grid
