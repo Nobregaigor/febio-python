@@ -344,7 +344,7 @@
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">febio_python</span> <span class="kn">import</span> <span class="n">FEBioContainer</span>
-<span class="kn">from</span> <span class="nn">febio_python.feb</span> <span class="kn">import</span> <span class="n">FebType</span>
+<span class="kn">from</span> <span class="nn">febio_python.feb</span> <span class="kn">import</span> <span class="n">FebType</span><span class="p">,</span> <span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb40</span>
 <span class="kn">from</span> <span class="nn">febio_python.xplt</span> <span class="kn">import</span> <span class="n">Xplt</span>
 
 <span class="c1"># from febio_python.feb import Feb</span>
@@ -454,7 +454,7 @@
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
         <span class="n">feb_data</span><span class="p">,</span> <span class="n">xplt_data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="k">return</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">feb</span><span class="o">=</span><span class="n">feb_data</span><span class="p">,</span> <span class="n">xplt</span><span class="o">=</span><span class="n">xplt_data</span><span class="p">)</span>            
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">FebType</span><span class="p">)):</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb40</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">feb</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">FEBioContainer</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">data</span>
@@ -629,7 +629,7 @@
 
             <span class="c1"># Create a full data array with NaNs and assign the actual data</span>
             <span class="n">full_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">grid</span><span class="o">.</span><span class="n">n_points</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-            <span class="n">full_data</span><span class="p">[</span><span class="n">related_nodeset</span><span class="o">.</span><span class="n">ids</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>  <span class="c1"># Adjusting for zero indexing</span>
+            <span class="n">full_data</span><span class="p">[</span><span class="n">related_nodeset</span><span class="o">.</span><span class="n">ids</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
             <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">full_data</span>
 
     <span class="k">return</span> <span class="n">grid</span></div>

@@ -1266,6 +1266,7 @@
 <span class="sd">            materials (list of Material): List of Material objects, each containing an ID, type, parameters, name, and attributes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">existing_materials</span> <span class="o">=</span> <span class="p">{</span><span class="n">material</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">material</span> <span class="k">for</span> <span class="n">material</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_materials</span><span class="p">()}</span>
+        <span class="n">element_by_mat</span> <span class="o">=</span> <span class="p">{</span><span class="n">element</span><span class="o">.</span><span class="n">mat</span><span class="p">:</span> <span class="n">element</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_elements</span><span class="p">()}</span>
 
         <span class="k">for</span> <span class="n">material</span> <span class="ow">in</span> <span class="n">materials</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">material</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">existing_materials</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">material</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="ow">in</span> <span class="n">existing_materials</span><span class="p">:</span>
@@ -1286,7 +1287,31 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Material parameters should be a dictionary, not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">mat_params</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mat_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">subel</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">el_root</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
-                <span class="n">subel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)):</span>
+                    <span class="n">subel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                    <span class="c1"># then we must add as mesh data</span>
+                    <span class="n">ref_data_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;material_</span><span class="si">{</span><span class="n">material</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">related_elem</span> <span class="o">=</span> <span class="n">element_by_mat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">material</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="c1"># Make sure the element exists</span>
+                    <span class="k">if</span> <span class="n">related_elem</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Material with ID </span><span class="si">{</span><span class="n">material</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> does not exist in the geometry.&quot;</span>
+                                         <span class="s2">&quot;Cannot add material parameter as mesh data. Please, add the Elements first.&quot;</span><span class="p">)</span>
+                    <span class="c1"># Make sure that data is the same length as the number of elements</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="n">related_elem</span><span class="o">.</span><span class="n">ids</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Material parameter &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; must have the same length as the number of elements.&quot;</span><span class="p">)</span>
+                    <span class="c1"># prepare the element data</span>
+                    <span class="n">elem_data</span> <span class="o">=</span> <span class="n">ElementData</span><span class="p">(</span><span class="n">elem_set</span><span class="o">=</span><span class="n">related_elem</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                            <span class="n">name</span><span class="o">=</span><span class="n">ref_data_name</span><span class="p">,</span>
+                                            <span class="n">data</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+                                            <span class="n">ids</span><span class="o">=</span><span class="n">related_elem</span><span class="o">.</span><span class="n">ids</span><span class="p">)</span>
+                    <span class="c1"># add the element data</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_element_data</span><span class="p">([</span><span class="n">elem_data</span><span class="p">])</span>
+                    <span class="c1"># add the reference to the material</span>
+                    <span class="n">subel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ref_data_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># if it is not a number or an array, we just add it as text    </span>
+                    <span class="n">subel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Feb25.add_discrete_materials">
@@ -1366,7 +1391,8 @@
                 <span class="n">scale_subel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">load</span><span class="o">.</span><span class="n">scale</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">load</span><span class="o">.</span><span class="n">scale</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
                 <span class="c1"># we need to add this as mesh data; and then reference it here</span>
-                <span class="n">ref_data_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;nodal_load_</span><span class="si">{</span><span class="n">load</span><span class="o">.</span><span class="n">node_set</span><span class="si">}</span><span class="s2">_scale&quot;</span>
+                <span class="n">ref_data_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;nodal_load_</span><span class="si">{</span><span class="n">load</span><span class="o">.</span><span class="n">node_set</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">load</span><span class="o">.</span><span class="n">dof</span><span class="si">}</span><span class="s2">_scale&quot;</span>
+                
                 <span class="n">scale_subel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;1*</span><span class="si">{</span><span class="n">ref_data_name</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="c1"># we need to retrieve the node ids for this node set</span>
                 <span class="n">nodesets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_node_sets</span><span class="p">()</span>
@@ -1510,23 +1536,23 @@
 <a class="viewcode-back" href="../../../api/feb/feb25.html#febio_python.feb._feb_25.Feb25.add_nodal_data">[docs]</a>
     <span class="k">def</span> <span class="nf">add_nodal_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodal_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodalData</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Adds nodal data to MeshData, appending to existing nodal data if they share the same node set.</span>
+<span class="sd">        Adds nodal data to MeshData</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            nodal_data (list of NodalData): List of NodalData objects, each containing a node set, name, and data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">existing_nodal_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">data</span><span class="o">.</span><span class="n">node_set</span><span class="p">:</span> <span class="n">data</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nodal_data</span><span class="p">()}</span>
+        <span class="c1"># existing_nodal_data = {data.name: data for data in self.get_nodal_data()}</span>
 
         <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">nodal_data</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">node_set</span> <span class="ow">in</span> <span class="n">existing_nodal_data</span><span class="p">:</span>
-                <span class="c1"># Append to existing NodalData element</span>
-                <span class="n">el_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;.//</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">NODEDATA</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">[@node_set=&#39;</span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">node_set</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Create a new NodalData element if no existing one matches the node set</span>
-                <span class="n">el_root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">NODEDATA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-                <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;node_set&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">node_set</span><span class="p">)</span>
-                <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el_root</span><span class="p">)</span>
+            <span class="c1"># if data.name in existing_nodal_data:</span>
+            <span class="c1">#     # Append to existing NodalData element</span>
+            <span class="c1">#     el_root = self.meshdata.find(f&quot;.//{self.MAJOR_TAGS.NODEDATA.value}[@name=&#39;{data.name}&#39;]&quot;)</span>
+            <span class="c1"># else:</span>
+            <span class="c1"># Create a new NodalData element if no existing one matches the node set</span>
+            <span class="n">el_root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">NODEDATA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;node_set&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">node_set</span><span class="p">)</span>
+            <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el_root</span><span class="p">)</span>
 
             <span class="c1"># Add node IDs and data as sub-elements</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>
@@ -1578,21 +1604,32 @@
 <span class="sd">        Args:</span>
 <span class="sd">            element_data (list of ElementData): List of ElementData objects, each containing an element set, name, and data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">existing_element_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">data</span><span class="o">.</span><span class="n">elem_set</span><span class="p">:</span> <span class="n">data</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_element_data</span><span class="p">()}</span>
+        <span class="c1"># existing_element_data = {data.elem_set: data for data in self.get_element_data()}</span>
 
         <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">element_data</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">elem_set</span> <span class="ow">in</span> <span class="n">existing_element_data</span><span class="p">:</span>
-                <span class="c1"># Append to existing ElementData element</span>
-                <span class="n">el_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;.//</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">ELEMENTDATA</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">[@elem_set=&#39;</span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">elem_set</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Create a new ElementData element if no existing one matches the element set</span>
-                <span class="n">el_root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">ELEMENTDATA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-                <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;elem_set&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">elem_set</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">var</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">var</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el_root</span><span class="p">)</span>
+            <span class="c1"># if data.elem_set in existing_element_data:</span>
+            <span class="c1">#     # Append to existing ElementData element</span>
+            <span class="c1">#     el_root = self.meshdata.find(f&quot;.//{self.MAJOR_TAGS.ELEMENTDATA.value}[@elem_set=&#39;{data.elem_set}&#39;]&quot;)</span>
+            <span class="c1"># else:</span>
+            <span class="c1"># Create a new ElementData element if no existing one matches the element set</span>
+            <span class="n">el_root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAJOR_TAGS</span><span class="o">.</span><span class="n">ELEMENTDATA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;elem_set&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">elem_set</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">var</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">var</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">data_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;datatype&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">data_type</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># try to assume based on </span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;datatype&quot;</span><span class="p">,</span> <span class="s2">&quot;scalar&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                            <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;datatype&quot;</span><span class="p">,</span> <span class="s2">&quot;vector&quot;</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;datatype&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">meshdata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el_root</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">elem_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>
                 <span class="n">subel</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">el_root</span><span class="p">,</span> <span class="s2">&quot;elem&quot;</span><span class="p">)</span>
