@@ -106,6 +106,16 @@ class SurfaceLoad:
 
 
 @dataclass
+class PressureLoad(SurfaceLoad):
+    type: str = "pressure"  # Default type is 'pressure' -- mainly an alias for SurfaceLoad
+    
+
+@dataclass
+class SurfaceTractionLoad(SurfaceLoad):
+    type: str = "traction"
+
+
+@dataclass
 class LoadCurve:
     id: int     # Load curve ID
     interpolate_type: str       # Interpolation type (e.g. 'linear', 'smooth', 'step')

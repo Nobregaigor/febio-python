@@ -441,7 +441,7 @@ class Feb25(AbstractFebObject):
         for data in self.meshdata.findall(self.MAJOR_TAGS.SURFACE_DATA.value):
             _this_data = deque()
             _these_ids = deque()
-            for x in data.findall("surf"):
+            for x in data.findall("face"):
                 if ',' in x.text:
                     # Split the string by commas and convert each to float
                     _this_data.append([float(num) for num in x.text.split(',')])
@@ -452,7 +452,7 @@ class Feb25(AbstractFebObject):
                     # Add non-numeric strings as is
                     _this_data.append(x.text)
                 _these_ids.append(int(x.attrib["lid"]))
-            ref = data.attrib["surf_set"]
+            ref = data.attrib["surface"]
             name = data.attrib["name"]
 
             # Create a NodalData instance
@@ -1183,23 +1183,26 @@ class Feb25(AbstractFebObject):
         Args:
             surface_data (list of SurfaceData): List of SurfaceData objects, each containing a surface set, name, and data.
         """
-        existing_surface_data = {data.node_set: data for data in self.get_surface_data()}
+        existing_surface_data = {data.surf_set: data for data in self.get_surface_data()}
 
         for data in surface_data:
-            if data.node_set in existing_surface_data:
+            if data.surf_set in existing_surface_data:
                 # Append to existing SurfaceData element
-                el_root = self.meshdata.find(f".//{self.MAJOR_TAGS.SURFACE_DATA.value}[@surf_set='{data.node_set}']")
+                el_root = self.meshdata.find(f".//{self.MAJOR_TAGS.SURFACE_DATA.value}[@surf_set='{data.surf_set}']")
             else:
                 # Create a new SurfaceData element if no existing one matches the surface set
                 el_root = ET.Element(self.MAJOR_TAGS.SURFACE_DATA.value)
-                el_root.set("surf_set", data.node_set)
+                el_root.set("surface", data.surf_set)
                 el_root.set("name", data.name)
                 self.meshdata.append(el_root)
 
             for i, surf_data in enumerate(data.data):
-                subel = ET.SubElement(el_root, "surf")
+                subel = ET.SubElement(el_root, "face")
                 subel.set("lid", str(data.ids[i] + 1))  # Convert to one-based indexing
-                subel.text = ",".join(map(str, surf_data))
+                if isinstance(surf_data, (str, int, float, np.number)):
+                    subel.text = str(surf_data)
+                else:
+                    subel.text = ",".join(map(str, surf_data))
 
     def add_element_data(self, element_data: List[ElementData]) -> None:
         """
