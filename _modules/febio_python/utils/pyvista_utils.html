@@ -354,7 +354,7 @@
     <span class="n">FixCondition</span><span class="p">,</span>
     <span class="n">RigidBodyCondition</span><span class="p">,</span>
     <span class="n">States</span><span class="p">,</span>
-    <span class="n">StateData</span>
+    <span class="n">StateData</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 
@@ -495,6 +495,7 @@
     <span class="c1"># This is a dictionary that maps the element type to the connectivity</span>
     <span class="n">cells_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
     <span class="n">domain_identifiers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">element_sets</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">elem</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_elements</span><span class="p">):</span>
         <span class="n">elem_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">type</span>
         <span class="n">connectivity</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">connectivity</span>  <span class="c1"># FEBio uses 1-based indexing</span>
@@ -512,9 +513,12 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">cells_dict</span><span class="p">[</span><span class="n">elem_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">connectivity</span>
         <span class="n">domain_identifiers</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">connectivity</span><span class="p">))</span>
+        <span class="n">elem_name</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="n">elem</span><span class="o">.</span><span class="n">part</span> <span class="ow">or</span> <span class="n">elem</span><span class="o">.</span><span class="n">type</span>
+        <span class="n">element_sets</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">elem_name</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">connectivity</span><span class="p">))</span>
 
     <span class="n">grid</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">(</span><span class="n">cells_dict</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">)</span>
     <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;domain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">domain_identifiers</span>
+    <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;element_sets&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">element_sets</span>
 
     <span class="k">return</span> <span class="n">grid</span></div>
 
@@ -685,8 +689,33 @@
 <div class="viewcode-block" id="add_surface_data">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_surface_data">[docs]</a>
 <span class="k">def</span> <span class="nf">add_surface_data</span><span class="p">(</span><span class="n">container</span><span class="p">:</span> <span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">:</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">surface_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: Surface data is not yet supported.&quot;</span><span class="p">)</span>
+    <span class="c1"># if len(container.surface_data) &gt; 0:</span>
+        <span class="c1"># print(&quot;WARNING: Surface data is not yet supported.&quot;)</span>
+    <span class="n">surface_data</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">surface_data</span>
+    
+    <span class="k">for</span> <span class="n">surf_data</span> <span class="ow">in</span> <span class="n">surface_data</span><span class="p">:</span>
+        <span class="c1"># print(f&quot;Adding surface data {surf_data.name}&quot;)</span>
+        <span class="c1"># get the surface data</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">surf_data</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># get the surface set</span>
+        <span class="n">surf_set</span> <span class="o">=</span> <span class="n">surf_data</span><span class="o">.</span><span class="n">surf_set</span>
+        <span class="n">surf_ids</span> <span class="o">=</span> <span class="n">surf_data</span><span class="o">.</span><span class="n">ids</span>
+        <span class="c1"># map ids to the grid</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;element_sets&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">surf_set</span>
+        <span class="n">selected_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mapping</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">surf_ids</span> <span class="o">=</span> <span class="n">selected_ids</span><span class="p">[</span><span class="n">surf_ids</span><span class="p">]</span>
+        <span class="c1"># get the name of the data</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">surf_data</span><span class="o">.</span><span class="n">name</span>        
+        <span class="c1"># Find the proper grid</span>
+        <span class="n">full_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="n">full_data</span><span class="p">[</span><span class="n">surf_ids</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">full_data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;surface_data_</span><span class="si">{</span><span class="n">surf_set</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">full_data</span>
+    
     <span class="k">return</span> <span class="n">grid</span></div>
 
 
@@ -910,8 +939,72 @@
 <div class="viewcode-block" id="add_pressure_load">
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_pressure_load">[docs]</a>
 <span class="k">def</span> <span class="nf">add_pressure_load</span><span class="p">(</span><span class="n">container</span><span class="p">:</span> <span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">:</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">pressure_loads</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: Pressure loads are not yet supported.&quot;</span><span class="p">)</span>
+
+    <span class="n">pressure_loads</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">pressure_loads</span>
+    <span class="c1"># surface_data = container.surface_data</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pressure_loads</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">grid</span>  <span class="c1"># No pressure loads to process</span>
+    
+    <span class="c1"># add default pressure load</span>
+    <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load_magnitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="p">)</span>
+    
+    <span class="c1"># get elements</span>
+    <span class="c1"># elements_by_name = {elem.name: elem for elem in container.elements}</span>
+    
+    <span class="k">for</span> <span class="n">load</span> <span class="ow">in</span> <span class="n">pressure_loads</span><span class="p">:</span>
+        <span class="c1"># get the surface set</span>
+        <span class="n">surf_set</span> <span class="o">=</span> <span class="n">load</span><span class="o">.</span><span class="n">surface</span>
+        <span class="c1"># # get related elements</span>
+        <span class="c1"># if not surf_set in elements_by_name:</span>
+        <span class="c1">#     raise ValueError(f&quot;Surface {surf_set} not found.&quot;</span>
+        <span class="c1">#                      &quot;Make sure the &#39;surface&#39; matches one of the element names.&quot;)</span>
+        <span class="c1"># related_elements = elements_by_name[surf_set]</span>
+        <span class="c1"># get the scale</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">load</span><span class="o">.</span><span class="n">scale</span>
+        <span class="c1"># if load is number, we should convert to a numpy array</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)):</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+            <span class="c1"># apply the scale to the elements</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;element_sets&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">surf_set</span>
+            <span class="n">selected_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mapping</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">scale</span><span class="p">[</span><span class="n">selected_ids</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1"># check if there is a &#39;*&#39; in the scale (indicating a multiplication)</span>
+            <span class="k">if</span> <span class="s2">&quot;*&quot;</span> <span class="ow">in</span> <span class="n">scale</span><span class="p">:</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">scale</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+                <span class="n">scale_factor</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">data_field</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">data_field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Referenced data field &#39;</span><span class="si">{</span><span class="n">data_field</span><span class="si">}</span><span class="s2">&#39; not found in grid cell data.&quot;</span><span class="p">)</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">data_field</span><span class="p">]</span><span class="o">*</span><span class="n">scale_factor</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">scale</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Referenced data field &#39;</span><span class="si">{</span><span class="n">scale</span><span class="si">}</span><span class="s2">&#39; not found in grid cell data.&quot;</span><span class="p">)</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">scale</span><span class="p">]</span>
+        <span class="c1"># add the pressure load to the grid</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load_magnitude&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">scale</span>
+    
+    <span class="c1"># Negate the pressure load magnitude to ensure it is pointing in the correct direction</span>
+    <span class="c1"># NOTE: In FEBio, POSITIVE pressure loads are compressive, </span>
+    <span class="c1"># however, this is confusing for visualization, so we negate the pressure load</span>
+    <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load_magnitude&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+    
+    <span class="c1"># Now, we need to add the pressure load as a vector</span>
+    <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="c1"># The vector is based on the normal of the elements</span>
+    <span class="c1"># extract the normals</span>
+    <span class="n">extracted_surface</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">extract_surface</span><span class="p">()</span>
+    <span class="n">extracted_surface</span> <span class="o">=</span> <span class="n">extracted_surface</span><span class="o">.</span><span class="n">compute_normals</span><span class="p">(</span><span class="n">cell_normals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                                                <span class="n">point_normals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                                                <span class="n">flip_normals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                                                <span class="n">consistent_normals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">normals</span> <span class="o">=</span> <span class="n">extracted_surface</span><span class="p">[</span><span class="s2">&quot;Normals&quot;</span><span class="p">]</span>
+    <span class="c1"># get original cell ids</span>
+    <span class="n">cell_ids</span> <span class="o">=</span> <span class="n">extracted_surface</span><span class="p">[</span><span class="s2">&quot;vtkOriginalCellIds&quot;</span><span class="p">]</span>
+    <span class="c1"># add the normals to the grid based on the cell ids</span>
+    <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load&quot;</span><span class="p">][</span><span class="n">cell_ids</span><span class="p">]</span> <span class="o">=</span> <span class="n">normals</span>
+    <span class="c1"># multiply the normals by the pressure load magnitude</span>
+    <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load_magnitude&quot;</span><span class="p">][:,</span> <span class="kc">None</span><span class="p">]</span>    
     <span class="k">return</span> <span class="n">grid</span></div>
 
 
@@ -1185,7 +1278,36 @@
                 <span class="n">grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;nodal_load&quot;</span><span class="p">][</span><span class="n">node_indices</span><span class="p">,</span> <span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_data</span>
 
         <span class="c1"># handle pressure loads</span>
-        <span class="c1"># NOTE: NOT YET IMPLEMENTED</span>
+        <span class="n">pressure_loads</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">pressure_loads</span>
+        <span class="k">for</span> <span class="n">load</span> <span class="ow">in</span> <span class="n">pressure_loads</span><span class="p">:</span>
+            <span class="c1"># get related load curve</span>
+            <span class="n">lc</span> <span class="o">=</span> <span class="n">interpolators</span><span class="p">[</span><span class="n">load</span><span class="o">.</span><span class="n">load_curve</span><span class="p">]</span>
+            <span class="c1"># get related cell ids</span>
+            <span class="n">surf_set</span> <span class="o">=</span> <span class="n">load</span><span class="o">.</span><span class="n">surface</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;element_sets&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">surf_set</span>
+            <span class="n">selected_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mapping</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># modify the load magnitude</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">grid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">state_grids</span><span class="p">):</span>
+                <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load_magnitude&quot;</span><span class="p">][</span><span class="n">selected_ids</span><span class="p">]</span> <span class="o">*=</span> <span class="n">lc</span><span class="p">(</span><span class="n">timesteps</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="c1"># update the pressure load vector</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">grid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">state_grids</span><span class="p">):</span>
+                <span class="c1"># re-calculate the pressure load vector</span>
+                <span class="c1"># Now, we need to add the pressure load as a vector</span>
+                <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+                <span class="c1"># The vector is based on the normal of the elements</span>
+                <span class="c1"># extract the normals</span>
+                <span class="n">extracted_surface</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">extract_surface</span><span class="p">()</span>
+                <span class="n">extracted_surface</span> <span class="o">=</span> <span class="n">extracted_surface</span><span class="o">.</span><span class="n">compute_normals</span><span class="p">(</span><span class="n">cell_normals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                                                            <span class="n">point_normals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                                                            <span class="n">flip_normals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                                                            <span class="n">consistent_normals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">normals</span> <span class="o">=</span> <span class="n">extracted_surface</span><span class="p">[</span><span class="s2">&quot;Normals&quot;</span><span class="p">]</span>
+                <span class="c1"># get original cell ids</span>
+                <span class="n">cell_ids</span> <span class="o">=</span> <span class="n">extracted_surface</span><span class="p">[</span><span class="s2">&quot;vtkOriginalCellIds&quot;</span><span class="p">]</span>
+                <span class="c1"># add the normals to the grid based on the cell ids</span>
+                <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load&quot;</span><span class="p">][</span><span class="n">cell_ids</span><span class="p">]</span> <span class="o">=</span> <span class="n">normals</span>
+                <span class="c1"># multiply the normals by the pressure load magnitude</span>
+                <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load_magnitude&quot;</span><span class="p">][:,</span> <span class="kc">None</span><span class="p">]</span>  
 
     <span class="k">return</span> <span class="n">state_grids</span></div>
 
