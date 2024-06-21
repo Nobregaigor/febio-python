@@ -263,7 +263,7 @@ def _read_surface_section(bf, verbose=0) -> List[Elements]:
             if nodes_per_facet == 4:
                 surf_type = "QUAD"  # to aviod identifying it as TETRA
             else:
-                surf_type = NumberOfNodesPerElement[nodes_per_facet].name
+                surf_type = NumberOfNodesPerElement(int(nodes_per_facet)).name
 
             if verbose >= 3:
                 console_log("--surf_id: {}".format(surf_id), 3, verbose)

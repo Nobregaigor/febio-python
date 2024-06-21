@@ -316,7 +316,7 @@ class Feb25(AbstractFebObject):
             name = load.attrib.get("name", f"UnnamedSurfaceLoad{i}")
             # get the pressue (lc attribute and data value)
             el_press = load.find("pressure")
-            lc_curve = el_press.attrib.get("lc", 1)
+            lc_curve = int(el_press.attrib.get("lc", 1))
             scale = el_press.text
             # scale is a string representing either: float, name
             scale = float(scale) if scale.replace(".", "").isdigit() else scale

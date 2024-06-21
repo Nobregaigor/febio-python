@@ -13,7 +13,7 @@ from febio_python.core import (
     FixCondition,
     RigidBodyCondition,
     States,
-    StateData
+    StateData,
 )
 from typing import Union, List, Tuple
 
@@ -146,6 +146,7 @@ def create_unstructured_grid_from_febio_container(container: FEBioContainer) -> 
     # This is a dictionary that maps the element type to the connectivity
     cells_dict = OrderedDict()
     domain_identifiers = []
+    element_sets = []
     for i, elem in enumerate(all_elements):
         elem_type: str = elem.type
         connectivity: np.ndarray = elem.connectivity  # FEBio uses 1-based indexing
@@ -163,9 +164,12 @@ def create_unstructured_grid_from_febio_container(container: FEBioContainer) -> 
         else:
             cells_dict[elem_type] = connectivity
         domain_identifiers.extend([i] * len(connectivity))
+        elem_name = elem.name or elem.part or elem.type
+        element_sets.extend([elem_name] * len(connectivity))
 
     grid = pv.UnstructuredGrid(cells_dict, coordinates)
     grid.cell_data["domain"] = domain_identifiers
+    grid["element_sets"] = element_sets
 
     return grid
 
@@ -318,8 +322,33 @@ def add_elementdata(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.
 
 
 def add_surface_data(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
-    if len(container.surface_data) > 0:
-        print("WARNING: Surface data is not yet supported.")
+    # if len(container.surface_data) > 0:
+        # print("WARNING: Surface data is not yet supported.")
+    surface_data = container.surface_data
+    
+    for surf_data in surface_data:
+        # print(f"Adding surface data {surf_data.name}")
+        # get the surface data
+        data: np.ndarray = surf_data.data
+        if len(data.shape) == 1:
+            data = data.reshape(-1, 1)
+        # get the surface set
+        surf_set = surf_data.surf_set
+        surf_ids = surf_data.ids
+        # map ids to the grid
+        mapping = grid["element_sets"] == surf_set
+        selected_ids = np.where(mapping)[0]
+        surf_ids = selected_ids[surf_ids]
+        # get the name of the data
+        name = surf_data.name        
+        # Find the proper grid
+        full_data = np.full((grid.n_cells, data.shape[1]), np.nan)
+        full_data[surf_ids] = data
+        if name is not None:
+            grid.cell_data[name] = full_data
+        else:
+            grid.cell_data[f"surface_data_{surf_set}"] = full_data
+    
     return grid
 
 # =============================================================================
@@ -534,8 +563,72 @@ def add_nodalload(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.Un
 
 
 def add_pressure_load(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
-    if len(container.pressure_loads) > 0:
-        print("WARNING: Pressure loads are not yet supported.")
+
+    pressure_loads = container.pressure_loads
+    # surface_data = container.surface_data
+    if len(pressure_loads) == 0:
+        return grid  # No pressure loads to process
+    
+    # add default pressure load
+    grid.cell_data["pressure_load_magnitude"] = np.zeros(grid.n_cells)
+    
+    # get elements
+    # elements_by_name = {elem.name: elem for elem in container.elements}
+    
+    for load in pressure_loads:
+        # get the surface set
+        surf_set = load.surface
+        # # get related elements
+        # if not surf_set in elements_by_name:
+        #     raise ValueError(f"Surface {surf_set} not found."
+        #                      "Make sure the 'surface' matches one of the element names.")
+        # related_elements = elements_by_name[surf_set]
+        # get the scale
+        scale = load.scale
+        # if load is number, we should convert to a numpy array
+        if isinstance(scale, (int, float, np.number)):
+            scale = np.full(grid.n_cells, 0.0)
+            # apply the scale to the elements
+            mapping = grid["element_sets"] == surf_set
+            selected_ids = np.where(mapping)[0]
+            scale[selected_ids] = scale
+        elif isinstance(scale, str):
+            # check if there is a '*' in the scale (indicating a multiplication)
+            if "*" in scale:
+                parts = scale.split('*')
+                scale_factor = float(parts[0]) if parts[0].replace('-', '', 1).isdigit() else float(parts[1])
+                data_field = parts[1] if parts[0].replace('-', '', 1).isdigit() else parts[0]
+                if data_field not in grid.cell_data:
+                    raise ValueError(f"Referenced data field '{data_field}' not found in grid cell data.")
+                scale = grid.cell_data[data_field]*scale_factor
+            else:
+                if scale not in grid.cell_data:
+                    raise ValueError(f"Referenced data field '{scale}' not found in grid cell data.")
+                scale = grid.cell_data[scale]
+        # add the pressure load to the grid
+        grid.cell_data["pressure_load_magnitude"] += scale
+    
+    # Negate the pressure load magnitude to ensure it is pointing in the correct direction
+    # NOTE: In FEBio, POSITIVE pressure loads are compressive, 
+    # however, this is confusing for visualization, so we negate the pressure load
+    grid.cell_data["pressure_load_magnitude"] *= -1
+    
+    # Now, we need to add the pressure load as a vector
+    grid.cell_data["pressure_load"] = np.zeros((grid.n_cells, 3))
+    # The vector is based on the normal of the elements
+    # extract the normals
+    extracted_surface = grid.extract_surface()
+    extracted_surface = extracted_surface.compute_normals(cell_normals=True, 
+                                                point_normals=False, 
+                                                flip_normals=False, 
+                                                consistent_normals=True)
+    normals = extracted_surface["Normals"]
+    # get original cell ids
+    cell_ids = extracted_surface["vtkOriginalCellIds"]
+    # add the normals to the grid based on the cell ids
+    grid.cell_data["pressure_load"][cell_ids] = normals
+    # multiply the normals by the pressure load magnitude
+    grid.cell_data["pressure_load"] *= grid.cell_data["pressure_load_magnitude"][:, None]    
     return grid
 
 # =============================================================================
@@ -803,6 +896,35 @@ def add_states_to_grid(container: FEBioContainer, grid: pv.UnstructuredGrid, app
                 grid.point_data["nodal_load"][node_indices, axis] = new_data
 
         # handle pressure loads
-        # NOTE: NOT YET IMPLEMENTED
+        pressure_loads = container.pressure_loads
+        for load in pressure_loads:
+            # get related load curve
+            lc = interpolators[load.load_curve]
+            # get related cell ids
+            surf_set = load.surface
+            mapping = grid["element_sets"] == surf_set
+            selected_ids = np.where(mapping)[0]
+            # modify the load magnitude
+            for i, grid in enumerate(state_grids):
+                grid.cell_data["pressure_load_magnitude"][selected_ids] *= lc(timesteps[i])
+            # update the pressure load vector
+            for i, grid in enumerate(state_grids):
+                # re-calculate the pressure load vector
+                # Now, we need to add the pressure load as a vector
+                grid.cell_data["pressure_load"] = np.zeros((grid.n_cells, 3))
+                # The vector is based on the normal of the elements
+                # extract the normals
+                extracted_surface = grid.extract_surface()
+                extracted_surface = extracted_surface.compute_normals(cell_normals=True, 
+                                                            point_normals=False, 
+                                                            flip_normals=False, 
+                                                            consistent_normals=True)
+                normals = extracted_surface["Normals"]
+                # get original cell ids
+                cell_ids = extracted_surface["vtkOriginalCellIds"]
+                # add the normals to the grid based on the cell ids
+                grid.cell_data["pressure_load"][cell_ids] = normals
+                # multiply the normals by the pressure load magnitude
+                grid.cell_data["pressure_load"] *= grid.cell_data["pressure_load_magnitude"][:, None]  
 
     return state_grids

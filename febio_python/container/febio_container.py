@@ -176,7 +176,10 @@ class FEBioContainer():
     @property
     def pressure_loads(self) -> List[SurfaceLoad]:
         if self.feb is not None:
-            return self.feb.get_surface_loads()
+            # return self.feb.get_surface_loads()
+            surface_loads = self.feb.get_surface_loads()
+            # filter by type = "pressure"
+            return [surface_load for surface_load in surface_loads if surface_load.type == "pressure"]
         else:
             raise RuntimeError(
                 "Trying to access pressure load data without a FEB file. "
