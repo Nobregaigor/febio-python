@@ -1107,6 +1107,9 @@ class Feb25(AbstractFebObject):
                 subel = ET.SubElement(el_root, "point")
                 subel.text = ",".join(map(str, point))
 
+        # sort the load data by id
+        self.loaddata[:] = sorted(self.loaddata, key=lambda x: int(x.attrib["id"]))
+
     # Boundary conditions
     # ------------------------------
 
@@ -1893,6 +1896,7 @@ class Feb25(AbstractFebObject):
                        dtmax=0.1,
                        max_retries=5,
                        opt_iter=10,
+                       must_points=False,
                        **control_settings):
         """
         Set up or replace the control settings in an FEBio .feb file.
@@ -1924,7 +1928,21 @@ class Feb25(AbstractFebObject):
 
         # Create new control element
         self.control  # will trigger the creation of the control element
-
+        
+        # handle "must_points":
+        save_pts_load_curve_id = None
+        if isinstance(must_points, int):
+            # then this is the id of the load_curve
+            save_pts_load_curve_id = must_points
+        elif isinstance(must_points, LoadCurve):
+            # if this is a LoadCurve object, add it to the load curves
+            self.add_load_curves([must_points])
+            # retrieve the id
+            save_pts_load_curve_id = must_points.id
+        else:
+            if not isinstance(must_points, bool):
+                raise ValueError("must_points should be an int, a boolean or a LoadCurve object.")
+        
         # Add individual settings
         settings = {
             "time_steps": time_steps,
@@ -1961,9 +1979,19 @@ class Feb25(AbstractFebObject):
                 for subkey, subvalue in value.items():
                     subsub_element = ET.SubElement(sub_element, subkey)
                     subsub_element.text = str(subvalue)
+                    # look for 'time_stepper' and 'dtmax'
+                    if save_pts_load_curve_id is not None and key == "time_stepper" and subkey == "dtmax":
+                        # add the must_points attribute
+                        subsub_element.set("lc", str(save_pts_load_curve_id))
             else:
                 element = ET.SubElement(self.control, key)
                 element.text = str(value)
+
+        if save_pts_load_curve_id:
+            sub_element = ET.SubElement(self.control, "plot_level")
+            sub_element.text = "PLOT_MUST_POINTS"
+            sub_element = ET.SubElement(self.control, "output_level")
+            sub_element.text = "OUTPUT_MUST_POINTS"
 
     def setup_globals(self, T=0, R=0, Fc=0):
         """
