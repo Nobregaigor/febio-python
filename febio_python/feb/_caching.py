@@ -8,8 +8,8 @@ def feb_instance_cache(func):
     @wraps(func)
     def wrapper(self: 'FebBaseObject', *args, **kwargs):
         # Obtain the string representation of the object, possibly using __repr__ or a custom method
-        object_repr = self.__repr__()
-
+        object_repr = self.__repr__() + str(id(self))  # Use the object's memory address to ensure uniqueness
+        
         # Generate a hash of this representation
         object_hash = hashlib.sha256(object_repr.encode('utf-8')).hexdigest()
 
