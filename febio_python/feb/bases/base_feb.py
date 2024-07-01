@@ -44,7 +44,14 @@ class FebBaseObject():
                 to_print += f"-> {el.tag}: {el.attrib['type'] if 'type' in el.attrib else 'Unknown'}\n"
             else:
                 to_print += f"-> {el.tag}: {len(el)}\n"
-
+            
+            if str(el.tag).lower() == str(self.LEAD_TAGS.GEOMETRY.value).lower():
+                for sub_el in list(el):
+                    if str(sub_el.tag).lower() == "Nodes".lower():
+                        to_print += f"--> {sub_el.tag}: {len(sub_el)}\n"
+                    if str(sub_el.tag).lower() == "Elements".lower():
+                        to_print += f"--> {sub_el.tag}: {len(sub_el)}\n"
+            
         return to_print
 
     def __len__(self):

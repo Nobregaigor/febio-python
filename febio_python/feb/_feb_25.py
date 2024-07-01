@@ -1888,15 +1888,18 @@ class Feb25(AbstractFebObject):
                        dtol=0.001,
                        etol=0.01,
                        rtol=0,
-                       lstol=0.75,
+                       lstol=0.90,
                        min_residual=1e-20,
-                       qnmethod=0,
+                       qnmethod="BFGS",
                        rhoi=0,
                        dtmin=0.01,
                        dtmax=0.1,
                        max_retries=5,
                        opt_iter=10,
                        must_points=False,
+                       integration_rule_ut4=False,
+                       integration_rule_ut4_alpha=0.05,
+                       integration_rule_ut4_iso_stap=True,
                        **control_settings):
         """
         Set up or replace the control settings in an FEBio .feb file.
@@ -1992,6 +1995,17 @@ class Feb25(AbstractFebObject):
             sub_element.text = "PLOT_MUST_POINTS"
             sub_element = ET.SubElement(self.control, "output_level")
             sub_element.text = "OUTPUT_MUST_POINTS"
+            
+        # this is a temporary fix for the integration rule
+        if integration_rule_ut4:
+            sub_element = ET.SubElement(self.control, "integration")
+            rule = ET.SubElement(sub_element, "rule")
+            rule.set("elem", "tet4")
+            rule.set("type", "UT4")
+            alpha = ET.SubElement(rule, "alpha")
+            alpha.text = str(integration_rule_ut4_alpha)
+            iso_stab = ET.SubElement(rule, "iso_stab")
+            iso_stab.text = str(int(integration_rule_ut4_iso_stap))            
 
     def setup_globals(self, T=0, R=0, Fc=0):
         """

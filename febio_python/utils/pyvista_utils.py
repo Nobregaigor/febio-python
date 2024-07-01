@@ -586,12 +586,16 @@ def add_pressure_load(container: FEBioContainer, grid: pv.UnstructuredGrid) -> p
         # get the scale
         scale = load.scale
         # if load is number, we should convert to a numpy array
+        # check if it is a str that can be converted to a number directly
+        if isinstance(scale, str) and scale.replace('-', '', 1).isdigit():
+            scale = float(scale)
         if isinstance(scale, (int, float, np.number)):
+            scale_factor = float(scale)
             scale = np.full(grid.n_cells, 0.0)
             # apply the scale to the elements
             mapping = grid["element_sets"] == surf_set
-            selected_ids = np.where(mapping)[0]
-            scale[selected_ids] = scale
+            selected_ids = np.where(mapping == True)[0]
+            scale[selected_ids] = scale_factor
         elif isinstance(scale, str):
             # check if there is a '*' in the scale (indicating a multiplication)
             if "*" in scale:
@@ -928,3 +932,123 @@ def add_states_to_grid(container: FEBioContainer, grid: pv.UnstructuredGrid, app
                 grid.cell_data["pressure_load"] *= grid.cell_data["pressure_load_magnitude"][:, None]  
 
     return state_grids
+
+
+# =============================================================================
+# OTHER UTILITIES
+# =============================================================================
+
+def split_mesh_into_surface_and_volume(mesh: pv.UnstructuredGrid, surface_cell_types=None) -> Tuple[pv.UnstructuredGrid, pv.UnstructuredGrid]:
+    """
+    Splits a mesh into a surface mesh and a volume mesh. The surface mesh contains only the outer surface of the original mesh,
+    while the volume mesh contains the original mesh without the outer surface.
+
+    Parameters:
+        mesh (pv.UnstructuredGrid): The mesh to split.
+
+    Returns:
+        Tuple[pv.UnstructuredGrid, pv.UnstructuredGrid]: A tuple containing the surface mesh and the volume mesh, respectively.
+    """
+    if surface_cell_types is None:
+        from febio_python.core import SURFACE_ELEMENT_TYPES
+        surface_cell_types = set([pv.CellType[k].value for k in SURFACE_ELEMENT_TYPES.__members__.keys()])    
+    # Extract the surface mesh
+    surface_mesh = mesh.copy().extract_cells_by_type(list(surface_cell_types))
+    # Extract the volume mesh
+    other_cells = list(set(mesh.celltypes) - surface_cell_types)
+    volume_mesh = mesh.copy().extract_cells_by_type([pv.CellType(k) for k in other_cells])
+
+    # Add point data from the original mesh to the new meshes (if they are not already present)
+    for key, value in mesh.point_data.items():
+        if key not in volume_mesh.point_data.keys():
+            volume_mesh.point_data[key] = value
+
+    for key, value in mesh.cell_data.items():
+        if key not in volume_mesh.cell_data.keys():
+            volume_mesh.cell_data[key] = value
+
+    # Add field data from the original mesh to the new meshes (if they are not already present)
+    for key, value in mesh.field_data.items():
+        if key not in volume_mesh.field_data.keys():
+            volume_mesh.field_data[key] = value
+        if key not in surface_mesh.field_data.keys():
+            surface_mesh.field_data[key] = value
+
+    return surface_mesh, volume_mesh
+
+
+def carefully_pass_cell_data_to_point_data(mesh: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
+    """This function corrects the 'cell_data_to_point_data' behavior from pyvista when there are NaN values in the cell data.
+    In the original implementation, if there are NaN values in the cell data, all the point data is set to NaN. This function
+    corrects this behavior by only setting the point data to NaN when there are no valid data to interpolate from the cell data.
+    This is done by finding the cells that have valid data first, then converting only those cells to point data, while the
+    remaining cells are ignored in the conversion (not affecting the point data and leaving it as NaN for those cells).
+    This is useful when converting data that is defined only for a portion of the cells in the mesh, such as surface loads.
+    e.g. surface loads are usually defined for only one side of the mesh, so the other side will have NaN values in the cell data.
+    If the original implementation is used, the entire point data will be set to NaN, which is not desired. If we try to
+    fill the NaN values with zeros, it will affect the interpolation and the results will be incorrect (border values will be 
+    interpolated incorrectly). Thus, this function is a workaround to handle this issue.
+
+    Args:
+        mesh (pv.UnstructuredGrid): The mesh to convert cell data to point data.
+
+    Returns:
+        pv.UnstructuredGrid: The mesh with cell data converted to point data, handling NaN values correctly.
+    """
+    
+    from pykdtree.kdtree import KDTree
+    import xxhash
+
+    # Use the original implementation to convert cell data to point data
+    new_mesh = mesh.cell_data_to_point_data(pass_cell_data=False)
+    # Before we proceed, first check if there are NaN values in any point data
+    found_nan_in_keys = []
+    for key, value in new_mesh.point_data.items():
+        # First, check if the key is in the cell data, if not,
+        # we do not need to correct the point data (since it is not related to this function)
+        if key not in mesh.cell_data.keys():
+            continue
+        if np.isnan(value).any():
+            found_nan_in_keys.append(key)
+    # If there are no NaN values, we can skip the correction
+    if len(found_nan_in_keys) == 0:
+        return new_mesh
+    
+    # Otherwise, we need to correct the point data with NaN values
+    # Initialize a KDTree to find the closest points
+    tree = KDTree(new_mesh.points.astype(np.double))
+    # Create a new dictionary to store the extracted data
+    dyn_extracted = dict()
+    # Correct the point data with NaN values
+    for key in found_nan_in_keys:
+        # Get the original cell data
+        original_cell_data = mesh.cell_data[key]
+        # find cells that have valid data
+        valid_cell_indexes = np.where(~np.isnan(original_cell_data))[0]
+        # If all cells have NaN values, we can skip this key, we cannot interpolate the data
+        # If the number of valid cells is the same as the total number of cells, we can skip the correction
+        if valid_cell_indexes.size == 0 or valid_cell_indexes.size == mesh.n_cells:
+            # no valid data found
+            continue
+        # hash the valid cell indexes, so that we can check if we have already extracted the data
+        # hash_valid_cell_indexes = hash(tuple(valid_cell_indexes))
+        contiguous_array = np.ascontiguousarray(valid_cell_indexes)
+        hash_valid_cell_indexes = xxhash.xxh64(contiguous_array.tobytes()).hexdigest()
+        if hash_valid_cell_indexes not in dyn_extracted:
+            # extract the cells that have valid data
+            valid_cells = mesh.extract_cells(valid_cell_indexes)
+            # convert the valid cells to point data
+            valid_cells = valid_cells.cell_data_to_point_data(pass_cell_data=False)
+            # get the corresponding point indexes
+            pts = np.array(valid_cells.points)
+            _, point_map = tree.query(pts)
+            # Add the extracted data to the dictionary
+            dyn_extracted[hash_valid_cell_indexes] = (valid_cells, point_map)
+        else:
+            # retrieve the data from the dictionary
+            (valid_cells, point_map) = dyn_extracted[hash_valid_cell_indexes]
+
+        # send the valid data to the original mesh
+        new_mesh.point_data[key][point_map] = valid_cells.point_data[key]
+    
+    return new_mesh

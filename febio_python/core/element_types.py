@@ -68,3 +68,17 @@ class FebioElementTypeToVTKElementType(Enum):
     quad9 = "BIQUADRATIC_QUAD"
     hex27 = "TRIQUADRATIC_HEXAHEDRON"
     tet15 = "HIGHER_ORDER_TETRA"
+
+
+class SURFACE_ELEMENT_TYPES(IntEnum):
+    # Linear elements
+    TRIANGLE = FEBioElementValue.TRIANGLE
+    QUAD = FEBioElementValue.QUAD
+    # Quadratic elements
+    QUADRATIC_QUAD = FEBioElementValue.QUADRATIC_QUAD
+    # Higher order elements
+    BIQUADRATIC_QUAD = FEBioElementValue.QUADRATIC_QUAD
+    # VTK-supported surface types (unsupported by FEBio, value will be -1)
+    QUADRATIC_TRIANGLE = -1
+    BIQUADRATIC_TRIANGLE = -1
+    POLYGON = -1

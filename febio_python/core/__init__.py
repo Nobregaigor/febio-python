@@ -45,4 +45,5 @@ from .meta_data import (
 from .element_types import (
     FEBioElementType,
     FebioElementTypeToVTKElementType,
+    SURFACE_ELEMENT_TYPES
 )
