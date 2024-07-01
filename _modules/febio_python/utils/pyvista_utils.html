@@ -962,12 +962,16 @@
         <span class="c1"># get the scale</span>
         <span class="n">scale</span> <span class="o">=</span> <span class="n">load</span><span class="o">.</span><span class="n">scale</span>
         <span class="c1"># if load is number, we should convert to a numpy array</span>
+        <span class="c1"># check if it is a str that can be converted to a number directly</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">scale</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)):</span>
+            <span class="n">scale_factor</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
             <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
             <span class="c1"># apply the scale to the elements</span>
             <span class="n">mapping</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;element_sets&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">surf_set</span>
-            <span class="n">selected_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mapping</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">scale</span><span class="p">[</span><span class="n">selected_ids</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span>
+            <span class="n">selected_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mapping</span> <span class="o">==</span> <span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">scale</span><span class="p">[</span><span class="n">selected_ids</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale_factor</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="c1"># check if there is a &#39;*&#39; in the scale (indicating a multiplication)</span>
             <span class="k">if</span> <span class="s2">&quot;*&quot;</span> <span class="ow">in</span> <span class="n">scale</span><span class="p">:</span>
@@ -1310,6 +1314,132 @@
                 <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load_magnitude&quot;</span><span class="p">][:,</span> <span class="kc">None</span><span class="p">]</span>  
 
     <span class="k">return</span> <span class="n">state_grids</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># OTHER UTILITIES</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="split_mesh_into_surface_and_volume">
+<a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.split_mesh_into_surface_and_volume">[docs]</a>
+<span class="k">def</span> <span class="nf">split_mesh_into_surface_and_volume</span><span class="p">(</span><span class="n">mesh</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">,</span> <span class="n">surface_cell_types</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">,</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Splits a mesh into a surface mesh and a volume mesh. The surface mesh contains only the outer surface of the original mesh,</span>
+<span class="sd">    while the volume mesh contains the original mesh without the outer surface.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        mesh (pv.UnstructuredGrid): The mesh to split.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple[pv.UnstructuredGrid, pv.UnstructuredGrid]: A tuple containing the surface mesh and the volume mesh, respectively.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">surface_cell_types</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">febio_python.core</span> <span class="kn">import</span> <span class="n">SURFACE_ELEMENT_TYPES</span>
+        <span class="n">surface_cell_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">pv</span><span class="o">.</span><span class="n">CellType</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">SURFACE_ELEMENT_TYPES</span><span class="o">.</span><span class="n">__members__</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>    
+    <span class="c1"># Extract the surface mesh</span>
+    <span class="n">surface_mesh</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">extract_cells_by_type</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">surface_cell_types</span><span class="p">))</span>
+    <span class="c1"># Extract the volume mesh</span>
+    <span class="n">other_cells</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">celltypes</span><span class="p">)</span> <span class="o">-</span> <span class="n">surface_cell_types</span><span class="p">)</span>
+    <span class="n">volume_mesh</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">extract_cells_by_type</span><span class="p">([</span><span class="n">pv</span><span class="o">.</span><span class="n">CellType</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">other_cells</span><span class="p">])</span>
+
+    <span class="c1"># Add point data from the original mesh to the new meshes (if they are not already present)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mesh</span><span class="o">.</span><span class="n">point_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">volume_mesh</span><span class="o">.</span><span class="n">point_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">volume_mesh</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">volume_mesh</span><span class="o">.</span><span class="n">cell_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">volume_mesh</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="c1"># Add field data from the original mesh to the new meshes (if they are not already present)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mesh</span><span class="o">.</span><span class="n">field_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">volume_mesh</span><span class="o">.</span><span class="n">field_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">volume_mesh</span><span class="o">.</span><span class="n">field_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">surface_mesh</span><span class="o">.</span><span class="n">field_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">surface_mesh</span><span class="o">.</span><span class="n">field_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">return</span> <span class="n">surface_mesh</span><span class="p">,</span> <span class="n">volume_mesh</span></div>
+
+
+
+<div class="viewcode-block" id="carefully_pass_cell_data_to_point_data">
+<a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.carefully_pass_cell_data_to_point_data">[docs]</a>
+<span class="k">def</span> <span class="nf">carefully_pass_cell_data_to_point_data</span><span class="p">(</span><span class="n">mesh</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This function corrects the &#39;cell_data_to_point_data&#39; behavior from pyvista when there are NaN values in the cell data.</span>
+<span class="sd">    In the original implementation, if there are NaN values in the cell data, all the point data is set to NaN. This function</span>
+<span class="sd">    corrects this behavior by only setting the point data to NaN when there are no valid data to interpolate from the cell data.</span>
+<span class="sd">    This is done by finding the cells that have valid data first, then converting only those cells to point data, while the</span>
+<span class="sd">    remaining cells are ignored in the conversion (not affecting the point data and leaving it as NaN for those cells).</span>
+<span class="sd">    This is useful when converting data that is defined only for a portion of the cells in the mesh, such as surface loads.</span>
+<span class="sd">    e.g. surface loads are usually defined for only one side of the mesh, so the other side will have NaN values in the cell data.</span>
+<span class="sd">    If the original implementation is used, the entire point data will be set to NaN, which is not desired. If we try to</span>
+<span class="sd">    fill the NaN values with zeros, it will affect the interpolation and the results will be incorrect (border values will be </span>
+<span class="sd">    interpolated incorrectly). Thus, this function is a workaround to handle this issue.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mesh (pv.UnstructuredGrid): The mesh to convert cell data to point data.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pv.UnstructuredGrid: The mesh with cell data converted to point data, handling NaN values correctly.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="kn">from</span> <span class="nn">pykdtree.kdtree</span> <span class="kn">import</span> <span class="n">KDTree</span>
+    <span class="kn">import</span> <span class="nn">xxhash</span>
+
+    <span class="c1"># Use the original implementation to convert cell data to point data</span>
+    <span class="n">new_mesh</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_data_to_point_data</span><span class="p">(</span><span class="n">pass_cell_data</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># Before we proceed, first check if there are NaN values in any point data</span>
+    <span class="n">found_nan_in_keys</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">new_mesh</span><span class="o">.</span><span class="n">point_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># First, check if the key is in the cell data, if not,</span>
+        <span class="c1"># we do not need to correct the point data (since it is not related to this function)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">found_nan_in_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="c1"># If there are no NaN values, we can skip the correction</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found_nan_in_keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">new_mesh</span>
+    
+    <span class="c1"># Otherwise, we need to correct the point data with NaN values</span>
+    <span class="c1"># Initialize a KDTree to find the closest points</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">KDTree</span><span class="p">(</span><span class="n">new_mesh</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">))</span>
+    <span class="c1"># Create a new dictionary to store the extracted data</span>
+    <span class="n">dyn_extracted</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="c1"># Correct the point data with NaN values</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">found_nan_in_keys</span><span class="p">:</span>
+        <span class="c1"># Get the original cell data</span>
+        <span class="n">original_cell_data</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="c1"># find cells that have valid data</span>
+        <span class="n">valid_cell_indexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">original_cell_data</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># If all cells have NaN values, we can skip this key, we cannot interpolate the data</span>
+        <span class="c1"># If the number of valid cells is the same as the total number of cells, we can skip the correction</span>
+        <span class="k">if</span> <span class="n">valid_cell_indexes</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">valid_cell_indexes</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">mesh</span><span class="o">.</span><span class="n">n_cells</span><span class="p">:</span>
+            <span class="c1"># no valid data found</span>
+            <span class="k">continue</span>
+        <span class="c1"># hash the valid cell indexes, so that we can check if we have already extracted the data</span>
+        <span class="c1"># hash_valid_cell_indexes = hash(tuple(valid_cell_indexes))</span>
+        <span class="n">contiguous_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">valid_cell_indexes</span><span class="p">)</span>
+        <span class="n">hash_valid_cell_indexes</span> <span class="o">=</span> <span class="n">xxhash</span><span class="o">.</span><span class="n">xxh64</span><span class="p">(</span><span class="n">contiguous_array</span><span class="o">.</span><span class="n">tobytes</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">hash_valid_cell_indexes</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dyn_extracted</span><span class="p">:</span>
+            <span class="c1"># extract the cells that have valid data</span>
+            <span class="n">valid_cells</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">extract_cells</span><span class="p">(</span><span class="n">valid_cell_indexes</span><span class="p">)</span>
+            <span class="c1"># convert the valid cells to point data</span>
+            <span class="n">valid_cells</span> <span class="o">=</span> <span class="n">valid_cells</span><span class="o">.</span><span class="n">cell_data_to_point_data</span><span class="p">(</span><span class="n">pass_cell_data</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># get the corresponding point indexes</span>
+            <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">valid_cells</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">point_map</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
+            <span class="c1"># Add the extracted data to the dictionary</span>
+            <span class="n">dyn_extracted</span><span class="p">[</span><span class="n">hash_valid_cell_indexes</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">valid_cells</span><span class="p">,</span> <span class="n">point_map</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># retrieve the data from the dictionary</span>
+            <span class="p">(</span><span class="n">valid_cells</span><span class="p">,</span> <span class="n">point_map</span><span class="p">)</span> <span class="o">=</span> <span class="n">dyn_extracted</span><span class="p">[</span><span class="n">hash_valid_cell_indexes</span><span class="p">]</span>
+
+        <span class="c1"># send the valid data to the original mesh</span>
+        <span class="n">new_mesh</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">point_map</span><span class="p">]</span> <span class="o">=</span> <span class="n">valid_cells</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">new_mesh</span></div>
 
 </pre></div>
         </article>

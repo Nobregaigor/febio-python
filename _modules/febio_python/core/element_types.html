@@ -421,6 +421,23 @@
     <span class="n">hex27</span> <span class="o">=</span> <span class="s2">&quot;TRIQUADRATIC_HEXAHEDRON&quot;</span>
     <span class="n">tet15</span> <span class="o">=</span> <span class="s2">&quot;HIGHER_ORDER_TETRA&quot;</span></div>
 
+
+
+<div class="viewcode-block" id="SURFACE_ELEMENT_TYPES">
+<a class="viewcode-back" href="../../../api/core/element_types.html#febio_python.core.element_types.SURFACE_ELEMENT_TYPES">[docs]</a>
+<span class="k">class</span> <span class="nc">SURFACE_ELEMENT_TYPES</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+    <span class="c1"># Linear elements</span>
+    <span class="n">TRIANGLE</span> <span class="o">=</span> <span class="n">FEBioElementValue</span><span class="o">.</span><span class="n">TRIANGLE</span>
+    <span class="n">QUAD</span> <span class="o">=</span> <span class="n">FEBioElementValue</span><span class="o">.</span><span class="n">QUAD</span>
+    <span class="c1"># Quadratic elements</span>
+    <span class="n">QUADRATIC_QUAD</span> <span class="o">=</span> <span class="n">FEBioElementValue</span><span class="o">.</span><span class="n">QUADRATIC_QUAD</span>
+    <span class="c1"># Higher order elements</span>
+    <span class="n">BIQUADRATIC_QUAD</span> <span class="o">=</span> <span class="n">FEBioElementValue</span><span class="o">.</span><span class="n">QUADRATIC_QUAD</span>
+    <span class="c1"># VTK-supported surface types (unsupported by FEBio, value will be -1)</span>
+    <span class="n">QUADRATIC_TRIANGLE</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">BIQUADRATIC_TRIANGLE</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">POLYGON</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span></div>
+
 </pre></div>
         </article>
       </div>

@@ -2431,15 +2431,18 @@
                        <span class="n">dtol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
                        <span class="n">etol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
                        <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                       <span class="n">lstol</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+                       <span class="n">lstol</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span>
                        <span class="n">min_residual</span><span class="o">=</span><span class="mf">1e-20</span><span class="p">,</span>
-                       <span class="n">qnmethod</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                       <span class="n">qnmethod</span><span class="o">=</span><span class="s2">&quot;BFGS&quot;</span><span class="p">,</span>
                        <span class="n">rhoi</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                        <span class="n">dtmin</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
                        <span class="n">dtmax</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
                        <span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                        <span class="n">opt_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
                        <span class="n">must_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                       <span class="n">integration_rule_ut4</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                       <span class="n">integration_rule_ut4_alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+                       <span class="n">integration_rule_ut4_iso_stap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                        <span class="o">**</span><span class="n">control_settings</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set up or replace the control settings in an FEBio .feb file.</span>
@@ -2534,7 +2537,18 @@
             <span class="n">sub_element</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="p">,</span> <span class="s2">&quot;plot_level&quot;</span><span class="p">)</span>
             <span class="n">sub_element</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;PLOT_MUST_POINTS&quot;</span>
             <span class="n">sub_element</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="p">,</span> <span class="s2">&quot;output_level&quot;</span><span class="p">)</span>
-            <span class="n">sub_element</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;OUTPUT_MUST_POINTS&quot;</span></div>
+            <span class="n">sub_element</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;OUTPUT_MUST_POINTS&quot;</span>
+            
+        <span class="c1"># this is a temporary fix for the integration rule</span>
+        <span class="k">if</span> <span class="n">integration_rule_ut4</span><span class="p">:</span>
+            <span class="n">sub_element</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="p">,</span> <span class="s2">&quot;integration&quot;</span><span class="p">)</span>
+            <span class="n">rule</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">sub_element</span><span class="p">,</span> <span class="s2">&quot;rule&quot;</span><span class="p">)</span>
+            <span class="n">rule</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;elem&quot;</span><span class="p">,</span> <span class="s2">&quot;tet4&quot;</span><span class="p">)</span>
+            <span class="n">rule</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;UT4&quot;</span><span class="p">)</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="s2">&quot;alpha&quot;</span><span class="p">)</span>
+            <span class="n">alpha</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">integration_rule_ut4_alpha</span><span class="p">)</span>
+            <span class="n">iso_stab</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="s2">&quot;iso_stab&quot;</span><span class="p">)</span>
+            <span class="n">iso_stab</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">integration_rule_ut4_iso_stap</span><span class="p">))</span>            </div>
 
 
 <div class="viewcode-block" id="Feb25.setup_globals">

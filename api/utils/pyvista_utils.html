@@ -598,6 +598,32 @@ allows us to keep data consistent even after we “extract” parts of the mesh 
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.carefully_pass_cell_data_to_point_data">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">carefully_pass_cell_data_to_point_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#carefully_pass_cell_data_to_point_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.carefully_pass_cell_data_to_point_data" title="Link to this definition">¶</a></dt>
+<dd><p>This function corrects the ‘cell_data_to_point_data’ behavior from pyvista when there are NaN values in the cell data.
+In the original implementation, if there are NaN values in the cell data, all the point data is set to NaN. This function
+corrects this behavior by only setting the point data to NaN when there are no valid data to interpolate from the cell data.
+This is done by finding the cells that have valid data first, then converting only those cells to point data, while the
+remaining cells are ignored in the conversion (not affecting the point data and leaving it as NaN for those cells).
+This is useful when converting data that is defined only for a portion of the cells in the mesh, such as surface loads.
+e.g. surface loads are usually defined for only one side of the mesh, so the other side will have NaN values in the cell data.
+If the original implementation is used, the entire point data will be set to NaN, which is not desired. If we try to
+fill the NaN values with zeros, it will affect the interpolation and the results will be incorrect (border values will be
+interpolated incorrectly). Thus, this function is a workaround to handle this issue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mesh</strong> (<em>pv.UnstructuredGrid</em>) – The mesh to convert cell data to point data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The mesh with cell data converted to point data, handling NaN values correctly.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pv.UnstructuredGrid</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.create_unstructured_grid_from_febio_container">
 <span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">create_unstructured_grid_from_febio_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../container/container.html#febio_python.container.febio_container.FEBioContainer" title="febio_python.container.febio_container.FEBioContainer"><span class="pre">FEBioContainer</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UnstructuredGrid</span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#create_unstructured_grid_from_febio_container"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.create_unstructured_grid_from_febio_container" title="Link to this definition">¶</a></dt>
 <dd><p>Converts an FEBioContainer object containing mesh data into a PyVista UnstructuredGrid object.
@@ -646,6 +672,24 @@ MultiBlock format that PyVista can utilize effectively.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pv.MultiBlock</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="febio_python.utils.pyvista_utils.split_mesh_into_surface_and_volume">
+<span class="sig-prename descclassname"><span class="pre">febio_python.utils.pyvista_utils.</span></span><span class="sig-name descname"><span class="pre">split_mesh_into_surface_and_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnstructuredGrid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_cell_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">UnstructuredGrid</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">UnstructuredGrid</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/febio_python/utils/pyvista_utils.html#split_mesh_into_surface_and_volume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#febio_python.utils.pyvista_utils.split_mesh_into_surface_and_volume" title="Link to this definition">¶</a></dt>
+<dd><p>Splits a mesh into a surface mesh and a volume mesh. The surface mesh contains only the outer surface of the original mesh,
+while the volume mesh contains the original mesh without the outer surface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mesh</strong> (<em>pv.UnstructuredGrid</em>) – The mesh to split.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the surface mesh and the volume mesh, respectively.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Tuple</em>[pv.UnstructuredGrid, pv.UnstructuredGrid]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -719,9 +763,11 @@ MultiBlock format that PyVista can utilize effectively.</p>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_states_to_grid"><code class="docutils literal notranslate"><span class="pre">add_states_to_grid()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_surface_data"><code class="docutils literal notranslate"><span class="pre">add_surface_data()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.add_surface_sets"><code class="docutils literal notranslate"><span class="pre">add_surface_sets()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.carefully_pass_cell_data_to_point_data"><code class="docutils literal notranslate"><span class="pre">carefully_pass_cell_data_to_point_data()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.create_unstructured_grid_from_febio_container"><code class="docutils literal notranslate"><span class="pre">create_unstructured_grid_from_febio_container()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.ensure_febio_container"><code class="docutils literal notranslate"><span class="pre">ensure_febio_container()</span></code></a></li>
 <li><a class="reference internal" href="#febio_python.utils.pyvista_utils.febio_to_pyvista"><code class="docutils literal notranslate"><span class="pre">febio_to_pyvista()</span></code></a></li>
+<li><a class="reference internal" href="#febio_python.utils.pyvista_utils.split_mesh_into_surface_and_volume"><code class="docutils literal notranslate"><span class="pre">split_mesh_into_surface_and_volume()</span></code></a></li>
 </ul>
 </li>
 </ul>
