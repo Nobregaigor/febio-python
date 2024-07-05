@@ -36,6 +36,7 @@ class FebBaseObject():
         self.MAJOR_TAGS = FEB_MAJOR_TAGS
 
         self.lead_tag_order = [item.value for item in list(LEAD_TAGS)]
+        self._mesh_tag = FEB_2_5_LEAD_TAGS.GEOMETRY if self.version < 3.0 else FEB_3_0_LEAD_TAGS.MESH
 
     def __repr__(self):
         to_print = f"{self.__class__.__name__}({self.version}):\n"
@@ -44,14 +45,14 @@ class FebBaseObject():
                 to_print += f"-> {el.tag}: {el.attrib['type'] if 'type' in el.attrib else 'Unknown'}\n"
             else:
                 to_print += f"-> {el.tag}: {len(el)}\n"
-            
-            if str(el.tag).lower() == str(self.LEAD_TAGS.GEOMETRY.value).lower():
+
+            if str(el.tag).lower() == str(self._mesh_tag.value).lower():
                 for sub_el in list(el):
                     if str(sub_el.tag).lower() == "Nodes".lower():
                         to_print += f"--> {sub_el.tag}: {len(sub_el)}\n"
                     if str(sub_el.tag).lower() == "Elements".lower():
                         to_print += f"--> {sub_el.tag}: {len(sub_el)}\n"
-            
+
         return to_print
 
     def __len__(self):
@@ -124,9 +125,17 @@ class FebBaseObject():
             tuple: (tree, root)
         """
         if isinstance(content, str) or isinstance(content, Path):
-            if isfile(str(content)):
+            if isinstance(content, Path):
+                if not Path(content).is_file():
+                    raise ValueError("Input file does not exist. Please, verify.")
+                tree = ET.parse(str(content))
+                root = tree.getroot()
+            elif isinstance(content, str) and Path(content).is_file():
                 tree = ET.parse(content)
                 root = tree.getroot()
+            elif isinstance(content, str) and content.endswith(".feb"):
+                if not Path(content).is_file():
+                    raise ValueError("Input file does not exist.")
             else:
                 try:
                     tree = ET.fromstring(content)

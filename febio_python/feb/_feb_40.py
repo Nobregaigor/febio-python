@@ -295,8 +295,8 @@ class Feb40(AbstractFebObject):
     @feb_instance_cache
     def get_nodal_loads(self) -> List[NodalLoad]:
         nodal_loads = []
-        for i, load in enumerate(self.loads.findall(".//nodal_load")):  # Update to find 'nodal_load' elements
-            value_data = load.find("value")
+        for i, load in enumerate(self.loads.findall("nodal_load")):  # Update to find 'nodal_load' elements
+            value_data = load.find("scale")
 
             # Convert value text to float if possible, maintain as text if not
             try:
@@ -305,7 +305,7 @@ class Feb40(AbstractFebObject):
                 scale_value = value_data.text  # Keep as text if not convertible
 
             # in ths new version, scale is a "tuple" -> text separated by commas
-            if ',' in scale_value:
+            if isinstance(scale_value, str) and ',' in scale_value:
                 scale_value = tuple(map(float, scale_value.split(',')))
 
             # Extracting the load curve id, default to 'NoCurve'
@@ -333,9 +333,14 @@ class Feb40(AbstractFebObject):
             except (ValueError, TypeError):
                 pass
 
+            # extract the "dof" tag value (if it exists)
+            dof = load.find("dof")
+            if dof is not None:
+                dof = dof.text
+
             # Create a NodalLoad named tuple for the current load
             current_load = NodalLoad(
-                dof=load.attrib.get("bc", None),
+                dof=dof,
                 node_set=load.attrib.get("node_set", None),
                 type=load.attrib.get("type", None),
                 relative=relative,
@@ -390,7 +395,7 @@ class Feb40(AbstractFebObject):
             points = deque()
 
             # Extract points from each 'point' element within 'points' container
-            for point_elem in loadcurve_elem.find('points').findall('point'):
+            for point_elem in loadcurve_elem.find('points').findall('pt'):
                 # Split the point text by ',' and convert to float
                 point = tuple(map(float, point_elem.text.split(',')))
                 points.append(point)
@@ -683,11 +688,11 @@ class Feb40(AbstractFebObject):
         filtered = [elem for elem in elements if elem.type in SURFACE_EL_TYPE.__members__]
         if len(filtered) == 0:
             raise ValueError("No surface elements found in the input list. Try using add_volume_elements() instead.")
-        
+
         # Retrieve existing elements and determine the last element ID
         existing_surfaces_list = self.get_surface_elements()
         last_surf_initial_id = existing_surfaces_list[-1].ids[-1] if existing_surfaces_list else 1
-        
+
         existing_surfaces = {element.name: element for element in existing_surfaces_list}
 
         for surface in filtered:
@@ -707,18 +712,18 @@ class Feb40(AbstractFebObject):
                 # Append to existing Surfaces group
                 el_root = self.mesh.find(f".//Surfaces[@name='{surface.name}']")
             else:
-                
+
                 el_root = ET.Element("Surface")
                 el_root.set("name", str(surface.name))
 
                 # Append new "Surfaces" at the end of the geometry
                 self.mesh.append(el_root)
-            
+
             # Add element connectivities as sub-surfaces
             for i, connectivity in enumerate(surface.connectivity):
                 subel = ET.SubElement(el_root, el_type)  # FEBio use element type as tag name for surface surfaces
                 # Set the element ID and convert the connectivity to a comma-separated string
-                subel.set("id", str(i + last_surf_initial_id)) 
+                subel.set("id", str(i + last_surf_initial_id))
                 subel.text = ",".join(map(str, connectivity + 1))  # Convert connectivity to comma-separated string
 
             # Update the last_elem_initial_id for the next element group

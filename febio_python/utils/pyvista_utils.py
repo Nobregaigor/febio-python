@@ -104,10 +104,10 @@ def ensure_febio_container(data: Union[FEBioContainer, FebType]) -> FEBioContain
         if extension == ".feb":
             return FEBioContainer(feb=filepath)
         elif extension == ".xplt":
-            return FEBioContainer(xplt=filepath)    
+            return FEBioContainer(xplt=filepath)
     elif isinstance(data, tuple):
         feb_data, xplt_data = data
-        return FEBioContainer(feb=feb_data, xplt=xplt_data)            
+        return FEBioContainer(feb=feb_data, xplt=xplt_data)
     elif isinstance(data, (Feb25, Feb30, Feb40)):
         return FEBioContainer(feb=data)
     elif isinstance(data, FEBioContainer):
@@ -323,9 +323,9 @@ def add_elementdata(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.
 
 def add_surface_data(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     # if len(container.surface_data) > 0:
-        # print("WARNING: Surface data is not yet supported.")
+    # print("WARNING: Surface data is not yet supported.")
     surface_data = container.surface_data
-    
+
     for surf_data in surface_data:
         # print(f"Adding surface data {surf_data.name}")
         # get the surface data
@@ -340,7 +340,7 @@ def add_surface_data(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv
         selected_ids = np.where(mapping)[0]
         surf_ids = selected_ids[surf_ids]
         # get the name of the data
-        name = surf_data.name        
+        name = surf_data.name
         # Find the proper grid
         full_data = np.full((grid.n_cells, data.shape[1]), np.nan)
         full_data[surf_ids] = data
@@ -348,7 +348,7 @@ def add_surface_data(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv
             grid.cell_data[name] = full_data
         else:
             grid.cell_data[f"surface_data_{surf_set}"] = full_data
-    
+
     return grid
 
 # =============================================================================
@@ -509,8 +509,8 @@ def add_nodalload(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.Un
         load_indices = related_nodeset.ids  # Adjust indices for zero-based indexing
 
         # Handle scale being a tuple of length 3 (new version) or a string/numeric (old version)
-        if container.feb.version >= 4.0:
-            # New version: scale is a tuple representing (scale_x, scale_y, scale_z)
+        if container.feb.version >= 4.0 and isinstance(scale, tuple):
+            # New version: scale is a tuple representing (scale_x, scale_y, scale_z) - THIS IS OPTIONAL
             for i, axis_scale in enumerate(scale):
                 if axis_scale != 0:
                     if isinstance(axis_scale, str) and '*' in axis_scale:
@@ -568,13 +568,13 @@ def add_pressure_load(container: FEBioContainer, grid: pv.UnstructuredGrid) -> p
     # surface_data = container.surface_data
     if len(pressure_loads) == 0:
         return grid  # No pressure loads to process
-    
+
     # add default pressure load
     grid.cell_data["pressure_load_magnitude"] = np.zeros(grid.n_cells)
-    
+
     # get elements
     # elements_by_name = {elem.name: elem for elem in container.elements}
-    
+
     for load in pressure_loads:
         # get the surface set
         surf_set = load.surface
@@ -594,7 +594,7 @@ def add_pressure_load(container: FEBioContainer, grid: pv.UnstructuredGrid) -> p
             scale = np.full(grid.n_cells, 0.0)
             # apply the scale to the elements
             mapping = grid["element_sets"] == surf_set
-            selected_ids = np.where(mapping == True)[0]
+            selected_ids = np.where(mapping == True)[0]  # noqa: E712
             scale[selected_ids] = scale_factor
         elif isinstance(scale, str):
             # check if there is a '*' in the scale (indicating a multiplication)
@@ -604,27 +604,27 @@ def add_pressure_load(container: FEBioContainer, grid: pv.UnstructuredGrid) -> p
                 data_field = parts[1] if parts[0].replace('-', '', 1).isdigit() else parts[0]
                 if data_field not in grid.cell_data:
                     raise ValueError(f"Referenced data field '{data_field}' not found in grid cell data.")
-                scale = grid.cell_data[data_field]*scale_factor
+                scale = grid.cell_data[data_field] * scale_factor
             else:
                 if scale not in grid.cell_data:
                     raise ValueError(f"Referenced data field '{scale}' not found in grid cell data.")
                 scale = grid.cell_data[scale]
         # add the pressure load to the grid
         grid.cell_data["pressure_load_magnitude"] += scale
-    
+
     # Negate the pressure load magnitude to ensure it is pointing in the correct direction
-    # NOTE: In FEBio, POSITIVE pressure loads are compressive, 
+    # NOTE: In FEBio, POSITIVE pressure loads are compressive,
     # however, this is confusing for visualization, so we negate the pressure load
     grid.cell_data["pressure_load_magnitude"] *= -1
-    
+
     # Now, we need to add the pressure load as a vector
     grid.cell_data["pressure_load"] = np.zeros((grid.n_cells, 3))
     # The vector is based on the normal of the elements
     # extract the normals
     extracted_surface = grid.extract_surface()
-    extracted_surface = extracted_surface.compute_normals(cell_normals=True, 
-                                                point_normals=False, 
-                                                flip_normals=False, 
+    extracted_surface = extracted_surface.compute_normals(cell_normals=True,
+                                                point_normals=False,
+                                                flip_normals=False,
                                                 consistent_normals=True)
     normals = extracted_surface["Normals"]
     # get original cell ids
@@ -632,7 +632,7 @@ def add_pressure_load(container: FEBioContainer, grid: pv.UnstructuredGrid) -> p
     # add the normals to the grid based on the cell ids
     grid.cell_data["pressure_load"][cell_ids] = normals
     # multiply the normals by the pressure load magnitude
-    grid.cell_data["pressure_load"] *= grid.cell_data["pressure_load_magnitude"][:, None]    
+    grid.cell_data["pressure_load"] *= grid.cell_data["pressure_load_magnitude"][:, None]
     return grid
 
 # =============================================================================
@@ -919,9 +919,9 @@ def add_states_to_grid(container: FEBioContainer, grid: pv.UnstructuredGrid, app
                 # The vector is based on the normal of the elements
                 # extract the normals
                 extracted_surface = grid.extract_surface()
-                extracted_surface = extracted_surface.compute_normals(cell_normals=True, 
-                                                            point_normals=False, 
-                                                            flip_normals=False, 
+                extracted_surface = extracted_surface.compute_normals(cell_normals=True,
+                                                            point_normals=False,
+                                                            flip_normals=False,
                                                             consistent_normals=True)
                 normals = extracted_surface["Normals"]
                 # get original cell ids
@@ -929,7 +929,7 @@ def add_states_to_grid(container: FEBioContainer, grid: pv.UnstructuredGrid, app
                 # add the normals to the grid based on the cell ids
                 grid.cell_data["pressure_load"][cell_ids] = normals
                 # multiply the normals by the pressure load magnitude
-                grid.cell_data["pressure_load"] *= grid.cell_data["pressure_load_magnitude"][:, None]  
+                grid.cell_data["pressure_load"] *= grid.cell_data["pressure_load_magnitude"][:, None]
 
     return state_grids
 
@@ -951,7 +951,7 @@ def split_mesh_into_surface_and_volume(mesh: pv.UnstructuredGrid, surface_cell_t
     """
     if surface_cell_types is None:
         from febio_python.core import SURFACE_ELEMENT_TYPES
-        surface_cell_types = set([pv.CellType[k].value for k in SURFACE_ELEMENT_TYPES.__members__.keys()])    
+        surface_cell_types = set([pv.CellType[k].value for k in SURFACE_ELEMENT_TYPES.__members__.keys()])
     # Extract the surface mesh
     surface_mesh = mesh.copy().extract_cells_by_type(list(surface_cell_types))
     # Extract the volume mesh
@@ -986,7 +986,7 @@ def carefully_pass_cell_data_to_point_data(mesh: pv.UnstructuredGrid) -> pv.Unst
     This is useful when converting data that is defined only for a portion of the cells in the mesh, such as surface loads.
     e.g. surface loads are usually defined for only one side of the mesh, so the other side will have NaN values in the cell data.
     If the original implementation is used, the entire point data will be set to NaN, which is not desired. If we try to
-    fill the NaN values with zeros, it will affect the interpolation and the results will be incorrect (border values will be 
+    fill the NaN values with zeros, it will affect the interpolation and the results will be incorrect (border values will be
     interpolated incorrectly). Thus, this function is a workaround to handle this issue.
 
     Args:
@@ -995,7 +995,7 @@ def carefully_pass_cell_data_to_point_data(mesh: pv.UnstructuredGrid) -> pv.Unst
     Returns:
         pv.UnstructuredGrid: The mesh with cell data converted to point data, handling NaN values correctly.
     """
-    
+
     from pykdtree.kdtree import KDTree
     import xxhash
 
@@ -1013,7 +1013,7 @@ def carefully_pass_cell_data_to_point_data(mesh: pv.UnstructuredGrid) -> pv.Unst
     # If there are no NaN values, we can skip the correction
     if len(found_nan_in_keys) == 0:
         return new_mesh
-    
+
     # Otherwise, we need to correct the point data with NaN values
     # Initialize a KDTree to find the closest points
     tree = KDTree(new_mesh.points.astype(np.double))
@@ -1050,5 +1050,5 @@ def carefully_pass_cell_data_to_point_data(mesh: pv.UnstructuredGrid) -> pv.Unst
 
         # send the valid data to the original mesh
         new_mesh.point_data[key][point_map] = valid_cells.point_data[key]
-    
+
     return new_mesh

@@ -6,7 +6,6 @@ from typing import Union
 from xml.etree import ElementTree as ET
 from pathlib import Path
 
-from typing import Union
 
 # Create a type for the different versions of FEB
 FebType = Union[Feb25, Feb30, Feb40]
