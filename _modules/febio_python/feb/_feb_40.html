@@ -647,8 +647,8 @@
     <span class="nd">@feb_instance_cache</span>
     <span class="k">def</span> <span class="nf">get_nodal_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NodalLoad</span><span class="p">]:</span>
         <span class="n">nodal_loads</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">load</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loads</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//nodal_load&quot;</span><span class="p">)):</span>  <span class="c1"># Update to find &#39;nodal_load&#39; elements</span>
-            <span class="n">value_data</span> <span class="o">=</span> <span class="n">load</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">load</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loads</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;nodal_load&quot;</span><span class="p">)):</span>  <span class="c1"># Update to find &#39;nodal_load&#39; elements</span>
+            <span class="n">value_data</span> <span class="o">=</span> <span class="n">load</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;scale&quot;</span><span class="p">)</span>
 
             <span class="c1"># Convert value text to float if possible, maintain as text if not</span>
             <span class="k">try</span><span class="p">:</span>
@@ -657,7 +657,7 @@
                 <span class="n">scale_value</span> <span class="o">=</span> <span class="n">value_data</span><span class="o">.</span><span class="n">text</span>  <span class="c1"># Keep as text if not convertible</span>
 
             <span class="c1"># in ths new version, scale is a &quot;tuple&quot; -&gt; text separated by commas</span>
-            <span class="k">if</span> <span class="s1">&#39;,&#39;</span> <span class="ow">in</span> <span class="n">scale_value</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale_value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;,&#39;</span> <span class="ow">in</span> <span class="n">scale_value</span><span class="p">:</span>
                 <span class="n">scale_value</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">scale_value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>
 
             <span class="c1"># Extracting the load curve id, default to &#39;NoCurve&#39;</span>
@@ -685,9 +685,14 @@
             <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
                 <span class="k">pass</span>
 
+            <span class="c1"># extract the &quot;dof&quot; tag value (if it exists)</span>
+            <span class="n">dof</span> <span class="o">=</span> <span class="n">load</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;dof&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dof</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">dof</span> <span class="o">=</span> <span class="n">dof</span><span class="o">.</span><span class="n">text</span>
+
             <span class="c1"># Create a NodalLoad named tuple for the current load</span>
             <span class="n">current_load</span> <span class="o">=</span> <span class="n">NodalLoad</span><span class="p">(</span>
-                <span class="n">dof</span><span class="o">=</span><span class="n">load</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bc&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="n">dof</span><span class="o">=</span><span class="n">dof</span><span class="p">,</span>
                 <span class="n">node_set</span><span class="o">=</span><span class="n">load</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;node_set&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
                 <span class="nb">type</span><span class="o">=</span><span class="n">load</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
                 <span class="n">relative</span><span class="o">=</span><span class="n">relative</span><span class="p">,</span>
@@ -742,7 +747,7 @@
             <span class="n">points</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span>
 
             <span class="c1"># Extract points from each &#39;point&#39; element within &#39;points&#39; container</span>
-            <span class="k">for</span> <span class="n">point_elem</span> <span class="ow">in</span> <span class="n">loadcurve_elem</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;points&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;point&#39;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">point_elem</span> <span class="ow">in</span> <span class="n">loadcurve_elem</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;points&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;pt&#39;</span><span class="p">):</span>
                 <span class="c1"># Split the point text by &#39;,&#39; and convert to float</span>
                 <span class="n">point</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">point_elem</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>
                 <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
@@ -1041,11 +1046,11 @@
         <span class="n">filtered</span> <span class="o">=</span> <span class="p">[</span><span class="n">elem</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">elements</span> <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="n">SURFACE_EL_TYPE</span><span class="o">.</span><span class="n">__members__</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No surface elements found in the input list. Try using add_volume_elements() instead.&quot;</span><span class="p">)</span>
-        
+
         <span class="c1"># Retrieve existing elements and determine the last element ID</span>
         <span class="n">existing_surfaces_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_surface_elements</span><span class="p">()</span>
         <span class="n">last_surf_initial_id</span> <span class="o">=</span> <span class="n">existing_surfaces_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ids</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">existing_surfaces_list</span> <span class="k">else</span> <span class="mi">1</span>
-        
+
         <span class="n">existing_surfaces</span> <span class="o">=</span> <span class="p">{</span><span class="n">element</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">element</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">existing_surfaces_list</span><span class="p">}</span>
 
         <span class="k">for</span> <span class="n">surface</span> <span class="ow">in</span> <span class="n">filtered</span><span class="p">:</span>
@@ -1065,18 +1070,18 @@
                 <span class="c1"># Append to existing Surfaces group</span>
                 <span class="n">el_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;.//Surfaces[@name=&#39;</span><span class="si">{</span><span class="n">surface</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                
+
                 <span class="n">el_root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Surface&quot;</span><span class="p">)</span>
                 <span class="n">el_root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">surface</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
                 <span class="c1"># Append new &quot;Surfaces&quot; at the end of the geometry</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el_root</span><span class="p">)</span>
-            
+
             <span class="c1"># Add element connectivities as sub-surfaces</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">connectivity</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">surface</span><span class="o">.</span><span class="n">connectivity</span><span class="p">):</span>
                 <span class="n">subel</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">el_root</span><span class="p">,</span> <span class="n">el_type</span><span class="p">)</span>  <span class="c1"># FEBio use element type as tag name for surface surfaces</span>
                 <span class="c1"># Set the element ID and convert the connectivity to a comma-separated string</span>
-                <span class="n">subel</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">last_surf_initial_id</span><span class="p">))</span> 
+                <span class="n">subel</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">last_surf_initial_id</span><span class="p">))</span>
                 <span class="n">subel</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">connectivity</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># Convert connectivity to comma-separated string</span>
 
             <span class="c1"># Update the last_elem_initial_id for the next element group</span>

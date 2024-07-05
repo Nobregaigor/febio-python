@@ -450,10 +450,10 @@
         <span class="k">if</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;.feb&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">feb</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;.xplt&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">xplt</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>    
+            <span class="k">return</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">xplt</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
         <span class="n">feb_data</span><span class="p">,</span> <span class="n">xplt_data</span> <span class="o">=</span> <span class="n">data</span>
-        <span class="k">return</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">feb</span><span class="o">=</span><span class="n">feb_data</span><span class="p">,</span> <span class="n">xplt</span><span class="o">=</span><span class="n">xplt_data</span><span class="p">)</span>            
+        <span class="k">return</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">feb</span><span class="o">=</span><span class="n">feb_data</span><span class="p">,</span> <span class="n">xplt</span><span class="o">=</span><span class="n">xplt_data</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb40</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">feb</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">FEBioContainer</span><span class="p">):</span>
@@ -690,9 +690,9 @@
 <a class="viewcode-back" href="../../../api/utils/pyvista_utils.html#febio_python.utils.pyvista_utils.add_surface_data">[docs]</a>
 <span class="k">def</span> <span class="nf">add_surface_data</span><span class="p">(</span><span class="n">container</span><span class="p">:</span> <span class="n">FEBioContainer</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">:</span>
     <span class="c1"># if len(container.surface_data) &gt; 0:</span>
-        <span class="c1"># print(&quot;WARNING: Surface data is not yet supported.&quot;)</span>
+    <span class="c1"># print(&quot;WARNING: Surface data is not yet supported.&quot;)</span>
     <span class="n">surface_data</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">surface_data</span>
-    
+
     <span class="k">for</span> <span class="n">surf_data</span> <span class="ow">in</span> <span class="n">surface_data</span><span class="p">:</span>
         <span class="c1"># print(f&quot;Adding surface data {surf_data.name}&quot;)</span>
         <span class="c1"># get the surface data</span>
@@ -707,7 +707,7 @@
         <span class="n">selected_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mapping</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">surf_ids</span> <span class="o">=</span> <span class="n">selected_ids</span><span class="p">[</span><span class="n">surf_ids</span><span class="p">]</span>
         <span class="c1"># get the name of the data</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="n">surf_data</span><span class="o">.</span><span class="n">name</span>        
+        <span class="n">name</span> <span class="o">=</span> <span class="n">surf_data</span><span class="o">.</span><span class="n">name</span>
         <span class="c1"># Find the proper grid</span>
         <span class="n">full_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
         <span class="n">full_data</span><span class="p">[</span><span class="n">surf_ids</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
@@ -715,7 +715,7 @@
             <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">full_data</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;surface_data_</span><span class="si">{</span><span class="n">surf_set</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">full_data</span>
-    
+
     <span class="k">return</span> <span class="n">grid</span></div>
 
 
@@ -882,8 +882,8 @@
         <span class="n">load_indices</span> <span class="o">=</span> <span class="n">related_nodeset</span><span class="o">.</span><span class="n">ids</span>  <span class="c1"># Adjust indices for zero-based indexing</span>
 
         <span class="c1"># Handle scale being a tuple of length 3 (new version) or a string/numeric (old version)</span>
-        <span class="k">if</span> <span class="n">container</span><span class="o">.</span><span class="n">feb</span><span class="o">.</span><span class="n">version</span> <span class="o">&gt;=</span> <span class="mf">4.0</span><span class="p">:</span>
-            <span class="c1"># New version: scale is a tuple representing (scale_x, scale_y, scale_z)</span>
+        <span class="k">if</span> <span class="n">container</span><span class="o">.</span><span class="n">feb</span><span class="o">.</span><span class="n">version</span> <span class="o">&gt;=</span> <span class="mf">4.0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="c1"># New version: scale is a tuple representing (scale_x, scale_y, scale_z) - THIS IS OPTIONAL</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">axis_scale</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">scale</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">axis_scale</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axis_scale</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">axis_scale</span><span class="p">:</span>
@@ -944,13 +944,13 @@
     <span class="c1"># surface_data = container.surface_data</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pressure_loads</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">grid</span>  <span class="c1"># No pressure loads to process</span>
-    
+
     <span class="c1"># add default pressure load</span>
     <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load_magnitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="p">)</span>
-    
+
     <span class="c1"># get elements</span>
     <span class="c1"># elements_by_name = {elem.name: elem for elem in container.elements}</span>
-    
+
     <span class="k">for</span> <span class="n">load</span> <span class="ow">in</span> <span class="n">pressure_loads</span><span class="p">:</span>
         <span class="c1"># get the surface set</span>
         <span class="n">surf_set</span> <span class="o">=</span> <span class="n">load</span><span class="o">.</span><span class="n">surface</span>
@@ -970,7 +970,7 @@
             <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
             <span class="c1"># apply the scale to the elements</span>
             <span class="n">mapping</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;element_sets&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">surf_set</span>
-            <span class="n">selected_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mapping</span> <span class="o">==</span> <span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">selected_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mapping</span> <span class="o">==</span> <span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># noqa: E712</span>
             <span class="n">scale</span><span class="p">[</span><span class="n">selected_ids</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale_factor</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="c1"># check if there is a &#39;*&#39; in the scale (indicating a multiplication)</span>
@@ -980,27 +980,27 @@
                 <span class="n">data_field</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">data_field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Referenced data field &#39;</span><span class="si">{</span><span class="n">data_field</span><span class="si">}</span><span class="s2">&#39; not found in grid cell data.&quot;</span><span class="p">)</span>
-                <span class="n">scale</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">data_field</span><span class="p">]</span><span class="o">*</span><span class="n">scale_factor</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">data_field</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale_factor</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">scale</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Referenced data field &#39;</span><span class="si">{</span><span class="n">scale</span><span class="si">}</span><span class="s2">&#39; not found in grid cell data.&quot;</span><span class="p">)</span>
                 <span class="n">scale</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">scale</span><span class="p">]</span>
         <span class="c1"># add the pressure load to the grid</span>
         <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load_magnitude&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">scale</span>
-    
+
     <span class="c1"># Negate the pressure load magnitude to ensure it is pointing in the correct direction</span>
-    <span class="c1"># NOTE: In FEBio, POSITIVE pressure loads are compressive, </span>
+    <span class="c1"># NOTE: In FEBio, POSITIVE pressure loads are compressive,</span>
     <span class="c1"># however, this is confusing for visualization, so we negate the pressure load</span>
     <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load_magnitude&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
-    
+
     <span class="c1"># Now, we need to add the pressure load as a vector</span>
     <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
     <span class="c1"># The vector is based on the normal of the elements</span>
     <span class="c1"># extract the normals</span>
     <span class="n">extracted_surface</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">extract_surface</span><span class="p">()</span>
-    <span class="n">extracted_surface</span> <span class="o">=</span> <span class="n">extracted_surface</span><span class="o">.</span><span class="n">compute_normals</span><span class="p">(</span><span class="n">cell_normals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-                                                <span class="n">point_normals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
-                                                <span class="n">flip_normals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+    <span class="n">extracted_surface</span> <span class="o">=</span> <span class="n">extracted_surface</span><span class="o">.</span><span class="n">compute_normals</span><span class="p">(</span><span class="n">cell_normals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                <span class="n">point_normals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                <span class="n">flip_normals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                                 <span class="n">consistent_normals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">normals</span> <span class="o">=</span> <span class="n">extracted_surface</span><span class="p">[</span><span class="s2">&quot;Normals&quot;</span><span class="p">]</span>
     <span class="c1"># get original cell ids</span>
@@ -1008,7 +1008,7 @@
     <span class="c1"># add the normals to the grid based on the cell ids</span>
     <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load&quot;</span><span class="p">][</span><span class="n">cell_ids</span><span class="p">]</span> <span class="o">=</span> <span class="n">normals</span>
     <span class="c1"># multiply the normals by the pressure load magnitude</span>
-    <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load_magnitude&quot;</span><span class="p">][:,</span> <span class="kc">None</span><span class="p">]</span>    
+    <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load_magnitude&quot;</span><span class="p">][:,</span> <span class="kc">None</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">grid</span></div>
 
 
@@ -1301,9 +1301,9 @@
                 <span class="c1"># The vector is based on the normal of the elements</span>
                 <span class="c1"># extract the normals</span>
                 <span class="n">extracted_surface</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">extract_surface</span><span class="p">()</span>
-                <span class="n">extracted_surface</span> <span class="o">=</span> <span class="n">extracted_surface</span><span class="o">.</span><span class="n">compute_normals</span><span class="p">(</span><span class="n">cell_normals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-                                                            <span class="n">point_normals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
-                                                            <span class="n">flip_normals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                <span class="n">extracted_surface</span> <span class="o">=</span> <span class="n">extracted_surface</span><span class="o">.</span><span class="n">compute_normals</span><span class="p">(</span><span class="n">cell_normals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                            <span class="n">point_normals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                            <span class="n">flip_normals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                                             <span class="n">consistent_normals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="n">normals</span> <span class="o">=</span> <span class="n">extracted_surface</span><span class="p">[</span><span class="s2">&quot;Normals&quot;</span><span class="p">]</span>
                 <span class="c1"># get original cell ids</span>
@@ -1311,7 +1311,7 @@
                 <span class="c1"># add the normals to the grid based on the cell ids</span>
                 <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load&quot;</span><span class="p">][</span><span class="n">cell_ids</span><span class="p">]</span> <span class="o">=</span> <span class="n">normals</span>
                 <span class="c1"># multiply the normals by the pressure load magnitude</span>
-                <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load_magnitude&quot;</span><span class="p">][:,</span> <span class="kc">None</span><span class="p">]</span>  
+                <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s2">&quot;pressure_load_magnitude&quot;</span><span class="p">][:,</span> <span class="kc">None</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">state_grids</span></div>
 
@@ -1336,7 +1336,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">surface_cell_types</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">febio_python.core</span> <span class="kn">import</span> <span class="n">SURFACE_ELEMENT_TYPES</span>
-        <span class="n">surface_cell_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">pv</span><span class="o">.</span><span class="n">CellType</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">SURFACE_ELEMENT_TYPES</span><span class="o">.</span><span class="n">__members__</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>    
+        <span class="n">surface_cell_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">pv</span><span class="o">.</span><span class="n">CellType</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">SURFACE_ELEMENT_TYPES</span><span class="o">.</span><span class="n">__members__</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
     <span class="c1"># Extract the surface mesh</span>
     <span class="n">surface_mesh</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">extract_cells_by_type</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">surface_cell_types</span><span class="p">))</span>
     <span class="c1"># Extract the volume mesh</span>
@@ -1374,7 +1374,7 @@
 <span class="sd">    This is useful when converting data that is defined only for a portion of the cells in the mesh, such as surface loads.</span>
 <span class="sd">    e.g. surface loads are usually defined for only one side of the mesh, so the other side will have NaN values in the cell data.</span>
 <span class="sd">    If the original implementation is used, the entire point data will be set to NaN, which is not desired. If we try to</span>
-<span class="sd">    fill the NaN values with zeros, it will affect the interpolation and the results will be incorrect (border values will be </span>
+<span class="sd">    fill the NaN values with zeros, it will affect the interpolation and the results will be incorrect (border values will be</span>
 <span class="sd">    interpolated incorrectly). Thus, this function is a workaround to handle this issue.</span>
 
 <span class="sd">    Args:</span>
@@ -1383,7 +1383,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        pv.UnstructuredGrid: The mesh with cell data converted to point data, handling NaN values correctly.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="kn">from</span> <span class="nn">pykdtree.kdtree</span> <span class="kn">import</span> <span class="n">KDTree</span>
     <span class="kn">import</span> <span class="nn">xxhash</span>
 
@@ -1401,7 +1401,7 @@
     <span class="c1"># If there are no NaN values, we can skip the correction</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found_nan_in_keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">new_mesh</span>
-    
+
     <span class="c1"># Otherwise, we need to correct the point data with NaN values</span>
     <span class="c1"># Initialize a KDTree to find the closest points</span>
     <span class="n">tree</span> <span class="o">=</span> <span class="n">KDTree</span><span class="p">(</span><span class="n">new_mesh</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">))</span>
@@ -1438,7 +1438,7 @@
 
         <span class="c1"># send the valid data to the original mesh</span>
         <span class="n">new_mesh</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">point_map</span><span class="p">]</span> <span class="o">=</span> <span class="n">valid_cells</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-    
+
     <span class="k">return</span> <span class="n">new_mesh</span></div>
 
 </pre></div>

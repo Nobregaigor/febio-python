@@ -599,6 +599,8 @@ Feb40(4.0):
 -&gt; Material: 0
 -&gt; Globals: 1
 -&gt; Mesh: 2
+--&gt; Nodes: 28
+--&gt; Elements: 18
 -&gt; MeshDomains: 0
 -&gt; MeshData: 0
 -&gt; Boundary: 0
@@ -889,6 +891,8 @@ Feb40(4.0):
 -&gt; Material: 0
 -&gt; Globals: 1
 -&gt; Mesh: 3
+--&gt; Nodes: 231
+--&gt; Elements: 400
 -&gt; MeshDomains: 1
 -&gt; MeshData: 0
 -&gt; Boundary: 0
@@ -948,6 +952,8 @@ Feb40(4.0):
 -&gt; Material: 0
 -&gt; Globals: 1
 -&gt; Mesh: 3
+--&gt; Nodes: 231
+--&gt; Elements: 400
 -&gt; MeshDomains: 1
 -&gt; MeshData: 1
 -&gt; Boundary: 0
@@ -1066,7 +1072,7 @@ Feb40(4.0):
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Xplt object [1977296799008]:
+Xplt object [2887623865632]:
 === xplt_mesh: ===
 -Nodes:
 ---&gt;None: (231, 3)
@@ -1817,8 +1823,7 @@ StateData(name=&#39;Lagrange strain&#39;, dom=0, data=array([[[ 0.00000000e+00, 
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">febio_python</span> <span class="kn">import</span> <span class="n">FEBioContainer</span>
 
 <span class="n">container</span> <span class="o">=</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">feb</span><span class="o">=</span><span class="n">feb</span><span class="p">,</span>
-                           <span class="n">xplt</span><span class="o">=</span><span class="n">xplt</span>
-                           <span class="p">)</span>
+                           <span class="n">xplt</span><span class="o">=</span><span class="n">xplt</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1827,9 +1832,8 @@ StateData(name=&#39;Lagrange strain&#39;, dom=0, data=array([[[ 0.00000000e+00, 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">container</span> <span class="o">=</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">feb</span><span class="o">=</span><span class="s2">&quot;plane_mesh_v30.feb&quot;</span><span class="p">,</span>
-                           <span class="n">xplt</span><span class="o">=</span><span class="s2">&quot;plane_mesh_v30.xplt&quot;</span>
-                           <span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">container</span> <span class="o">=</span> <span class="n">FEBioContainer</span><span class="p">(</span><span class="n">feb</span><span class="o">=</span><span class="s2">&quot;plane_mesh_v40.feb&quot;</span><span class="p">,</span>
+                           <span class="n">xplt</span><span class="o">=</span><span class="s2">&quot;plane_mesh_v40.xplt&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1838,108 +1842,338 @@ StateData(name=&#39;Lagrange strain&#39;, dom=0, data=array([[[ 0.00000000e+00, 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
-<span class="ansi-red-intense-fg ansi-bold">TypeError</span>                                 Traceback (most recent call last)
-File <span class="ansi-green-intense-fg ansi-bold">d:\igor\github\febio-python\febio_python\feb\bases\base_feb.py:125</span>, in <span class="ansi-cyan-fg">FebBaseObject.parse</span><span class="ansi-blue-intense-fg ansi-bold">(content)</span>
-<span class="ansi-green-fg">    124</span> <span class="ansi-bold" style="color: rgb(0,135,0)">try</span>:
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 125</span>     tree <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">ET</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">fromstring</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">content</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg">    126</span>     root <span style="color: rgb(98,98,98)">=</span> tree<span style="color: rgb(98,98,98)">.</span>getroot()
-
-File <span class="ansi-green-intense-fg ansi-bold">d:\ProgramData\miniconda3\envs\torch_cuda\lib\xml\etree\ElementTree.py:1342</span>, in <span class="ansi-cyan-fg">XML</span><span class="ansi-blue-intense-fg ansi-bold">(text, parser)</span>
-<span class="ansi-green-fg">   1341</span>     parser <span style="color: rgb(98,98,98)">=</span> XMLParser(target<span style="color: rgb(98,98,98)">=</span>TreeBuilder())
-<span class="ansi-green-intense-fg ansi-bold">-&gt; 1342</span> <span class="ansi-yellow-bg">parser</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">feed</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">text</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg">   1343</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> parser<span style="color: rgb(98,98,98)">.</span>close()
-
-<span class="ansi-red-intense-fg ansi-bold">TypeError</span>: a bytes-like object is required, not &#39;WindowsPath&#39;
-
-The above exception was the direct cause of the following exception:
-
-<span class="ansi-red-intense-fg ansi-bold">ValueError</span>                                Traceback (most recent call last)
-Cell <span class="ansi-green-intense-fg ansi-bold">In[33], line 1</span>
-<span class="ansi-green-intense-fg ansi-bold">----&gt; 1</span> container <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">FEBioContainer</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">feb</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#34;</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">plane_mesh_v30.feb</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#34;</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg">      2</span> <span class="ansi-yellow-bg">                           </span><span class="ansi-yellow-bg">xplt</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#34;</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">plane_mesh_v30.xplt</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#34;</span>
-<span class="ansi-green-fg">      3</span> <span class="ansi-yellow-bg">                           </span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-intense-fg ansi-bold">d:\igor\github\febio-python\febio_python\container\febio_container.py:32</span>, in <span class="ansi-cyan-fg">FEBioContainer.__init__</span><span class="ansi-blue-intense-fg ansi-bold">(self, feb, xplt, auto_find)</span>
-<span class="ansi-green-fg">     31</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">__init__</span>(<span style="color: rgb(0,135,0)">self</span>, feb: Union[Feb30, Feb25, <span style="color: rgb(0,135,0)">str</span>, Path] <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>, xplt: Union[Xplt, <span style="color: rgb(0,135,0)">str</span>, Path] <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>, auto_find: <span style="color: rgb(0,135,0)">bool</span> <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">True</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>:
-<span class="ansi-green-intense-fg ansi-bold">---&gt; 32</span>     <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>feb: Optional[Union[Feb30, Feb25]] <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">_load_feb</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">feb</span><span class="ansi-yellow-bg">)</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> feb <span class="ansi-bold" style="color: rgb(0,135,0)">else</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>
-<span class="ansi-green-fg">     33</span>     <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>xplt: Optional[Xplt] <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_load_xplt(xplt) <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> xplt <span class="ansi-bold" style="color: rgb(0,135,0)">else</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>
-<span class="ansi-green-fg">     35</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> auto_find:
-
-File <span class="ansi-green-intense-fg ansi-bold">d:\igor\github\febio-python\febio_python\container\febio_container.py:67</span>, in <span class="ansi-cyan-fg">FEBioContainer._load_feb</span><span class="ansi-blue-intense-fg ansi-bold">(self, feb)</span>
-<span class="ansi-green-fg">     65</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">isinstance</span>(feb, (<span style="color: rgb(0,135,0)">str</span>, Path)):
-<span class="ansi-green-fg">     66</span>     feb_path <span style="color: rgb(98,98,98)">=</span> Path(feb)
-<span class="ansi-green-intense-fg ansi-bold">---&gt; 67</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">Feb</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">filepath</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">feb_path</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg">     68</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> feb
-
-File <span class="ansi-green-intense-fg ansi-bold">d:\igor\github\febio-python\febio_python\feb\feb_version_handler.py:18</span>, in <span class="ansi-cyan-fg">Feb</span><span class="ansi-blue-intense-fg ansi-bold">(filepath, tree, root, version)</span>
-<span class="ansi-green-fg">     16</span> <span style="color: rgb(95,135,135)"># version = determine_version(filepath)</span>
-<span class="ansi-green-fg">     17</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> version <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>:
-<span class="ansi-green-intense-fg ansi-bold">---&gt; 18</span>     version <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">FebBaseObject</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">tree</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">tree</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">root</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">root</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">filepath</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">filepath</span><span class="ansi-yellow-bg">)</span><span style="color: rgb(98,98,98)">.</span>version
-<span class="ansi-green-fg">     20</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span style="color: rgb(0,135,0)">isinstance</span>(version, (<span style="color: rgb(0,135,0)">str</span>)):
-<span class="ansi-green-fg">     21</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">try</span>:
-
-File <span class="ansi-green-intense-fg ansi-bold">d:\igor\github\febio-python\febio_python\feb\bases\base_feb.py:22</span>, in <span class="ansi-cyan-fg">FebBaseObject.__init__</span><span class="ansi-blue-intense-fg ansi-bold">(self, tree, root, filepath)</span>
-<span class="ansi-green-fg">     19</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>path_to_file <span style="color: rgb(98,98,98)">=</span> filepath
-<span class="ansi-green-fg">     21</span> <span style="color: rgb(95,135,135)"># Handle initialization of tree and root</span>
-<span class="ansi-green-intense-fg ansi-bold">---&gt; 22</span> tree, root <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">_handle_initialization</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">tree</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">root</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">filepath</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg">     24</span> <span style="color: rgb(95,135,135)"># Set tree and root attributes</span>
-<span class="ansi-green-fg">     25</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>tree: ET<span style="color: rgb(98,98,98)">.</span>ElementTree <span style="color: rgb(98,98,98)">=</span> tree
-
-File <span class="ansi-green-intense-fg ansi-bold">d:\igor\github\febio-python\febio_python\feb\bases\base_feb.py:63</span>, in <span class="ansi-cyan-fg">FebBaseObject._handle_initialization</span><span class="ansi-blue-intense-fg ansi-bold">(self, tree, root, filepath)</span>
-<span class="ansi-green-fg">     57</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">_handle_initialization</span>(<span style="color: rgb(0,135,0)">self</span>,
-<span class="ansi-green-fg">     58</span>                            tree: Union[ET<span style="color: rgb(98,98,98)">.</span>ElementTree, <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>] <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>,
-<span class="ansi-green-fg">     59</span>                            root: Union[ET<span style="color: rgb(98,98,98)">.</span>Element, <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>] <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>,
-<span class="ansi-green-fg">     60</span>                            filepath: Union[<span style="color: rgb(0,135,0)">str</span>, Path] <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Tuple[ET<span style="color: rgb(98,98,98)">.</span>ElementTree, ET<span style="color: rgb(98,98,98)">.</span>Element]:
-<span class="ansi-green-fg">     61</span>     <span style="color: rgb(95,135,135)"># Handle the case in which a filepath is provided -&gt; parse and get tree and root</span>
-<span class="ansi-green-fg">     62</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> filepath <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>:
-<span class="ansi-green-intense-fg ansi-bold">---&gt; 63</span>         tree, root <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">FebBaseObject</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">parse</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">filepath</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg">     65</span>     <span style="color: rgb(95,135,135)"># If no filepath is provided, proceed with other cases</span>
-<span class="ansi-green-fg">     66</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
-<span class="ansi-green-fg">     67</span>         <span style="color: rgb(95,135,135)"># Handle the case in which a tree what provided</span>
-<span class="ansi-green-fg">     68</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> tree <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>:
-<span class="ansi-green-fg">     69</span>             <span style="color: rgb(95,135,135)"># ET tree reference for paesed xml file</span>
-
-File <span class="ansi-green-intense-fg ansi-bold">d:\igor\github\febio-python\febio_python\feb\bases\base_feb.py:128</span>, in <span class="ansi-cyan-fg">FebBaseObject.parse</span><span class="ansi-blue-intense-fg ansi-bold">(content)</span>
-<span class="ansi-green-fg">    126</span>             root <span style="color: rgb(98,98,98)">=</span> tree<span style="color: rgb(98,98,98)">.</span>getroot()
-<span class="ansi-green-fg">    127</span>         <span class="ansi-bold" style="color: rgb(0,135,0)">except</span> <span class="ansi-bold" style="color: rgb(215,95,95)">Exception</span> <span class="ansi-bold" style="color: rgb(0,135,0)">as</span> e:
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 128</span>             <span class="ansi-bold" style="color: rgb(0,135,0)">raise</span> <span class="ansi-bold" style="color: rgb(215,95,95)">ValueError</span>(<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Content was identified as string, but could not be parsed. </span><span style="color: rgb(175,0,0)">&#34;</span>
-<span class="ansi-green-fg">    129</span>                              <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">Please, verify.</span><span style="color: rgb(175,0,0)">&#34;</span>) <span class="ansi-bold" style="color: rgb(0,135,0)">from</span> <span class="ansi-bold" style="color: rgb(0,0,255)">e</span>
-<span class="ansi-green-fg">    130</span> <span class="ansi-bold" style="color: rgb(0,135,0)">elif</span> <span style="color: rgb(0,135,0)">isinstance</span>(content, ET<span style="color: rgb(98,98,98)">.</span>ElementTree):
-<span class="ansi-green-fg">    131</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">try</span>:
-
-<span class="ansi-red-intense-fg ansi-bold">ValueError</span>: Content was identified as string, but could not be parsed. Please, verify.
+feb:  plane_mesh_v40.feb
 </pre></div></div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">container</span><span class="o">.</span><span class="n">feb</span>
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Feb40(4.0):
+-&gt; Module: solid
+-&gt; Control: 12
+-&gt; Material: 1
+-&gt; Globals: 1
+-&gt; Mesh: 5
+--&gt; Nodes: 231
+--&gt; Elements: 400
+-&gt; MeshDomains: 1
+-&gt; MeshData: 2
+-&gt; Boundary: 3
+-&gt; Loads: 2
+-&gt; Discrete: 0
+-&gt; Output: 1
+-&gt; LoadData: 1
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">container</span><span class="o">.</span><span class="n">xplt</span>
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Xplt object [2887623868368]:
+=== xplt_mesh: ===
+-Nodes:
+---&gt;None: (231, 3)
+-Elements:
+---&gt;None: (400, 3)
+=== States: ===
+-Nodes:
+---&gt;displacement: (11, 231, 3)
+-Elements:
+---&gt;Lagrange strain: (11, 400, 6)
+---&gt;stress: (11, 400, 6)
+-Surfaces:
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">container</span><span class="o">.</span><span class="n">nodes</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Nodes(name=&#39;plane&#39;, coordinates=array([[-1. , -0.5,  0. ],
+        [-0.9, -0.5,  0. ],
+        [-0.8, -0.5,  0. ],
+        [-0.7, -0.5,  0. ],
+        [-0.6, -0.5,  0. ],
+        [-0.5, -0.5,  0. ],
+        [-0.4, -0.5,  0. ],
+        [-0.3, -0.5,  0. ],
+        [-0.2, -0.5,  0. ],
+        [-0.1, -0.5,  0. ],
+        [ 0. , -0.5,  0. ],
+        [ 0.1, -0.5,  0. ],
+        [ 0.2, -0.5,  0. ],
+        [ 0.3, -0.5,  0. ],
+        [ 0.4, -0.5,  0. ],
+        [ 0.5, -0.5,  0. ],
+        [ 0.6, -0.5,  0. ],
+        [ 0.7, -0.5,  0. ],
+        [ 0.8, -0.5,  0. ],
+        [ 0.9, -0.5,  0. ],
+        [ 1. , -0.5,  0. ],
+        [-1. , -0.4,  0. ],
+        [-0.9, -0.4,  0. ],
+        [-0.8, -0.4,  0. ],
+        [-0.7, -0.4,  0. ],
+        [-0.6, -0.4,  0. ],
+        [-0.5, -0.4,  0. ],
+        [-0.4, -0.4,  0. ],
+        [-0.3, -0.4,  0. ],
+        [-0.2, -0.4,  0. ],
+        [-0.1, -0.4,  0. ],
+        [ 0. , -0.4,  0. ],
+        [ 0.1, -0.4,  0. ],
+        [ 0.2, -0.4,  0. ],
+        [ 0.3, -0.4,  0. ],
+        [ 0.4, -0.4,  0. ],
+        [ 0.5, -0.4,  0. ],
+        [ 0.6, -0.4,  0. ],
+        [ 0.7, -0.4,  0. ],
+        [ 0.8, -0.4,  0. ],
+        [ 0.9, -0.4,  0. ],
+        [ 1. , -0.4,  0. ],
+        [-1. , -0.3,  0. ],
+        [-0.9, -0.3,  0. ],
+        [-0.8, -0.3,  0. ],
+        [-0.7, -0.3,  0. ],
+        [-0.6, -0.3,  0. ],
+        [-0.5, -0.3,  0. ],
+        [-0.4, -0.3,  0. ],
+        [-0.3, -0.3,  0. ],
+        [-0.2, -0.3,  0. ],
+        [-0.1, -0.3,  0. ],
+        [ 0. , -0.3,  0. ],
+        [ 0.1, -0.3,  0. ],
+        [ 0.2, -0.3,  0. ],
+        [ 0.3, -0.3,  0. ],
+        [ 0.4, -0.3,  0. ],
+        [ 0.5, -0.3,  0. ],
+        [ 0.6, -0.3,  0. ],
+        [ 0.7, -0.3,  0. ],
+        [ 0.8, -0.3,  0. ],
+        [ 0.9, -0.3,  0. ],
+        [ 1. , -0.3,  0. ],
+        [-1. , -0.2,  0. ],
+        [-0.9, -0.2,  0. ],
+        [-0.8, -0.2,  0. ],
+        [-0.7, -0.2,  0. ],
+        [-0.6, -0.2,  0. ],
+        [-0.5, -0.2,  0. ],
+        [-0.4, -0.2,  0. ],
+        [-0.3, -0.2,  0. ],
+        [-0.2, -0.2,  0. ],
+        [-0.1, -0.2,  0. ],
+        [ 0. , -0.2,  0. ],
+        [ 0.1, -0.2,  0. ],
+        [ 0.2, -0.2,  0. ],
+        [ 0.3, -0.2,  0. ],
+        [ 0.4, -0.2,  0. ],
+        [ 0.5, -0.2,  0. ],
+        [ 0.6, -0.2,  0. ],
+        [ 0.7, -0.2,  0. ],
+        [ 0.8, -0.2,  0. ],
+        [ 0.9, -0.2,  0. ],
+        [ 1. , -0.2,  0. ],
+        [-1. , -0.1,  0. ],
+        [-0.9, -0.1,  0. ],
+        [-0.8, -0.1,  0. ],
+        [-0.7, -0.1,  0. ],
+        [-0.6, -0.1,  0. ],
+        [-0.5, -0.1,  0. ],
+        [-0.4, -0.1,  0. ],
+        [-0.3, -0.1,  0. ],
+        [-0.2, -0.1,  0. ],
+        [-0.1, -0.1,  0. ],
+        [ 0. , -0.1,  0. ],
+        [ 0.1, -0.1,  0. ],
+        [ 0.2, -0.1,  0. ],
+        [ 0.3, -0.1,  0. ],
+        [ 0.4, -0.1,  0. ],
+        [ 0.5, -0.1,  0. ],
+        [ 0.6, -0.1,  0. ],
+        [ 0.7, -0.1,  0. ],
+        [ 0.8, -0.1,  0. ],
+        [ 0.9, -0.1,  0. ],
+        [ 1. , -0.1,  0. ],
+        [-1. ,  0. ,  0. ],
+        [-0.9,  0. ,  0. ],
+        [-0.8,  0. ,  0. ],
+        [-0.7,  0. ,  0. ],
+        [-0.6,  0. ,  0. ],
+        [-0.5,  0. ,  0. ],
+        [-0.4,  0. ,  0. ],
+        [-0.3,  0. ,  0. ],
+        [-0.2,  0. ,  0. ],
+        [-0.1,  0. ,  0. ],
+        [ 0. ,  0. ,  0. ],
+        [ 0.1,  0. ,  0. ],
+        [ 0.2,  0. ,  0. ],
+        [ 0.3,  0. ,  0. ],
+        [ 0.4,  0. ,  0. ],
+        [ 0.5,  0. ,  0. ],
+        [ 0.6,  0. ,  0. ],
+        [ 0.7,  0. ,  0. ],
+        [ 0.8,  0. ,  0. ],
+        [ 0.9,  0. ,  0. ],
+        [ 1. ,  0. ,  0. ],
+        [-1. ,  0.1,  0. ],
+        [-0.9,  0.1,  0. ],
+        [-0.8,  0.1,  0. ],
+        [-0.7,  0.1,  0. ],
+        [-0.6,  0.1,  0. ],
+        [-0.5,  0.1,  0. ],
+        [-0.4,  0.1,  0. ],
+        [-0.3,  0.1,  0. ],
+        [-0.2,  0.1,  0. ],
+        [-0.1,  0.1,  0. ],
+        [ 0. ,  0.1,  0. ],
+        [ 0.1,  0.1,  0. ],
+        [ 0.2,  0.1,  0. ],
+        [ 0.3,  0.1,  0. ],
+        [ 0.4,  0.1,  0. ],
+        [ 0.5,  0.1,  0. ],
+        [ 0.6,  0.1,  0. ],
+        [ 0.7,  0.1,  0. ],
+        [ 0.8,  0.1,  0. ],
+        [ 0.9,  0.1,  0. ],
+        [ 1. ,  0.1,  0. ],
+        [-1. ,  0.2,  0. ],
+        [-0.9,  0.2,  0. ],
+        [-0.8,  0.2,  0. ],
+        [-0.7,  0.2,  0. ],
+        [-0.6,  0.2,  0. ],
+        [-0.5,  0.2,  0. ],
+        [-0.4,  0.2,  0. ],
+        [-0.3,  0.2,  0. ],
+        [-0.2,  0.2,  0. ],
+        [-0.1,  0.2,  0. ],
+        [ 0. ,  0.2,  0. ],
+        [ 0.1,  0.2,  0. ],
+        [ 0.2,  0.2,  0. ],
+        [ 0.3,  0.2,  0. ],
+        [ 0.4,  0.2,  0. ],
+        [ 0.5,  0.2,  0. ],
+        [ 0.6,  0.2,  0. ],
+        [ 0.7,  0.2,  0. ],
+        [ 0.8,  0.2,  0. ],
+        [ 0.9,  0.2,  0. ],
+        [ 1. ,  0.2,  0. ],
+        [-1. ,  0.3,  0. ],
+        [-0.9,  0.3,  0. ],
+        [-0.8,  0.3,  0. ],
+        [-0.7,  0.3,  0. ],
+        [-0.6,  0.3,  0. ],
+        [-0.5,  0.3,  0. ],
+        [-0.4,  0.3,  0. ],
+        [-0.3,  0.3,  0. ],
+        [-0.2,  0.3,  0. ],
+        [-0.1,  0.3,  0. ],
+        [ 0. ,  0.3,  0. ],
+        [ 0.1,  0.3,  0. ],
+        [ 0.2,  0.3,  0. ],
+        [ 0.3,  0.3,  0. ],
+        [ 0.4,  0.3,  0. ],
+        [ 0.5,  0.3,  0. ],
+        [ 0.6,  0.3,  0. ],
+        [ 0.7,  0.3,  0. ],
+        [ 0.8,  0.3,  0. ],
+        [ 0.9,  0.3,  0. ],
+        [ 1. ,  0.3,  0. ],
+        [-1. ,  0.4,  0. ],
+        [-0.9,  0.4,  0. ],
+        [-0.8,  0.4,  0. ],
+        [-0.7,  0.4,  0. ],
+        [-0.6,  0.4,  0. ],
+        [-0.5,  0.4,  0. ],
+        [-0.4,  0.4,  0. ],
+        [-0.3,  0.4,  0. ],
+        [-0.2,  0.4,  0. ],
+        [-0.1,  0.4,  0. ],
+        [ 0. ,  0.4,  0. ],
+        [ 0.1,  0.4,  0. ],
+        [ 0.2,  0.4,  0. ],
+        [ 0.3,  0.4,  0. ],
+        [ 0.4,  0.4,  0. ],
+        [ 0.5,  0.4,  0. ],
+        [ 0.6,  0.4,  0. ],
+        [ 0.7,  0.4,  0. ],
+        [ 0.8,  0.4,  0. ],
+        [ 0.9,  0.4,  0. ],
+        [ 1. ,  0.4,  0. ],
+        [-1. ,  0.5,  0. ],
+        [-0.9,  0.5,  0. ],
+        [-0.8,  0.5,  0. ],
+        [-0.7,  0.5,  0. ],
+        [-0.6,  0.5,  0. ],
+        [-0.5,  0.5,  0. ],
+        [-0.4,  0.5,  0. ],
+        [-0.3,  0.5,  0. ],
+        [-0.2,  0.5,  0. ],
+        [-0.1,  0.5,  0. ],
+        [ 0. ,  0.5,  0. ],
+        [ 0.1,  0.5,  0. ],
+        [ 0.2,  0.5,  0. ],
+        [ 0.3,  0.5,  0. ],
+        [ 0.4,  0.5,  0. ],
+        [ 0.5,  0.5,  0. ],
+        [ 0.6,  0.5,  0. ],
+        [ 0.7,  0.5,  0. ],
+        [ 0.8,  0.5,  0. ],
+        [ 0.9,  0.5,  0. ],
+        [ 1. ,  0.5,  0. ]], dtype=float32), ids=array([  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,
+         13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,
+         26,  27,  28,  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,
+         39,  40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  50,  51,
+         52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,  64,
+         65,  66,  67,  68,  69,  70,  71,  72,  73,  74,  75,  76,  77,
+         78,  79,  80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  90,
+         91,  92,  93,  94,  95,  96,  97,  98,  99, 100, 101, 102, 103,
+        104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116,
+        117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129,
+        130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142,
+        143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155,
+        156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168,
+        169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181,
+        182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194,
+        195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207,
+        208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220,
+        221, 222, 223, 224, 225, 226, 227, 228, 229, 230], dtype=int64))]
+</pre></div></div>
+</div>
 </section>
 <section id="Ploting-Feb-or-Xplt">
 <h2>Ploting Feb or Xplt<a class="headerlink" href="#Ploting-Feb-or-Xplt" title="Link to this heading">¶</a></h2>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">febio_python.utils.pyvista_utils</span> <span class="kn">import</span> <span class="n">febio_to_pyvista</span>
@@ -1949,17 +2183,42 @@ File <span class="ansi-green-intense-fg ansi-bold">d:\igor\github\febio-python\f
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\Users\igorp\AppData\Roaming\Python\Python310\site-packages\scipy\__init__.py:146: UserWarning: A NumPy version &gt;=1.17.3 and &lt;1.25.0 is required for this version of SciPy (detected version 1.26.3
+  warnings.warn(f&#34;A NumPy version &gt;={np_minversion} and &lt;{np_maxversion}&#34;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+11
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grids_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cpos</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scalars</span><span class="o">=</span><span class="s2">&quot;stress&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../_images/modules_feb_spec_4_0_adding_basic_components_adding_basic_components_70_0.png" src="../../../../_images/modules_feb_spec_4_0_adding_basic_components_adding_basic_components_70_0.png" />
+</div>
+</div>
 <p>You can also quickly convert all cell data to node data:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">last_grid_as_nodal_data</span> <span class="o">=</span> <span class="n">grids_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cell_data_to_point_data</span><span class="p">()</span>
@@ -1967,17 +2226,66 @@ File <span class="ansi-green-intense-fg ansi-bold">d:\igor\github\febio-python\f
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../_images/modules_feb_spec_4_0_adding_basic_components_adding_basic_components_72_0.png" src="../../../../_images/modules_feb_spec_4_0_adding_basic_components_adding_basic_components_72_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">last_grid_as_nodal_data</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table style='width: 100%;'><tr><th>Header</th><th>Data Arrays</th></tr><tr><td>
+<table style='width: 100%;'>
+<tr><th>UnstructuredGrid</th><th>Information</th></tr>
+<tr><td>N Cells</td><td>400</td></tr>
+<tr><td>N Points</td><td>231</td></tr>
+<tr><td>X Bounds</td><td>-1.000e+00, 1.168e+00</td></tr>
+<tr><td>Y Bounds</td><td>-9.488e-01, 5.000e-01</td></tr>
+<tr><td>Z Bounds</td><td>0.000e+00, 0.000e+00</td></tr>
+<tr><td>N Arrays</td><td>19</td></tr>
+</table>
+
+</td><td>
+<table style='width: 100%;'>
+<tr><th>Name</th><th>Field</th><th>Type</th><th>N Comp</th><th>Min</th><th>Max</th></tr>
+<tr><td>right_edge</td><td>Points</td><td>bool</td><td>1</td><td>nan</td><td>nan</td></tr>
+<tr><td>left_edge</td><td>Points</td><td>bool</td><td>1</td><td>nan</td><td>nan</td></tr>
+<tr><td>all_nodes</td><td>Points</td><td>bool</td><td>1</td><td>nan</td><td>nan</td></tr>
+<tr><td>nodal_load_right_edge_scale</td><td>Points</td><td>float64</td><td>1</td><td>8.209e+00</td><td>1.000e+02</td></tr>
+<tr><td>nodal_load</td><td>Points</td><td>float64</td><td>3</td><td>-2.500e+01</td><td>1.000e+02</td></tr>
+<tr><td>fix</td><td>Points</td><td>int32</td><td>3</td><td>0.000e+00</td><td>0.000e+00</td></tr>
+<tr><td>fix_shell</td><td>Points</td><td>int32</td><td>3</td><td>0.000e+00</td><td>0.000e+00</td></tr>
+<tr><td>displacement</td><td>Points</td><td>float32</td><td>3</td><td>-4.933e-01</td><td>1.687e-01</td></tr>
+<tr><td>domain</td><td>Points</td><td>float32</td><td>1</td><td>0.000e+00</td><td>0.000e+00</td></tr>
+<tr><td>Element thickness</td><td>Points</td><td>float64</td><td>3</td><td>1.000e-02</td><td>1.000e-02</td></tr>
+<tr><td>mat_parameters:1</td><td>Points</td><td>float64</td><td>2</td><td>3.000e-01</td><td>1.000e+00</td></tr>
+<tr><td>Lagrange strain</td><td>Points</td><td>float32</td><td>6</td><td>-1.042e-01</td><td>2.035e-01</td></tr>
+<tr><td>stress</td><td>Points</td><td>float32</td><td>6</td><td>-1.136e+05</td><td>2.762e+05</td></tr>
+<tr><td><b>stress-normed</b></td><td>Points</td><td>float32</td><td>1</td><td>6.978e+03</td><td>2.955e+05</td></tr>
+<tr><td>mat_parameters:1</td><td>Fields</td><td><U7</td><td>1</td><td>nan</td><td>nan</td></tr>
+<tr><td>mat_type:1</td><td>Fields</td><td><U17</td><td>1</td><td>nan</td><td>nan</td></tr>
+<tr><td>mat_name:1</td><td>Fields</td><td><U14</td><td>1</td><td>nan</td><td>nan</td></tr>
+<tr><td>timestep</td><td>Fields</td><td>float32</td><td>1</td><td>1.000e+00</td><td>1.000e+00</td></tr>
+<tr><td>lc_1</td><td>Fields</td><td>float32</td><td>1</td><td>1.000e+00</td><td>1.000e+00</td></tr>
+</table>
+
+</td></tr> </table></div>
+</div>
 <p>When using the FEBio container, we have access to both Feb and Xplt data. This means that we can retrieve nodal load, boundary conditions, etc. Here is a cool plot that we can do:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plotter</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">()</span>
@@ -2002,6 +2310,13 @@ File <span class="ansi-green-intense-fg ansi-bold">d:\igor\github\febio-python\f
                    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;orange&quot;</span><span class="p">)</span>
 <span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">cpos</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">)</span>
 </pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../_images/modules_feb_spec_4_0_adding_basic_components_adding_basic_components_75_0.png" src="../../../../_images/modules_feb_spec_4_0_adding_basic_components_adding_basic_components_75_0.png" />
 </div>
 </div>
 </section>

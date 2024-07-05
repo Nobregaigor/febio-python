@@ -358,8 +358,8 @@
     <span class="n">NodalData</span><span class="p">,</span>
     <span class="n">SurfaceData</span><span class="p">,</span>
     <span class="n">ElementData</span><span class="p">,</span>
-    <span class="n">XpltMeshPart</span><span class="p">,</span>
-    <span class="n">GenericDomain</span>
+    <span class="c1"># XpltMeshPart,</span>
+    <span class="c1"># GenericDomain</span>
 <span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">febio_python.feb</span> <span class="kn">import</span> <span class="n">Feb25</span><span class="p">,</span> <span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb40</span><span class="p">,</span> <span class="n">Feb</span>
@@ -406,6 +406,7 @@
 
     <span class="k">def</span> <span class="nf">_load_feb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feb</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb25</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Feb30</span><span class="p">,</span> <span class="n">Feb25</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">feb</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;feb: &quot;</span><span class="p">,</span> <span class="n">feb</span><span class="p">)</span>
             <span class="n">feb_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">feb</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">Feb</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">feb_path</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">feb</span>
