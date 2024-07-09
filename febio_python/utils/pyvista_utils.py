@@ -408,30 +408,8 @@ def add_material(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.Uns
         mat_type = mat.type
         mat_id = mat.id
         parameters = OrderedDict(mat.parameters)
-
-        # get domains ()
-        # Find the corresponding element for the material
-        # if domains is None or len(domains) == 0:
-        #     target_element = next((elem for elem in elements if (str(elem.mat) == str(mat_id) or (elem.name) == mat_name)), None)
-        # else:
-        #     target_element = next((elem for elem in elements if (str(elem.mat) == str(mat_id) or (elem.name) == mat_name)), None)
-        # if not target_element:
-        #     raise ValueError(f"Could not find the proper element for material {mat_name} "
-        #                      "Currently, the material ID must match the element material ID or the element name."
-        #                      "e.g.:\n"
-        #                      '<material id="1" name="MESH1" type="isotropic elastic">\n'
-        #                      '...\n'
-        #                      '<Elements type="tri3" name="MESH1">\n'
-        #                      'or\n'
-        #                      '<Elements type="tri3" name="MESH1", mat="1">\n'
-        #                      "Alternatively, if a domain is specified, the domain name must match the elements material name "
-        #                      "and the domain mat must match the material name."
-        #                      "e.g.:\n"
-        #                         '<material id="1" name="MESH1" type="isotropic elastic">\n'
-        #                         '...\n'
-        #                         '<Domains mat="MESH1" ...>\n'
-        #                      )
-
+        print(f"Adding material {mat_name} with ID {mat_id} and type {mat_type}")
+        print(f"Parameters: {parameters}")
         num_params = len(parameters)
         params_names = list(parameters.keys())
         params_values = list(parameters.values())
