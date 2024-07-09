@@ -325,7 +325,7 @@ class Feb30(AbstractFebObject):
 
             # Extract parameters and remove them from attributes to avoid duplication
             parameters = {}
-            for el in list(item)[1:]:  # Assuming the first element describes the material itself
+            for el in list(item):
                 try:
                     p_val = float(el.text)
                 except ValueError:
