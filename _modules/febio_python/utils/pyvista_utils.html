@@ -778,30 +778,6 @@
         <span class="n">mat_type</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">type</span>
         <span class="n">mat_id</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">id</span>
         <span class="n">parameters</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
-
-        <span class="c1"># get domains ()</span>
-        <span class="c1"># Find the corresponding element for the material</span>
-        <span class="c1"># if domains is None or len(domains) == 0:</span>
-        <span class="c1">#     target_element = next((elem for elem in elements if (str(elem.mat) == str(mat_id) or (elem.name) == mat_name)), None)</span>
-        <span class="c1"># else:</span>
-        <span class="c1">#     target_element = next((elem for elem in elements if (str(elem.mat) == str(mat_id) or (elem.name) == mat_name)), None)</span>
-        <span class="c1"># if not target_element:</span>
-        <span class="c1">#     raise ValueError(f&quot;Could not find the proper element for material {mat_name} &quot;</span>
-        <span class="c1">#                      &quot;Currently, the material ID must match the element material ID or the element name.&quot;</span>
-        <span class="c1">#                      &quot;e.g.:\n&quot;</span>
-        <span class="c1">#                      &#39;&lt;material id=&quot;1&quot; name=&quot;MESH1&quot; type=&quot;isotropic elastic&quot;&gt;\n&#39;</span>
-        <span class="c1">#                      &#39;...\n&#39;</span>
-        <span class="c1">#                      &#39;&lt;Elements type=&quot;tri3&quot; name=&quot;MESH1&quot;&gt;\n&#39;</span>
-        <span class="c1">#                      &#39;or\n&#39;</span>
-        <span class="c1">#                      &#39;&lt;Elements type=&quot;tri3&quot; name=&quot;MESH1&quot;, mat=&quot;1&quot;&gt;\n&#39;</span>
-        <span class="c1">#                      &quot;Alternatively, if a domain is specified, the domain name must match the elements material name &quot;</span>
-        <span class="c1">#                      &quot;and the domain mat must match the material name.&quot;</span>
-        <span class="c1">#                      &quot;e.g.:\n&quot;</span>
-        <span class="c1">#                         &#39;&lt;material id=&quot;1&quot; name=&quot;MESH1&quot; type=&quot;isotropic elastic&quot;&gt;\n&#39;</span>
-        <span class="c1">#                         &#39;...\n&#39;</span>
-        <span class="c1">#                         &#39;&lt;Domains mat=&quot;MESH1&quot; ...&gt;\n&#39;</span>
-        <span class="c1">#                      )</span>
-
         <span class="n">num_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
         <span class="n">params_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="n">params_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>

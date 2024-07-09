@@ -600,7 +600,7 @@
 
             <span class="c1"># Extract parameters and remove them from attributes to avoid duplication</span>
             <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>  <span class="c1"># Assuming the first element describes the material itself</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">p_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
