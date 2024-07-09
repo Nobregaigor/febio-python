@@ -408,8 +408,6 @@ def add_material(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.Uns
         mat_type = mat.type
         mat_id = mat.id
         parameters = OrderedDict(mat.parameters)
-        print(f"Adding material {mat_name} with ID {mat_id} and type {mat_type}")
-        print(f"Parameters: {parameters}")
         num_params = len(parameters)
         params_names = list(parameters.keys())
         params_values = list(parameters.values())
