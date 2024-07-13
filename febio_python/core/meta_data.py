@@ -53,6 +53,7 @@ class DiscreteSet:
     dst: Union[ndarray[int], str]  # Destination node set or surface set
     dmat: int  # Discrete material ID
 
+
 # Materials
 # ------------------------------
 @dataclass
@@ -108,7 +109,7 @@ class SurfaceLoad:
 @dataclass
 class PressureLoad(SurfaceLoad):
     type: str = "pressure"  # Default type is 'pressure' -- mainly an alias for SurfaceLoad
-    
+
 
 @dataclass
 class SurfaceTractionLoad(SurfaceLoad):
@@ -141,6 +142,7 @@ class BoundaryCondition:
 @dataclass
 class FixCondition(BoundaryCondition):
     type: str = "fix"       # Default type is 'fix'
+
     def __post_init__(self):
         if self.node_set is None:
             raise ValueError(f"node_set cannot be None for {self.__class__.__name__}")
@@ -210,11 +212,12 @@ class GenericDomain:
     mat: Union[int, str]    # Material ID or name
     id: int = None   # Domain ID
     tag_name: str = None    # Optional tag name
-    
+
 
 @dataclass
 class SolidDomain(GenericDomain):
     tag_name: str = "SolidDomain"
+
 
 @dataclass
 class ShellDomain(GenericDomain):

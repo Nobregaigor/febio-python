@@ -31,6 +31,8 @@ from febio_python.core import (
     ElementData,
     GenericDomain,
     ShellDomain,
+    DiscreteSet,
+    DiscreteMaterial
 )
 
 from ._caching import feb_instance_cache
@@ -215,6 +217,73 @@ class Feb40(AbstractFebObject):
             elementset_list.append(ElementSet(name=key, ids=value))
         return elementset_list
 
+    @feb_instance_cache
+    def get_discrete_sets(self, dtype=np.int64, find_related_nodesets=True) -> List[DiscreteSet]:
+
+        # get all node sets by name and ids (for reference)
+        node_sets_by_name = {n.name: n.ids for n in self.get_node_sets()}
+        # find all discrete sets
+        discrete_sets = self.mesh.findall("DiscreteSet")
+        discrete_set_list = []
+        for dset in discrete_sets:
+            # get name
+            name = dset.attrib.get("name", None)
+
+            # Try to get the related discrete material
+            mat_id = None  # default value
+            # find discrete data associated with the set (if any)
+            all_related_discrete_data = self.discrete.findall("discrete")
+            related_discrete_data = [d for d in all_related_discrete_data if d.attrib.get("discrete_set", None) == name]
+            if len(related_discrete_data) > 0:
+                # get first data
+                dset_related_data = related_discrete_data[0]
+                # get the material id
+                mat_id = dset_related_data.attrib.get("dmat", None)
+
+            # get the source and destination node sets
+            dset_ids = deque()
+            for delem in dset.findall("delem"):
+                # src and dst are in delem text and are comma separated
+                src, dst = delem.text.split(",")
+                src, dst = int(src), int(dst)
+                dset_ids.append((src, dst))
+
+            # transform to numpy array
+            dset_ids = np.array(dset_ids, dtype=dtype)
+
+            # get the source and destination node sets
+            src_ids = dset_ids[:, 0]
+            dst_ids = dset_ids[:, 1]
+
+            # default values
+            src = src_ids
+            dst = dst_ids
+
+            # Try to match with any existing node set
+            if find_related_nodesets:
+                src_names = [k for k, v in node_sets_by_name.items() if np.array_equal(v, src_ids)]
+                dst_names = [k for k, v in node_sets_by_name.items() if np.array_equal(v, dst_ids)]
+
+                # If there is only one match, use it
+                if len(src_names) == 1:
+                    src = src_names[0]
+
+                if len(dst_names) == 1:
+                    dst = dst_names[0]
+
+            # Create a DiscreteSet instance
+            current_dset = DiscreteSet(
+                name=name,
+                src=src,
+                dst=dst,
+                dmat=mat_id
+            )
+
+            # Add the DiscreteSet instance to the list
+            discrete_set_list.append(current_dset)
+
+        return discrete_set_list
+
     # Mesh Domains
     # ------------------------------
 
@@ -266,18 +335,33 @@ class Feb40(AbstractFebObject):
             # Extract parameters and remove them from attributes to avoid duplication
             parameters = {}
             for el in list(item):
-                try:
-                    p_val = float(el.text)
-                except ValueError:
+
+                # first, we need to check if there are sub-elements,
+                # if so, then p_val is a dictionary
+
+                if len(list(el)) > 0:
+                    p_val = {}
+                    for subel in list(el):
+                        subel_val = subel.text
+                        if subel_val is not None and str(subel_val).isdigit():
+                            subel_val = int(subel_val)
+                        elif subel_val is not None and str(subel_val).replace(".", "").isdigit():
+                            subel_val = float(subel_val)
+                        p_val[subel.tag] = subel_val
+                else:
                     p_val = el.text
+                    if p_val is not None and str(p_val).isdigit():
+                        p_val = int(p_val)
+                    elif p_val is not None and str(p_val).replace(".", "").isdigit():
+                        p_val = float(p_val)
+
                 parameters[el.tag] = p_val
 
             # Remove standard fields from attributes if they exist
             mat_id = mat_attrib.pop("id", None)
-            try:
+            # check if mat_id can be converted to int
+            if mat_id is not None and str(mat_id).isdigit():
                 mat_id = int(mat_id)
-            except ValueError:
-                pass
             mat_type = mat_attrib.pop("type", None)
             mat_name = mat_attrib.pop("name", "Unnamed Material")
 
@@ -357,27 +441,37 @@ class Feb40(AbstractFebObject):
     @feb_instance_cache
     def get_surface_loads(self) -> List[SurfaceLoad]:
         pressure_loads_list = []
-        for i, load in enumerate(self.loads.findall(self.MAJOR_TAGS.SURFACELOAD.value)):
-            press = load.find("pressure")
-            if press is not None:
-                load_info = load.attrib
-                press_info = press.attrib
+        for i, load in enumerate(self.loads.findall("surface_load")):
 
-                # Extract the pressure multiplier, handling possible non-numeric values
-                try:
-                    press_mult = float(press.text)
-                except ValueError:
-                    press_mult = press.text  # Keep as text if not convertible
+            # get the attributes info (surface, name and type)
+            load_type = load.attrib.get("type")
+            surf = load.attrib.get("surface", f"UnnamedSurface{i}")
+            name = load.attrib.get("name", f"UnnamedSurfaceLoad{i}")
+            # get the pressue (lc attribute and data value)
+            el_press = load.find("pressure")
+            lc_curve = el_press.attrib.get("lc", 1)
+            scale = el_press.text
+            # scale is a string representing either: float, name
+            scale = float(scale) if scale.replace(".", "").isdigit() else scale
+            # get the linear and symmetric stiffness tags
+            linear_el = load.find("linear")
+            linear = bool(int(linear_el.text)) if linear_el is not None else False
+            symm_el = load.find("symmetric_stiffness")
+            symm = bool(int(symm_el.text)) if symm_el is not None else True
 
-                # Create a SurfaceLoad named tuple for the current load
-                current_load = SurfaceLoad(
-                    surface=load_info.get("surface", f"UnnamedSurface{i}"),  # Default to index if no surface name
-                    attributes=press_info,
-                    multiplier=press_mult
-                )
+            # Create a SurfaceLoad instance for the current load
+            current_load = SurfaceLoad(
+                surface=surf,
+                load_curve=lc_curve,
+                scale=scale,
+                type=load_type,
+                name=name,
+                linear=linear,
+                symmetric_stiffness=symm
+            )
 
-                # Append the created SurfaceLoad to the list
-                pressure_loads_list.append(current_load)
+            # Append the created SurfaceLoad to the list
+            pressure_loads_list.append(current_load)
 
         return pressure_loads_list
 
@@ -386,10 +480,9 @@ class Feb40(AbstractFebObject):
         load_curves_list = []
         for loadcurve_elem in self.loaddata.findall(".//load_controller"):
             load_curve_id = loadcurve_elem.attrib['id']
-            try:
+            if load_curve_id is not None and str(load_curve_id).isdigit():
                 load_curve_id = int(load_curve_id)
-            except ValueError:
-                pass
+
             load_curve_type = loadcurve_elem.find('interpolate').text.lower()  # Adapting to 'interpolate' tag for curve type
 
             points = deque()
@@ -669,11 +762,11 @@ class Feb40(AbstractFebObject):
                 el_root = ET.Element("Elements")
                 el_root.set("type", el_type)
                 if element.name is not None:
-                    el_root.set("name", element.name)
+                    el_root.set("name", str(element.name))
                 if element.part is not None:
-                    el_root.set("part", element.part)
+                    el_root.set("part", str(element.part))
                 if element.mat is not None:
-                    el_root.set("mat", element.mat)
+                    el_root.set("mat", str(element.mat))
                 self.mesh.append(el_root)  # Append new "Elements" at the end of the geometry
             for i, connectivity in enumerate(element.connectivity):
                 subel = ET.SubElement(el_root, "elem")
@@ -690,7 +783,7 @@ class Feb40(AbstractFebObject):
             raise ValueError("No surface elements found in the input list. Try using add_volume_elements() instead.")
 
         # Retrieve existing elements and determine the last element ID
-        existing_surfaces_list = self.get_surface_elements()
+        existing_surfaces_list = self.get_surfaces()
         last_surf_initial_id = existing_surfaces_list[-1].ids[-1] if existing_surfaces_list else 1
 
         existing_surfaces = {element.name: element for element in existing_surfaces_list}
@@ -811,6 +904,86 @@ class Feb40(AbstractFebObject):
             # In spec 4.0, elements are text-elements and not sub-elements
             el_root.text = ",".join(map(str, elem_ids + 1))
 
+    def add_discrete_sets(self, discrete_sets: List[DiscreteSet]) -> None:
+        """
+        Adds discrete sets to Geometry, appending to existing discrete sets if they share the same name.
+
+        Args:
+            discrete_sets (list of DiscreteSet): List of DiscreteSet objects, each containing a name and element IDs.
+        """
+        existing_discrete_sets = {dset.name: dset for dset in self.get_discrete_sets(find_related_nodesets=False)}
+        nodesets_by_name = {nodeset.name: nodeset.ids for nodeset in self.get_node_sets()}
+
+        for dset in discrete_sets:
+            already_exists = dset.name in existing_discrete_sets
+            src_ids = dset.src
+            dst_ids = dset.dst
+
+            if isinstance(src_ids, str):  # then it is a nodeset.
+                # Find the node set with the same name
+                node_set = nodesets_by_name.get(src_ids, None)
+                # If the node set does not exist, raise an error
+                if node_set is None:
+                    raise ValueError(
+                        f"Trying to create a DiscreteSet {dset.name} with "
+                        f"source node set {src_ids}, but the node set does not exist. "
+                        "Please, create the node set first and try again.")
+                # Get the node IDs from the node set
+                src_ids = node_set  # ids
+            else:
+                # make sure the source is a numpy array
+                src_ids = np.array(src_ids, dtype=np.int64)
+
+            # make sure it is one-based indexing
+            src_ids = src_ids + 1
+
+            # same for dst
+            if isinstance(dst_ids, str):  # then it is a nodeset.
+                # Find the node set with the same name
+                node_set = nodesets_by_name.get(dst_ids, None)
+                # If the node set does not exist, raise an error
+                if node_set is None:
+                    raise ValueError(
+                        f"Trying to create a DiscreteSet {dset.name} with "
+                        f"destination node set {dst_ids}, but the node set does not exist. "
+                        "Please, create the node set first and try again.")
+                # Get the node IDs from the node set
+                dst_ids = node_set
+            else:
+                # make sure the destination is a numpy array
+                dst_ids = np.array(dst_ids, dtype=np.int64)
+            # make sure it is one-based indexing
+            dst_ids = dst_ids + 1
+
+            # Combine the source and destination IDs
+            src_dst = np.column_stack((src_ids, dst_ids))
+            if already_exists:
+                # Append to existing DiscreteSet element
+                el_root = self.mesh.find(f".//DiscreteSet[@name='{dset.name}']")
+                # Merge the existing element IDs with the new ones and remove duplicates
+                existing_src = existing_discrete_sets[dset.name].src
+                existing_dst = existing_discrete_sets[dset.name].dst
+                existing_ids = np.column_stack((existing_src, existing_dst))
+                src_dst = np.unique(np.concatenate((existing_ids, src_dst)))
+            else:
+                # Create a new DiscreteSet element if no existing one matches the name
+                el_root = ET.Element("DiscreteSet")
+                el_root.set("name", dset.name)
+                self.mesh.append(el_root)
+
+            # Add element IDs as sub-elements
+            for src, dst in zip(src_ids, dst_ids):
+                subel = ET.SubElement(el_root, "delem")
+                subel.text = f"{src},{dst}"
+
+            # Add the discrete material if it exists
+            if dset.dmat is not None and not already_exists:
+                # Create a new DiscreteData element if no existing one matches the name
+                el_data = ET.Element("discrete")
+                el_data.set("discrete_set", dset.name)
+                el_data.set("dmat", str(dset.dmat))
+                self.discrete.append(el_data)
+
     # Mesh Domains
     # ------------------------------
 
@@ -835,7 +1008,7 @@ class Feb40(AbstractFebObject):
                 shell_normal_nodal_elem.text = str(domain.shell_normal_nodal)
             else:
                 # Create a GenericDomain element with basic attributes
-                ET.SubElement(mesh_domains, domain.tag, name=domain.name, mat=domain.mat)
+                ET.SubElement(mesh_domains, domain.tag_name, name=domain.name, mat=domain.mat)
 
     # Materials
     # ------------------------------
@@ -848,6 +1021,7 @@ class Feb40(AbstractFebObject):
             materials (list of Material): List of Material namedtuples, each containing an ID, type, parameters, name, and attributes.
         """
         existing_materials = {material.id: material for material in self.get_materials()}
+        element_by_mat = {element.mat: element for element in self.get_elements()}
 
         for material in materials:
             if material.id in existing_materials or str(material.id) in existing_materials:
@@ -864,8 +1038,94 @@ class Feb40(AbstractFebObject):
 
             # Add parameters as sub-elements
             for key, value in material.parameters.items():
+
+                if isinstance(value, (str, int, float)):
+                    subel = ET.SubElement(el_root, key)
+                    subel.text = str(value)
+                elif isinstance(value, (list, np.ndarray)):
+                    # then we must add as mesh data
+                    ref_data_name = f"material_{material.id}_{key}"
+                    related_elem = element_by_mat.get(material.id, None)
+                    # Make sure the element exists
+                    if related_elem is None:
+                        raise ValueError(f"Material with ID {material.id} does not exist in the geometry."
+                                         "Cannot add material parameter as mesh data. Please, add the Elements first.")
+                    # Make sure that data is the same length as the number of elements
+                    if len(value) != related_elem.ids.size:
+                        raise ValueError(f"Material parameter '{key}' must have the same length as the number of elements.")
+
+                    # set the variable name
+                    var = key if (key == "fiber") or (key == "mat_axis") else None
+                    # prepare the element data
+                    elem_data = ElementData(elem_set=related_elem.name,
+                                            name=ref_data_name,
+                                            data=value,
+                                            ids=related_elem.ids,
+                                            var=var)
+                    # add the element data
+                    self.add_element_data([elem_data])
+                    # add the reference to the material
+                    if key == "fiber":  # SPECIAL CASE
+                        subel.attrib["type"] = "vector"
+                    elif key == "mat_axis":  # SPECIAL CASE
+                        subel.attrib["type"] = "vector"  # NOTE: NEED TO CHECK THIS
+                    else:
+                        subel.text = f"{ref_data_name}"
+                elif isinstance(value, dict):
+                    # then dict key -> sub-element, values -> sub-sub-elements
+                    subel = ET.SubElement(el_root, key)
+                    for k, v in value.items():
+                        if k.startswith("_"):  # then it is an attribute
+                            subel.set(k[1:], str(v))
+                        else:
+                            subsubel = ET.SubElement(subel, k)
+                            subsubel.text = str(v)
+
+    def add_discrete_materials(self, materials: List[DiscreteMaterial]) -> None:
+        """
+        Adds discrete materials to Discrete.
+
+        Args:
+            materials (list of Material): List of Material objects, each containing an ID, type, parameters, name, and attributes.
+        """
+
+        for material in materials:
+            # Create a new Material element if no existing one matches the ID
+            el_root = ET.Element("discrete_material")
+            el_root.set("id", str(material.id))
+            el_root.set("type", material.type)
+            el_root.set("name", material.name)
+
+            # Add parameters as sub-elements
+            mat_params: dict = material.parameters
+            if not isinstance(mat_params, dict):
+                raise ValueError(f"Material parameters should be a dictionary, not {type(mat_params)}")
+            for key, value in mat_params.items():
                 subel = ET.SubElement(el_root, key)
                 subel.text = str(value)
+
+            # discrete materials must be at the top,
+            # and ordered by id
+            # thus, we cannot simply append the new material
+            # This results in error: self.discrete.append(el_root)
+
+            # we need to find the correct position to insert the new material
+            # we need to find the last material with an id smaller than the new material
+            # and insert the new material after that
+            # if no such material exists, we insert the new material at the beginning
+
+            # find all discrete materials
+            all_discrete_materials = self.discrete.findall("discrete_material")
+            # find the last material with an id smaller than the new material
+            last_id = -1
+            for i, mat in enumerate(all_discrete_materials):
+                if int(mat.attrib["id"]) < material.id:
+                    last_id = i
+            # insert the new material after the last material with an id smaller than the new material
+            if last_id == -1:
+                self.discrete.insert(0, el_root)
+            else:
+                self.discrete.insert(last_id + 1, el_root)
 
     # Loads
     # ------------------------------
@@ -971,21 +1231,48 @@ class Feb40(AbstractFebObject):
         Args:
             pressure_loads (list of SurfaceLoad): List of SurfaceLoad namedtuples, each containing a surface, attributes, and multiplier.
         """
-        existing_surface_loads = {load.surface: load for load in self.get_surface_loads()}
 
         for load in pressure_loads:
-            if load.surface in existing_surface_loads:
-                # Append to existing SurfaceLoad element
-                el_root = self.loads.find(f".//surface_load[@surface='{load.surface}']")
-            else:
-                # Create a new SurfaceLoad element if no existing one matches the surface
-                el_root = ET.Element("surface_load")
-                el_root.set("surface", load.surface)
-                self.loads.append(el_root)
 
-            el_root.text = str(load.multiplier)
-            for key, value in load.attributes.items():
-                el_root.set(key, str(value))
+            # Create a new SurfaceLoad element if no existing one matches the surface
+            el_root = ET.Element("surface_load")
+            # set the type of surface load
+            el_root.set("type", str(load.type))
+            # set the surface name
+            el_root.set("surface", str(load.surface))
+            # set the name (optional)
+            if load.name is not None:
+                el_root.set("name", str(load.name))
+
+            # Add pressure tag, with load curve and scale data
+            el_pressure = ET.SubElement(el_root, "pressure")
+            el_pressure.set("lc", str(load.load_curve))
+            if load.scale is None:
+                el_pressure.text = "1.0"  # Default to 1.0 if no scale is provided
+            elif isinstance(load.scale, (str, int, float, np.number)):
+                el_pressure.text = str(load.scale)
+            elif isinstance(load.scale, np.ndarray):
+                # we need to add this as mesh data; and then reference it here
+                ref_data_name = f"surface_load_{load.surface}_scale"
+                el_pressure.text = f"1*{ref_data_name}"
+                # prepare the nodal data
+                surf_data = SurfaceData(surf_set=load.surface,
+                                         name=ref_data_name,
+                                         data=load.scale,
+                                         ids=np.arange(0, len(load.scale) + 1))
+                # add the surface data
+                self.add_surface_data([surf_data])
+
+            # add linear tag with text data
+            el_linear = ET.SubElement(el_root, "linear")
+            el_linear.text = str(int(load.linear))  # convert boolean to int
+
+            # add symmetric_stiffness tag with text data
+            el_symmetric_stiffness = ET.SubElement(el_root, "symmetric_stiffness")
+            el_symmetric_stiffness.text = str(int(load.symmetric_stiffness))
+
+            # Append the new SurfaceLoad element to the list
+            self.loads.append(el_root)
 
     def add_load_curves(self, load_curves: List[LoadCurve]) -> None:
         """
@@ -1118,7 +1405,6 @@ class Feb40(AbstractFebObject):
                 else:
                     sz_dof_elem.text = "0"
             elif bc.type == "rigid body":
-                print("NEEDS TO BE TESTED")
                 el_root.set("type", "rigid_body")
                 el_root.set("mat", bc.material)
                 if bc.name is None:
@@ -1244,7 +1530,7 @@ class Feb40(AbstractFebObject):
                 if data.name is not None:
                     el_root.set("name", data.name)
                 if data.var is not None:
-                    el_root.set("var", data.var)
+                    el_root.set("type", data.var)  # IN SPEC 4.0, the type attribute is used for the var attribute
                 self.meshdata.append(el_root)
 
             for i, elem_data in enumerate(data.data):
@@ -1574,6 +1860,15 @@ class Feb40(AbstractFebObject):
         """
         for el in self.mesh.findall(self.MAJOR_TAGS.ELEMENTSET.value):
             self.mesh.remove(el)
+
+    def clear_discrete_sets(self) -> None:
+        """
+        Removes all discrete sets from Geometry.
+        """
+        for el in self.mesh.findall(self.MAJOR_TAGS.DISCRETESET.value):
+            self.mesh.remove(el)
+        for el in self.discrete.findall(self.MAJOR_TAGS.DISCRETE.value):
+            self.discrete.remove(el)
 
     def clear_mesh_domains(self) -> None:
         """
@@ -2017,7 +2312,7 @@ class Feb40(AbstractFebObject):
             "output_stride": output_stride,
             "adaptor_re_solve": adaptor_re_solve,
             "solver": {
-                "attr_type": solver_type,
+                "_type": solver_type,
                 "symmetric_stiffness": symmetric_stiffness,
                 "equation_scheme": equation_scheme,
                 "equation_order": equation_order,
@@ -2045,7 +2340,7 @@ class Feb40(AbstractFebObject):
                 "arc_length": arc_length,
                 "arc_length_scale": arc_length_scale,
                 "qn_method": {
-                    "attr_type": qn_method_type,
+                    "_type": qn_method_type,
                     "max_ups": max_ups,
                     "max_buffer_size": max_buffer_size,
                     "cycle_buffer": cycle_buffer,
@@ -2053,7 +2348,7 @@ class Feb40(AbstractFebObject):
                 },
             },
             "time_stepper": {
-                "attr_type": time_stepper_type,
+                "_type": time_stepper_type,
                 "max_retries": max_retries,
                 "opt_iter": opt_iter,
                 "dtmin": dtmin,
@@ -2069,15 +2364,15 @@ class Feb40(AbstractFebObject):
             if isinstance(value, dict):  # handle nested elements like time_stepper and analysis
                 sub_element = ET.SubElement(self.control, key)
                 for subkey, subvalue in value.items():
-                    if subkey.startswith("attr_"):
-                        sub_element.set(subkey[5:], str(subvalue))
+                    if subkey.startswith("_"):
+                        sub_element.set(subkey[1:], str(subvalue))
                     else:
                         if isinstance(subvalue, dict):
                             print(subkey, subvalue)
                             subsub_element = ET.SubElement(sub_element, subkey)
                             for subsubkey, subsubvalue in subvalue.items():
-                                if subsubkey.startswith("attr_"):
-                                    subsub_element.set(subsubkey[5:], str(subsubvalue))
+                                if subsubkey.startswith("_"):
+                                    subsub_element.set(subsubkey[1:], str(subsubvalue))
                                 else:
                                     subsubsub_element = ET.SubElement(subsub_element, subsubkey)
                                     subsubsub_element.text = str(subsubvalue)

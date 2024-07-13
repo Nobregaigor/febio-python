@@ -429,6 +429,10 @@ def add_material(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.Uns
                     print(f"Value {value} is not a valid cell data for material {mat_name}"
                           f"Adding it as a field data instead: mat_parameter:{name}:{mat_id}")
                     grid.field_data[f"mat_parameter:{name}:{mat_id}"] = [value]
+            elif value is None:
+                pass
+            elif isinstance(value, dict):
+                pass
             else:
                 raise ValueError(f"Unsupported material parameter format for {value} in material {mat_name}")
 
@@ -776,7 +780,7 @@ def _load_curvers_to_interpolators(container: FEBioContainer) -> dict:
     interpolators = dict()
     loadcurves = container.load_curves
     for lc in loadcurves:
-        lc_id = lc.id
+        lc_id = int(lc.id)
         # lc_type = lc.interpolate_type
         lc_data = lc.data
         # if lc_type == "linear":
@@ -879,7 +883,7 @@ def add_states_to_grid(container: FEBioContainer, grid: pv.UnstructuredGrid, app
         pressure_loads = container.pressure_loads
         for load in pressure_loads:
             # get related load curve
-            lc = interpolators[load.load_curve]
+            lc = interpolators[int(load.load_curve)]
             # get related cell ids
             surf_set = load.surface
             mapping = grid["element_sets"] == surf_set

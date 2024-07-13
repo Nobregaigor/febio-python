@@ -123,11 +123,11 @@ class Feb25(AbstractFebObject):
 
             connectivity = deque()
             surf_ids = deque()
-            
+
             # get first child element of the surf_group
             surf_elem = surf_group[0]
             surf_type = surf_elem.tag
-            
+
             for elem in surf_group.findall(surf_type):
                 # Convert the comma-separated string of node indices into an array of integers
                 this_surf_connectivity = np.array(elem.text.split(','), dtype=dtype)
@@ -322,10 +322,10 @@ class Feb25(AbstractFebObject):
             scale = float(scale) if scale.replace(".", "").isdigit() else scale
             # get the linear and symmetric stiffness tags
             linear_el = load.find("linear")
-            linear = bool(int(linear_el.text)) if linear_el is not None else False       
+            linear = bool(int(linear_el.text)) if linear_el is not None else False
             symm_el = load.find("symmetric_stiffness")
             symm = bool(int(symm_el.text)) if symm_el is not None else True
-            
+
             # Create a SurfaceLoad instance for the current load
             current_load = SurfaceLoad(
                 surface=surf,
@@ -335,8 +335,8 @@ class Feb25(AbstractFebObject):
                 name=name,
                 linear=linear,
                 symmetric_stiffness=symm
-            )                
-            
+            )
+
             # Append the created SurfaceLoad to the list
             pressure_loads_list.append(current_load)
 
@@ -506,7 +506,7 @@ class Feb25(AbstractFebObject):
 
     @feb_instance_cache
     def get_discrete_sets(self, dtype=np.int64, find_related_nodesets=True) -> List[DiscreteSet]:
-        
+
         # get all node sets by name and ids (for reference)
         node_sets_by_name = {n.name: n.ids for n in self.get_node_sets()}
         # find all discrete sets
@@ -515,9 +515,9 @@ class Feb25(AbstractFebObject):
         for dset in discrete_sets:
             # get name
             name = dset.attrib.get("name", None)
-            
+
             # Try to get the related discrete material
-            mat_id = None # default value 
+            mat_id = None  # default value
             # find discrete data associated with the set (if any)
             all_related_discrete_data = self.discrete.findall("discrete")
             related_discrete_data = [d for d in all_related_discrete_data if d.attrib.get("discrete_set", None) == name]
@@ -526,7 +526,7 @@ class Feb25(AbstractFebObject):
                 dset_related_data = related_discrete_data[0]
                 # get the material id
                 mat_id = dset_related_data.attrib.get("dmat", None)
-            
+
             # get the source and destination node sets
             dset_ids = deque()
             for delem in dset.findall("delem"):
@@ -534,18 +534,18 @@ class Feb25(AbstractFebObject):
                 src, dst = delem.text.split(",")
                 src, dst = int(src), int(dst)
                 dset_ids.append((src, dst))
-            
+
             # transform to numpy array
             dset_ids = np.array(dset_ids, dtype=dtype)
-            
+
             # get the source and destination node sets
             src_ids = dset_ids[:, 0]
             dst_ids = dset_ids[:, 1]
-            
+
             # default values
             src = src_ids
             dst = dst_ids
-            
+
             # Try to match with any existing node set
             if find_related_nodesets:
                 src_names = [k for k, v in node_sets_by_name.items() if np.array_equal(v, src_ids)]
@@ -554,10 +554,10 @@ class Feb25(AbstractFebObject):
                 # If there is only one match, use it
                 if len(src_names) == 1:
                     src = src_names[0]
-                
+
                 if len(dst_names) == 1:
                     dst = dst_names[0]
-                
+
             # Create a DiscreteSet instance
             current_dset = DiscreteSet(
                 name=name,
@@ -568,8 +568,8 @@ class Feb25(AbstractFebObject):
 
             # Add the DiscreteSet instance to the list
             discrete_set_list.append(current_dset)
-            
-        return discrete_set_list 
+
+        return discrete_set_list
 
     # =========================================================================================================
     # Add methods
@@ -656,10 +656,10 @@ class Feb25(AbstractFebObject):
                     el_root.set("mat", str(element.mat))
                 if element.name is not None:
                     el_root.set("name", str(element.name))
-                
+
                 # Append new "Elements" at the end of the geometry
                 self.geometry.append(el_root)
-            
+
             # Add element connectivities as sub-elements
             for i, connectivity in enumerate(element.connectivity):
                 subel = ET.SubElement(el_root, "elem")
@@ -675,11 +675,11 @@ class Feb25(AbstractFebObject):
         filtered = [elem for elem in surfaces if elem.type in SURFACE_EL_TYPE.__members__]
         if len(filtered) == 0:
             raise ValueError("No surface surfaces found in the input list. Try using add_volume_surfaces() instead.")
-        
+
         # Retrieve existing surfaces and determine the last element ID
         existing_surfaces_list = self.get_surfaces()
         last_surf_initial_id = existing_surfaces_list[-1].ids[-1] if existing_surfaces_list else 1
-        
+
         existing_surfaces = {element.name: element for element in existing_surfaces_list}
 
         for surface in filtered:
@@ -699,18 +699,18 @@ class Feb25(AbstractFebObject):
                 # Append to existing Surfaces group
                 el_root = self.geometry.find(f".//Surfaces[@name='{surface.name}']")
             else:
-                
+
                 el_root = ET.Element("Surface")
                 el_root.set("name", str(surface.name))
 
                 # Append new "Surfaces" at the end of the geometry
                 self.geometry.append(el_root)
-            
+
             # Add element connectivities as sub-surfaces
             for i, connectivity in enumerate(surface.connectivity):
                 subel = ET.SubElement(el_root, el_type)  # FEBio use element type as tag name for surface surfaces
                 # Set the element ID and convert the connectivity to a comma-separated string
-                subel.set("id", str(i + last_surf_initial_id)) 
+                subel.set("id", str(i + last_surf_initial_id))
                 subel.text = ",".join(map(str, connectivity + 1))  # Convert connectivity to comma-separated string
 
             # Update the last_elem_initial_id for the next element group
@@ -812,12 +812,12 @@ class Feb25(AbstractFebObject):
         """
         existing_discrete_sets = {dset.name: dset for dset in self.get_discrete_sets(find_related_nodesets=False)}
         nodesets_by_name = {nodeset.name: nodeset.ids for nodeset in self.get_node_sets()}
-        
+
         for dset in discrete_sets:
             already_exists = dset.name in existing_discrete_sets
             src_ids = dset.src
             dst_ids = dset.dst
-            
+
             if isinstance(src_ids, str):  # then it is a nodeset.
                 # Find the node set with the same name
                 node_set = nodesets_by_name.get(src_ids, None)
@@ -853,7 +853,7 @@ class Feb25(AbstractFebObject):
                 dst_ids = np.array(dst_ids, dtype=np.int64)
             # make sure it is one-based indexing
             dst_ids = dst_ids + 1
-            
+
             # Combine the source and destination IDs
             src_dst = np.column_stack((src_ids, dst_ids))
             if already_exists:
@@ -874,7 +874,7 @@ class Feb25(AbstractFebObject):
             for src, dst in zip(src_ids, dst_ids):
                 subel = ET.SubElement(el_root, "delem")
                 subel.text = f"{src},{dst}"
-                
+
             # Add the discrete material if it exists
             if dset.dmat is not None and not already_exists:
                 # Create a new DiscreteData element if no existing one matches the name
@@ -938,7 +938,7 @@ class Feb25(AbstractFebObject):
                     # add the reference to the material
                     subel.text = f"{ref_data_name}"
                 else:
-                    # if it is not a number or an array, we just add it as text    
+                    # if it is not a number or an array, we just add it as text
                     subel.text = str(value)
 
     def add_discrete_materials(self, materials: List[DiscreteMaterial]) -> None:
@@ -963,17 +963,17 @@ class Feb25(AbstractFebObject):
             for key, value in mat_params.items():
                 subel = ET.SubElement(el_root, key)
                 subel.text = str(value)
-            
-            # discrete materials must be at the top, 
+
+            # discrete materials must be at the top,
             # and ordered by id
             # thus, we cannot simply append the new material
             # This results in error: self.discrete.append(el_root)
-            
+
             # we need to find the correct position to insert the new material
             # we need to find the last material with an id smaller than the new material
             # and insert the new material after that
             # if no such material exists, we insert the new material at the beginning
-            
+
             # find all discrete materials
             all_discrete_materials = self.discrete.findall("discrete_material")
             # find the last material with an id smaller than the new material
@@ -1014,7 +1014,7 @@ class Feb25(AbstractFebObject):
             elif isinstance(load.scale, np.ndarray):
                 # we need to add this as mesh data; and then reference it here
                 ref_data_name = f"nodal_load_{load.node_set}_{load.dof}_scale"
-                
+
                 scale_subel.text = f"1*{ref_data_name}"
                 # we need to retrieve the node ids for this node set
                 nodesets = self.get_node_sets()
@@ -1071,14 +1071,14 @@ class Feb25(AbstractFebObject):
                                          ids=np.arange(0, len(load.scale) + 1))
                 # add the surface data
                 self.add_surface_data([surf_data])
-            
+
             # add linear tag with text data
             el_linear = ET.SubElement(el_root, "linear")
-            el_linear.text = str(int(load.linear)) # convert boolean to int
-            
+            el_linear.text = str(int(load.linear))  # convert boolean to int
+
             # add symmetric_stiffness tag with text data
             el_symmetric_stiffness = ET.SubElement(el_root, "symmetric_stiffness")
-            el_symmetric_stiffness.text = str(int(load.symmetric_stiffness))            
+            el_symmetric_stiffness.text = str(int(load.symmetric_stiffness))
 
             # Append the new SurfaceLoad element to the list
             self.loads.append(el_root)
@@ -1230,7 +1230,7 @@ class Feb25(AbstractFebObject):
                 el_root.set("var", data.var)
             if data.data_type is not None:
                 el_root.set("datatype", data.data_type)
-            else:  # try to assume based on 
+            else:  # try to assume based on
                 if isinstance(data.data, np.ndarray):
                     if data.data.ndim == 1:
                         el_root.set("datatype", "scalar")
@@ -1636,7 +1636,7 @@ class Feb25(AbstractFebObject):
             self.geometry.remove(el)
         for el in self.discrete.findall(self.MAJOR_TAGS.DISCRETE.value):
             self.discrete.remove(el)
-    
+
     def clear_discrete_materials(self) -> None:
         """
         Removes all discrete materials from Discrete.
@@ -1931,7 +1931,7 @@ class Feb25(AbstractFebObject):
 
         # Create new control element
         self.control  # will trigger the creation of the control element
-        
+
         # handle "must_points":
         save_pts_load_curve_id = None
         if isinstance(must_points, int):
@@ -1945,7 +1945,7 @@ class Feb25(AbstractFebObject):
         else:
             if not isinstance(must_points, bool):
                 raise ValueError("must_points should be an int, a boolean or a LoadCurve object.")
-        
+
         # Add individual settings
         settings = {
             "time_steps": time_steps,
@@ -1995,7 +1995,7 @@ class Feb25(AbstractFebObject):
             sub_element.text = "PLOT_MUST_POINTS"
             sub_element = ET.SubElement(self.control, "output_level")
             sub_element.text = "OUTPUT_MUST_POINTS"
-            
+
         # this is a temporary fix for the integration rule
         if integration_rule_ut4:
             sub_element = ET.SubElement(self.control, "integration")
@@ -2005,7 +2005,7 @@ class Feb25(AbstractFebObject):
             alpha = ET.SubElement(rule, "alpha")
             alpha.text = str(integration_rule_ut4_alpha)
             iso_stab = ET.SubElement(rule, "iso_stab")
-            iso_stab.text = str(int(integration_rule_ut4_iso_stap))            
+            iso_stab.text = str(int(integration_rule_ut4_iso_stap))
 
     def setup_globals(self, T=0, R=0, Fc=0):
         """

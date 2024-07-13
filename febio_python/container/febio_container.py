@@ -63,7 +63,6 @@ class FEBioContainer():
 
     def _load_feb(self, feb: Union[Feb30, Feb25, str, Path]) -> Optional[Union[Feb30, Feb25]]:
         if isinstance(feb, (str, Path)):
-            print("feb: ", feb)
             feb_path = Path(feb)
             return Feb(filepath=feb_path)
         return feb
