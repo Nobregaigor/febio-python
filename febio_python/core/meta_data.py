@@ -102,8 +102,9 @@ class SurfaceLoad:
     type: str = "pressure"
     name: str = None   # Optional name for the load
     linear: bool = False     # Linear pressure load
-    symmetric_stiffness: bool = True   # Symmetric stiffness matrix
+    symmetric_stiffness: bool = False   # Symmetric stiffness matrix
     attributes: Dict[str, Union[int, float, str]] = None    # Pressure load attributes (e.g. {'lc': 1})
+    traction_vector: ndarray = None  # Traction vector for surface traction load
 
 
 @dataclass

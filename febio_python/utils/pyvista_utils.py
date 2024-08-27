@@ -69,6 +69,7 @@ def febio_to_pyvista(data: Union[str, Path, FEBioContainer, Tuple, FebType, Xplt
         # Add loads -> point data (resultant nodal load), cell data (resultant pressure load)
         grid = add_nodalload(container, grid)
         grid = add_pressure_load(container, grid)
+        grid = add_surface_traction_load(container, grid)
 
         # Add boundary conditions -> point data (fixed boundary conditions), cell data (rigid body boundary conditions
         grid = add_boundary_conditions(container, grid)
@@ -149,7 +150,8 @@ def create_unstructured_grid_from_febio_container(container: FEBioContainer) -> 
     element_sets = []
     for i, elem in enumerate(all_elements):
         elem_type: str = elem.type
-        connectivity: np.ndarray = elem.connectivity  # FEBio uses 1-based indexing
+        connectivity: np.ndarray = elem.connectivity
+
         if elem_type in FebioElementTypeToVTKElementType.__members__.keys():
             # get name of the element type
             elem_type = FebioElementTypeToVTKElementType[elem_type].value
@@ -163,10 +165,11 @@ def create_unstructured_grid_from_febio_container(container: FEBioContainer) -> 
             cells_dict[elem_type] = np.vstack([cells_dict[elem_type], connectivity])
         else:
             cells_dict[elem_type] = connectivity
+        
         domain_identifiers.extend([i] * len(connectivity))
         elem_name = elem.name or elem.part or elem.type
         element_sets.extend([elem_name] * len(connectivity))
-
+    
     grid = pv.UnstructuredGrid(cells_dict, coordinates)
     grid.cell_data["domain"] = domain_identifiers
     grid["element_sets"] = element_sets
@@ -550,7 +553,7 @@ def add_pressure_load(container: FEBioContainer, grid: pv.UnstructuredGrid) -> p
         return grid  # No pressure loads to process
 
     # add default pressure load
-    grid.cell_data["pressure_load_magnitude"] = np.zeros(grid.n_cells)
+    grid.cell_data["pressure_load"] = np.zeros(grid.n_cells)
 
     # get elements
     # elements_by_name = {elem.name: elem for elem in container.elements}
@@ -567,8 +570,12 @@ def add_pressure_load(container: FEBioContainer, grid: pv.UnstructuredGrid) -> p
         scale = load.scale
         # if load is number, we should convert to a numpy array
         # check if it is a str that can be converted to a number directly
-        if isinstance(scale, str) and scale.replace('-', '', 1).isdigit():
-            scale = float(scale)
+        if isinstance(scale, str):
+            try:
+                scale = float(scale)
+            except ValueError:
+                pass
+        
         if isinstance(scale, (int, float, np.number)):
             scale_factor = float(scale)
             scale = np.full(grid.n_cells, 0.0)
@@ -590,29 +597,72 @@ def add_pressure_load(container: FEBioContainer, grid: pv.UnstructuredGrid) -> p
                     raise ValueError(f"Referenced data field '{scale}' not found in grid cell data.")
                 scale = grid.cell_data[scale]
         # add the pressure load to the grid
-        grid.cell_data["pressure_load_magnitude"] += scale
+        grid.cell_data["pressure_load"] += scale
 
-    # Negate the pressure load magnitude to ensure it is pointing in the correct direction
-    # NOTE: In FEBio, POSITIVE pressure loads are compressive,
-    # however, this is confusing for visualization, so we negate the pressure load
-    grid.cell_data["pressure_load_magnitude"] *= -1
+    return grid
 
-    # Now, we need to add the pressure load as a vector
-    grid.cell_data["pressure_load"] = np.zeros((grid.n_cells, 3))
-    # The vector is based on the normal of the elements
-    # extract the normals
-    extracted_surface = grid.extract_surface()
-    extracted_surface = extracted_surface.compute_normals(cell_normals=True,
-                                                point_normals=False,
-                                                flip_normals=False,
-                                                consistent_normals=True)
-    normals = extracted_surface["Normals"]
-    # get original cell ids
-    cell_ids = extracted_surface["vtkOriginalCellIds"]
-    # add the normals to the grid based on the cell ids
-    grid.cell_data["pressure_load"][cell_ids] = normals
-    # multiply the normals by the pressure load magnitude
-    grid.cell_data["pressure_load"] *= grid.cell_data["pressure_load_magnitude"][:, None]
+def add_surface_traction_load(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
+
+    traction_loads = container.surface_traction_loads
+    # surface_data = container.surface_data
+    if len(traction_loads) == 0:
+        return grid  # No pressure loads to process
+
+    # add default pressure load
+    grid.cell_data["traction_load"] = np.zeros((grid.n_cells, 3))
+
+    # get elements
+    for load in traction_loads:
+        # get the surface set
+        surf_set = load.surface
+        # get the scale
+        scale = load.scale
+        # if load is number, we should convert to a numpy array
+        if isinstance(scale, str):
+            try:
+                scale = float(scale)
+            except ValueError:
+                pass
+        # get the traction vector
+        traction = load.traction_vector
+        
+        if isinstance(scale, (int, float, np.number)):
+            scale_factor = float(scale)
+            scale = np.full(grid.n_cells, 0.0)
+            # apply the scale to the elements
+            mapping = grid["element_sets"] == surf_set
+            selected_ids = np.where(mapping == True)[0]  # noqa: E712
+            scale[selected_ids] = scale_factor
+        elif isinstance(scale, str):
+            # check if there is a '*' in the scale (indicating a multiplication)
+            if "*" in scale:
+                parts = scale.split('*')
+                scale_factor = float(parts[0]) if parts[0].replace('-', '', 1).isdigit() else float(parts[1])
+                data_field = parts[1] if parts[0].replace('-', '', 1).isdigit() else parts[0]
+                if data_field not in grid.cell_data:
+                    raise ValueError(f"Referenced data field '{data_field}' not found in grid cell data.")
+                scale = grid.cell_data[data_field] * scale_factor
+            else:
+                if scale not in grid.cell_data:
+                    raise ValueError(f"Referenced data field '{scale}' not found in grid cell data.")
+                scale = grid.cell_data[scale]
+        
+        # add the pressure load to the grid
+        # make sure that traction and scale have the same shape
+        if isinstance(scale, (int, float, np.number)):
+            scaled_traction = traction * scale
+        else:
+            num_scalars = len(scale)
+            # need to repeat the traction vector for each scalar
+            traction = traction[np.newaxis, :]
+            repeated_traction = np.repeat(traction, num_scalars, axis=0)
+            scaled_traction = repeated_traction * scale[:, np.newaxis]
+        
+        # print("traction: ", traction)
+        # print("scaled_traction: ", scaled_traction)
+            
+        grid.cell_data["traction_load"] += scaled_traction
+
     return grid
 
 # =============================================================================
@@ -890,26 +940,39 @@ def add_states_to_grid(container: FEBioContainer, grid: pv.UnstructuredGrid, app
             selected_ids = np.where(mapping)[0]
             # modify the load magnitude
             for i, grid in enumerate(state_grids):
-                grid.cell_data["pressure_load_magnitude"][selected_ids] *= lc(timesteps[i])
-            # update the pressure load vector
+                grid.cell_data["pressure_load"][selected_ids] *= lc(timesteps[i])
+            # # update the pressure load vector
+            # for i, grid in enumerate(state_grids):
+            #     # re-calculate the pressure load vector
+            #     # Now, we need to add the pressure load as a vector
+            #     grid.cell_data["pressure_load"] = np.zeros((grid.n_cells, 3))
+            #     # The vector is based on the normal of the elements
+            #     # extract the normals
+            #     extracted_surface = grid.extract_surface()
+            #     extracted_surface = extracted_surface.compute_normals(cell_normals=True,
+            #                                                 point_normals=False,
+            #                                                 flip_normals=False,
+            #                                                 consistent_normals=True)
+            #     normals = extracted_surface["Normals"]
+            #     # get original cell ids
+            #     cell_ids = extracted_surface["vtkOriginalCellIds"]
+            #     # add the normals to the grid based on the cell ids
+            #     grid.cell_data["pressure_load"][cell_ids] = normals
+            #     # multiply the normals by the pressure load magnitude
+            #     grid.cell_data["pressure_load"] *= grid.cell_data["pressure_load_magnitude"][:, None]
+        
+        # handle traction loads
+        traction_loads = container.surface_traction_loads
+        for load in traction_loads:
+            # get related load curve
+            lc = interpolators[int(load.load_curve)]
+            # get related cell ids
+            surf_set = load.surface
+            mapping = grid["element_sets"] == surf_set
+            selected_ids = np.where(mapping)[0]
+            # modify the load magnitude
             for i, grid in enumerate(state_grids):
-                # re-calculate the pressure load vector
-                # Now, we need to add the pressure load as a vector
-                grid.cell_data["pressure_load"] = np.zeros((grid.n_cells, 3))
-                # The vector is based on the normal of the elements
-                # extract the normals
-                extracted_surface = grid.extract_surface()
-                extracted_surface = extracted_surface.compute_normals(cell_normals=True,
-                                                            point_normals=False,
-                                                            flip_normals=False,
-                                                            consistent_normals=True)
-                normals = extracted_surface["Normals"]
-                # get original cell ids
-                cell_ids = extracted_surface["vtkOriginalCellIds"]
-                # add the normals to the grid based on the cell ids
-                grid.cell_data["pressure_load"][cell_ids] = normals
-                # multiply the normals by the pressure load magnitude
-                grid.cell_data["pressure_load"] *= grid.cell_data["pressure_load_magnitude"][:, None]
+                grid.cell_data["traction_load"][selected_ids] *= lc(timesteps[i])
 
     return state_grids
 
@@ -934,6 +997,27 @@ def split_mesh_into_surface_and_volume(mesh: pv.UnstructuredGrid, surface_cell_t
         surface_cell_types = set([pv.CellType[k].value for k in SURFACE_ELEMENT_TYPES.__members__.keys()])
     # Extract the surface mesh
     surface_mesh = mesh.copy().extract_cells_by_type(list(surface_cell_types))
+
+    # # Remove duplicate faces
+    # unique_cell_ids = set()
+    # if len(surface_mesh.cells_dict) == 1:
+    #     for cell_type, cells in surface_mesh.cells_dict.items():
+    #         unique_cells, ids = np.unique(cells, axis=0, return_index=True)
+    #         unique_cell_ids.update(list(ids))
+    # else:  # THIS VERSION WORKS, BUT IT IS TOO SLOW
+    #     all_cells = list()
+    #     for cell_idx in range(surface_mesh.n_cells):
+    #         all_cells.append(surface_mesh.get_cell(cell_idx).point_ids)
+    #     unique_cells, unique_cell_ids = np.unique(all_cells, axis=0, return_index=True)
+
+    # if len(unique_cell_ids) < surface_mesh.n_cells:
+    #     unique_cell_ids = list(unique_cell_ids)
+    #     all_cell_ids = list(range(surface_mesh.n_cells))
+    #     # selected_cell_ids = list(set(all_cell_ids) - set(unique_cell_ids))
+    #     selected_cell_ids = unique_cell_ids
+    #     surface_mesh = surface_mesh.extract_cells(selected_cell_ids)
+    #     surface_mesh.cell_data.pop("vtkOriginalCellIds", None)
+
     # Extract the volume mesh
     other_cells = list(set(mesh.celltypes) - surface_cell_types)
     volume_mesh = mesh.copy().extract_cells_by_type([pv.CellType(k) for k in other_cells])

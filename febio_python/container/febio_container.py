@@ -176,7 +176,6 @@ class FEBioContainer():
     @property
     def pressure_loads(self) -> List[SurfaceLoad]:
         if self.feb is not None:
-            # return self.feb.get_surface_loads()
             surface_loads = self.feb.get_surface_loads()
             # filter by type = "pressure"
             return [surface_load for surface_load in surface_loads if surface_load.type == "pressure"]
@@ -185,6 +184,18 @@ class FEBioContainer():
                 "Trying to access pressure load data without a FEB file. "
                 "Currently only FEB files save pressure load data."
                 "To access pressure load data, provide a FEB file.")
+    
+    @property
+    def surface_traction_loads(self) -> List[SurfaceLoad]:
+        if self.feb is not None:
+            surface_loads = self.feb.get_surface_loads()
+            # filter by type = "traction"
+            return [surface_load for surface_load in surface_loads if surface_load.type == "traction"]
+        else:
+            raise RuntimeError(
+                "Trying to access surface_traction_loads load data without a FEB file. "
+                "Currently only FEB files save surface_traction_loads load data."
+                "To access surface_traction_loads load data, provide a FEB file.")
 
     @property
     def load_curves(self) -> List[LoadCurve]:

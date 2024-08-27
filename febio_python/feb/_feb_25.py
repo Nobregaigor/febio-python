@@ -313,29 +313,53 @@ class Feb25(AbstractFebObject):
             # get the attributes info (surface, name and type)
             load_type = load.attrib.get("type")
             surf = load.attrib.get("surface", f"UnnamedSurface{i}")
-            name = load.attrib.get("name", f"UnnamedSurfaceLoad{i}")
-            # get the pressue (lc attribute and data value)
-            el_press = load.find("pressure")
-            lc_curve = int(el_press.attrib.get("lc", 1))
-            scale = el_press.text
-            # scale is a string representing either: float, name
-            scale = float(scale) if scale.replace(".", "").isdigit() else scale
-            # get the linear and symmetric stiffness tags
-            linear_el = load.find("linear")
-            linear = bool(int(linear_el.text)) if linear_el is not None else False
-            symm_el = load.find("symmetric_stiffness")
-            symm = bool(int(symm_el.text)) if symm_el is not None else True
+            name = load.attrib.get("name", None)
+            if name is None:
+                name = surf  # default to surface name if not specified
+            if load_type == "pressure":                
+                # get the pressue (lc attribute and data value)
+                el_press = load.find("pressure")
+                lc_curve = int(el_press.attrib.get("lc", 1))
+                scale = el_press.text
+                # scale is a string representing either: float, name
+                scale = float(scale) if scale.replace(".", "").isdigit() else scale
+                # get the linear and symmetric stiffness tags
+                linear_el = load.find("linear")
+                linear = bool(int(linear_el.text)) if linear_el is not None else False
+                symm_el = load.find("symmetric_stiffness")
+                symm = bool(int(symm_el.text)) if symm_el is not None else True
 
-            # Create a SurfaceLoad instance for the current load
-            current_load = SurfaceLoad(
-                surface=surf,
-                load_curve=lc_curve,
-                scale=scale,
-                type=load_type,
-                name=name,
-                linear=linear,
-                symmetric_stiffness=symm
-            )
+                # Create a SurfaceLoad instance for the current load
+                current_load = SurfaceLoad(
+                    surface=surf,
+                    load_curve=lc_curve,
+                    scale=scale,
+                    type=load_type,
+                    name=name,
+                    linear=linear,
+                    symmetric_stiffness=symm
+                )
+            elif load_type == "traction":
+                # get the pressue (lc attribute and data value)
+                el_scale = load.find("scale")
+                lc_curve = int(el_scale.attrib.get("lc", 1))
+                scale = el_scale.text
+                # scale is a string representing either: float, name
+                scale = float(scale) if scale.replace(".", "").isdigit() else scale
+                el_traction = load.find("traction")
+                traction_vector = np.array([float(x) for x in el_traction.text.split(",")])
+                # Create a SurfaceLoad instance for the current load
+                current_load = SurfaceLoad(
+                    surface=surf,
+                    load_curve=lc_curve,
+                    scale=scale,
+                    type=load_type,
+                    name=name,
+                    traction_vector=traction_vector
+                )
+            else:
+                raise RuntimeError(f"Unknown surface load type: {load_type}. "
+                                   "We currently only support 'pressure' and 'traction' types.")
 
             # Append the created SurfaceLoad to the list
             pressure_loads_list.append(current_load)
@@ -1896,6 +1920,7 @@ class Feb25(AbstractFebObject):
                        dtmax=0.1,
                        max_retries=5,
                        opt_iter=10,
+                       symmetric_stiffness=False,
                        must_points=False,
                        integration_rule_ut4=False,
                        integration_rule_ut4_alpha=0.05,
@@ -1961,6 +1986,7 @@ class Feb25(AbstractFebObject):
             "min_residual": min_residual,
             "qnmethod": qnmethod,
             "rhoi": rhoi,
+            "symmetric_stiffness": int(bool(symmetric_stiffness)),
             "time_stepper": {
                 "dtmin": dtmin,
                 "dtmax": dtmax,
@@ -2053,7 +2079,8 @@ class Feb25(AbstractFebObject):
         """
         # Default variables if none are provided
         if variables is None:
-            variables = ["displacement", "element strain energy", "Lagrange strain", "stress"]
+            variables = ["displacement", "element strain energy", "strain energy density",
+                         "Lagrange strain", "stress", "PK1 stress", "PK2 stress"]
 
         # Clear any existing output settings
         output_tag = self.root.find("Output")

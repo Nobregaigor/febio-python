@@ -2,6 +2,27 @@ from pathlib import Path
 from typing import Union, Tuple
 import numpy as np
 
+def parse_scalar_data(file_path: Union[str, Path]) -> Tuple[np.ndarray[int], np.ndarray[float]]:
+    """
+    Parses scalar data from a data file exported from FEBio Studio.
+
+    Args:
+        file_path (Union[str, Path]): Path to the file containing the scalar data. Should be a CSV file.
+
+    Returns:
+        Tuple[np.ndarray[int], np.ndarray[float]]: A tuple containing:
+            - ids (np.ndarray[int]): The parsed IDs.
+            - reshaped_scalars (np.ndarray[float]): The reshaped scalars in the format (num_timesteps, num_scalars, 1).
+
+    Raises:
+        ValueError: If the number of columns in the data file is not divisible by 3.
+    """
+    data = np.loadtxt(file_path, delimiter=",")
+    ids = data[:, 0].astype(int)  # first column contains IDs
+    scalars = data[:, 1:].astype(float)  # remaining columns contain scalar data
+    reshaped_scalars = scalars.transpose()
+    return ids, reshaped_scalars
+
 
 def parse_vector_data(file_path: Union[str, Path]) -> Tuple[np.ndarray[int], np.ndarray[float]]:
     """
@@ -50,8 +71,6 @@ def parse_tensor_data(file_path: Union[str, Path]) -> Tuple[np.ndarray[int], np.
     tensor_data = data[:, 1:].astype(float)  # remaining columns contain tensor data
     
     num_elements = tensor_data.shape[0]
-    print(f"Found total of {num_elements} elements.")
-    print(f"Total tensor data shape: {tensor_data.shape}")
     is_divisible_by_6 = tensor_data.shape[1] % 6 == 0
     if_divisible_by_9 = tensor_data.shape[1] % 9 == 0
     if not is_divisible_by_6 and not if_divisible_by_9:
@@ -85,4 +104,7 @@ def parse_data(file_path: Union[str, Path]) -> Tuple[np.ndarray[int], np.ndarray
     try:
         return parse_tensor_data(file_path)
     except ValueError:
-        return parse_vector_data(file_path)
+        try:
+            return parse_vector_data(file_path)
+        except ValueError:
+            return parse_scalar_data(file_path)

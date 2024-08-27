@@ -206,9 +206,14 @@ class XPLT_DATA_TYPES(IntEnum):
     SCALAR = 0  # float
     VECTOR = 1  # vector of size 3
     MATRIX = 2  # vector of size 6 (due to element symmetry)
-
+    MATRIX_UNS = 3  # vector of size 9 
+    TENSOR = 4  # Symmetric fourth order tensor of s.p. floats
+    TENSOR_9 = 5  # Not sure about this  THIS IS NOT ON THE DOCUMENTATION
 
 class XPLT_DATA_DIMS(IntEnum):
     SCALAR = 1
     VECTOR = 3
     MATRIX = 6
+    MATRIX_UNS = 9
+    TENSOR = 9
+    TENSOR_9 = 9
