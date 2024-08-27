@@ -749,18 +749,22 @@ class Feb40(AbstractFebObject):
                 # Make sure the element type is valid, it must be a valid FEBio element type
                 # However, user can also use VTK element types as input, but they must be
                 # converted to FEBio types
-                el_type = element.type
-                # first, check if it is a VTK element type. FEBioElementType names
-                # are the same as VTK element types.
-                if el_type not in FEBioElementType.__members__.values():
-                    if str(el_type).upper() in FEBioElementType.__members__.keys():
-                        el_type = FEBioElementType[el_type].value
-                    else:
-                        raise ValueError(f"Element type {el_type} is not a valid FEBio element type.")
+                try:
+                    el_type = FEBioElementType(element.type)
+                except ValueError:
+                    el_type = FEBioElementType[element.type]
+
+                # # first, check if it is a VTK element type. FEBioElementType names
+                # # are the same as VTK element types.
+                # if el_type not in FEBioElementType.__members__.values():
+                #     if str(el_type).upper() in FEBioElementType.__members__.keys():
+                #         el_type = FEBioElementType[el_type].value
+                #     else:
+                #         raise ValueError(f"Element type {el_type} is not a valid FEBio element type.")
 
                 # Create a new Elements group if no existing one matches the name
                 el_root = ET.Element("Elements")
-                el_root.set("type", el_type)
+                el_root.set("type", el_type.value)
                 if element.name is not None:
                     el_root.set("name", str(element.name))
                 if element.part is not None:
@@ -777,10 +781,10 @@ class Feb40(AbstractFebObject):
             last_initial_id += len(element.connectivity)
 
     def add_surfaces(self, elements: List[Surfaces]) -> None:
-        # Filter elements by surface type
-        filtered = [elem for elem in elements if elem.type in SURFACE_EL_TYPE.__members__]
-        if len(filtered) == 0:
-            raise ValueError("No surface elements found in the input list. Try using add_volume_elements() instead.")
+        # # Filter elements by surface type
+        # filtered = [elem for elem in elements if elem.type in SURFACE_EL_TYPE.__members__]
+        # if len(filtered) == 0:
+        #     raise ValueError("No surface elements found in the input list. Try using add_volume_elements() instead.")
 
         # Retrieve existing elements and determine the last element ID
         existing_surfaces_list = self.get_surfaces()
@@ -788,18 +792,23 @@ class Feb40(AbstractFebObject):
 
         existing_surfaces = {element.name: element for element in existing_surfaces_list}
 
-        for surface in filtered:
+        for surface in elements:
             # Make sure the surface type is valid, it must be a valid FEBio surface type
             # However, user can also use VTK surface types as input, but they must be
             # converted to FEBio types
             el_type = surface.type
-            # first, check if it is a VTK element type. FEBioElementType names
-            # are the same as VTK element types.
-            if el_type not in FEBioElementType.__members__.values():
-                if str(el_type).upper() in FEBioElementType.__members__.keys():
-                    el_type = FEBioElementType[el_type].value
-                else:
-                    raise TypeError(f"Element type {el_type} is not a valid FEBio element type.")
+            try:
+                el_type = FEBioElementType(surface.type)
+            except ValueError:
+                el_type = FEBioElementType[surface.type]
+
+            # # first, check if it is a VTK element type. FEBioElementType names
+            # # are the same as VTK element types.
+            # if el_type not in FEBioElementType.__members__.values():
+            #     if str(el_type).upper() in FEBioElementType.__members__.keys():
+            #         el_type = FEBioElementType[el_type].value
+            #     else:
+            #         raise TypeError(f"Element type {el_type} is not a valid FEBio element type.")
 
             if surface.name in existing_surfaces:
                 # Append to existing Surfaces group
@@ -814,7 +823,7 @@ class Feb40(AbstractFebObject):
 
             # Add element connectivities as sub-surfaces
             for i, connectivity in enumerate(surface.connectivity):
-                subel = ET.SubElement(el_root, el_type)  # FEBio use element type as tag name for surface surfaces
+                subel = ET.SubElement(el_root, el_type.value)  # FEBio use element type as tag name for surface surfaces
                 # Set the element ID and convert the connectivity to a comma-separated string
                 subel.set("id", str(i + last_surf_initial_id))
                 subel.text = ",".join(map(str, connectivity + 1))  # Convert connectivity to comma-separated string
