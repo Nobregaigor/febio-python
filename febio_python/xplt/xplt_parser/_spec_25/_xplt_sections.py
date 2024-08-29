@@ -587,6 +587,7 @@ def read_state(bf, states_dict, decompress=False, verbose=0) -> States:
         bf = _decompress_state(bf, verbose=verbose)
     else:
         console_log("File is not compressed.", 3, verbose=verbose)
+    
     # need to re-read filesize to account for decompression
     filesize = get_file_size(bf)
 

@@ -81,6 +81,6 @@ def read_spec25(filepath: Path, verbose=0) -> Tuple[XpltMesh, States]:
 
         # Part 7: Read States
         # ------------------------------------
-        states: States = read_state(bf, states_dict, verbose=verbose)
+        states: States = read_state(bf, states_dict, decompress=file_is_compressed, verbose=verbose)
 
     return mesh, states
