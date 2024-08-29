@@ -22,7 +22,8 @@ def check_fileversion(bf, verbose):
     # return version
     if (version == TAGS.VERSION_2_5.value):
         console_log(f'Current spec version is: 2.5 -> {version}', 2, verbose)
-        raise RuntimeError("XPLT version 2.5 is no longer supported.")
+        # raise RuntimeError("XPLT version 2.5 is no longer supported.")
+        return 2.5
     elif (version == TAGS.VERSION_3_0.value):
         console_log(f'Current spec version is: 3.0 -> {version}', 2, verbose)
         return 3.0
@@ -75,8 +76,18 @@ def read_xplt(xplit_filepath: Union[Path, str], verbose: int = 0) -> Tuple[XpltM
         search_block(bf, TAGS.HDR_VERSION, verbose=verbose)
         version = check_fileversion(bf, verbose)
         console_log(f"File version: {version}", 2, verbose)
-
-    if version == 3.0:
+    
+    if version == 2.5:
+        from ._spec_25 import read_spec25
+        import warnings
+        warnings.warn(
+            "WARNING: XPLT file version 2.5 is no longer supported. May not work as expected. "
+            "Please, update your file to version 3.0 or 4.0.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return read_spec25(xplit_filepath, verbose=verbose)
+    elif version == 3.0:
         from ._spec_30 import read_spec30
         return read_spec30(xplit_filepath, verbose=verbose)
     elif version == 4.0:

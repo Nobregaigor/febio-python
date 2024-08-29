@@ -51,6 +51,13 @@ class NumberOfNodesPerElement(IntEnum):
     HIGHER_ORDER_TETRA = 15
 
 
+class NumberOfNodesPerSurfaceElement(IntEnum):
+    QUAD = 4
+    TRIANGLE = 3
+    QUADRATIC_QUAD = 8
+    QUADRATIC_TRIANGLE = 6
+
+
 class FebioElementTypeToVTKElementType(Enum):
     # Linear elements
     tri3 = "TRIANGLE"
