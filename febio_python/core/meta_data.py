@@ -203,7 +203,7 @@ class ElementData:
     ids: ndarray[int] = None    # Element IDs, refer to the elements in the element set (optional)
     data_type: str = None   # Data type (e.g. 'scalar', 'vector', 'tensor')
     var: str = None    # Data variable (e.g. 'shell thickness', 'fiber density') Used for spec <4.0
-
+    sub_element_tags: list[str] = None  # if data is multi-dimensional, e.g. mat-axis, we need to specify the sub-element tags (e.g. ['a', 'd'])
 
 # Mesh Domains
 # ------------------------------

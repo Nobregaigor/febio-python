@@ -492,35 +492,94 @@ class Feb25(AbstractFebObject):
 
         return surf_data_list
 
+    # @feb_instance_cache
+    # def get_element_data(self, dtype=np.float32) -> List[ElementData]:
+    #     elem_data_list = []
+    #     for data in self.meshdata.findall(self.MAJOR_TAGS.ELEMENTDATA.value):
+    #         _this_data = deque()
+    #         _these_ids = deque()
+    #         for x in data.findall("elem"):
+    #             if ',' in x.text:
+    #                 # Split the string by commas and convert each to float
+    #                 _this_data.append([float(num) for num in x.text.split(',')])
+    #             elif x.text.isdigit():
+    #                 # Convert single digit strings to float
+    #                 _this_data.append(float(x.text))
+    #             else:
+    #                 # Add non-numeric strings as is
+    #                 _this_data.append(x.text)
+    #             _these_ids.append(int(x.attrib["lid"]))
+
+    #         ref = data.attrib["elem_set"]
+    #         name = data.attrib.get("name", None)
+    #         var = data.attrib.get("var", None)
+
+    #         # Create a ElementData instance
+    #         current_data = ElementData(
+    #             elem_set=ref,
+    #             name=name,
+    #             var=var,
+    #             data=np.array(_this_data, dtype=dtype),  # Ensure data is in the correct dtype
+    #             ids=np.array(_these_ids, dtype=np.int64) - 1  # Ensure IDs are zero-based
+    #         )
+
+    #         # Add the ElementData instance to the list
+    #         elem_data_list.append(current_data)
+
+    #     return elem_data_list
     @feb_instance_cache
     def get_element_data(self, dtype=np.float32) -> List[ElementData]:
         elem_data_list = []
         for data in self.meshdata.findall(self.MAJOR_TAGS.ELEMENTDATA.value):
             _this_data = deque()
             _these_ids = deque()
+            sub_element_tags = []
             for x in data.findall("elem"):
-                if ',' in x.text:
-                    # Split the string by commas and convert each to float
-                    _this_data.append([float(num) for num in x.text.split(',')])
-                elif x.text.isdigit():
-                    # Convert single digit strings to float
-                    _this_data.append(float(x.text))
+                sub_elements = [child for child in x]
+                if sub_elements:
+                    # Case with multiple sub-elements (e.g., 'a' and 'b')
+                    stacked_data = []
+                    for sub_elem in sub_elements:
+                        if not sub_element_tags:
+                            sub_element_tags = [sub_elem.tag for sub_elem in sub_elements]
+                        if ',' in sub_elem.text:
+                            # Case with a vector
+                            stacked_data.append([float(num) for num in sub_elem.text.split(',')])
+                        elif sub_elem.text.isdigit():
+                            # Case with a scalar
+                            stacked_data.append(float(sub_elem.text))
+                        else:
+                            # Handle non-numeric strings as is
+                            stacked_data.append(sub_elem.text)
+                    _this_data.append(np.stack(stacked_data, axis=0))
                 else:
-                    # Add non-numeric strings as is
-                    _this_data.append(x.text)
+                    if ',' in x.text:
+                        # Simple case with a single vector
+                        _this_data.append([float(num) for num in x.text.split(',')])
+                    elif x.text.isdigit():
+                        # Simple case with a single scalar
+                        _this_data.append(float(x.text))
+                    else:
+                        # Handle non-numeric strings as is
+                        _this_data.append(x.text)
                 _these_ids.append(int(x.attrib["lid"]))
 
             ref = data.attrib["elem_set"]
             name = data.attrib.get("name", None)
             var = data.attrib.get("var", None)
 
-            # Create a ElementData instance
+            # Ensure data is in the correct dtype and handle shape for multi-element data
+            data_array = np.array(_this_data, dtype=dtype)
+            if len(data_array.shape) == 3:
+                data_array = data_array.reshape(data_array.shape[0], -1)
+
             current_data = ElementData(
                 elem_set=ref,
                 name=name,
                 var=var,
-                data=np.array(_this_data, dtype=dtype),  # Ensure data is in the correct dtype
-                ids=np.array(_these_ids, dtype=np.int64) - 1  # Ensure IDs are zero-based
+                data=data_array,
+                ids=np.array(_these_ids, dtype=np.int64) - 1,  # Ensure IDs are zero-based
+                sub_element_tags=sub_element_tags  # Save sub-element tags
             )
 
             # Add the ElementData instance to the list
