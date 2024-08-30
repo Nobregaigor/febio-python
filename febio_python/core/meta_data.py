@@ -63,6 +63,7 @@ class Material:
     name: str   # Material name (will be used to attach a domain or element set to the material)
     parameters: Dict[str, Union[int, float, str]]   # Material parameters (e.g. {'E': 1e6, 'v': 0.3})
     attributes: Dict[str, Union[int, float, str]] = None    # Optional TAG attributes (e.g. {'density': 1e3})
+    load_curve: Dict[str, int] = None   # Load curve ID for each material parameter (e.g. {'E': 1, 'v': 2})
 
 
 @dataclass

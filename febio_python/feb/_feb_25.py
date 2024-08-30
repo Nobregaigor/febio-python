@@ -248,12 +248,15 @@ class Feb25(AbstractFebObject):
 
             # Extract parameters and remove them from attributes to avoid duplication
             parameters = {}
+            load_curve = {}
             for el in list(item):
                 try:
                     p_val = float(el.text)
                 except ValueError:
                     p_val = el.text
                 parameters[el.tag] = p_val
+                if "lc" in el.attrib:
+                    load_curve[el.tag] = int(el.attrib["lc"])
 
             # Remove standard fields from attributes if they exist
             mat_id = mat_attrib.pop("id", None)
@@ -265,7 +268,8 @@ class Feb25(AbstractFebObject):
             mat_name = mat_attrib.pop("name", "Unnamed Material")
 
             # Create a Material named tuple for the current material
-            current_material = Material(id=mat_id, type=mat_type, parameters=parameters, name=mat_name, attributes=mat_attrib)
+            current_material = Material(id=mat_id, type=mat_type, parameters=parameters, 
+                                        name=mat_name, attributes=mat_attrib, load_curve=load_curve)
 
             # Append the created Material to the list
             materials_list.append(current_material)

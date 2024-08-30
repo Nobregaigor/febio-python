@@ -410,6 +410,7 @@ def add_material(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.Uns
         mat_name = mat.name
         mat_type = mat.type
         mat_id = mat.id
+        mat_load_curve = mat.load_curve
         parameters = OrderedDict(mat.parameters)
         num_params = len(parameters)
         params_names = list(parameters.keys())
@@ -444,6 +445,7 @@ def add_material(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.Uns
         grid.field_data[f"mat_parameters:{mat_id}"] = np.array(params_names, dtype=object)
         grid.field_data[f"mat_type:{mat_id}"] = [mat_type]
         grid.field_data[f"mat_name:{mat_id}"] = [mat_name]
+        grid.field_data[f"mat_load_curve:{mat_id}"] = [mat_load_curve]
 
     return grid
 
@@ -974,6 +976,33 @@ def add_states_to_grid(container: FEBioContainer, grid: pv.UnstructuredGrid, app
             for i, grid in enumerate(state_grids):
                 grid.cell_data["traction_load"][selected_ids] *= lc(timesteps[i])
 
+        # -----
+        # handle material loads
+        materials = container.materials
+        for mat in materials:
+            mat.load_curve  # dict -> [mat_param_name, lc_id]
+            if mat.load_curve is None:
+                continue  # no load curve to apply
+            for mat_param_name, lc_id in mat.load_curve.items():
+                # get the interpolator
+                lc = interpolators[lc_id]
+                # get the material id
+                mat_id = mat.id
+                # get the index of the parameter
+                param_index = list(grid.field_data[f"mat_parameters:{mat_id}"]).index(mat_param_name)
+                # apply the modification
+                for i, grid in enumerate(state_grids):
+                    # get the data
+                    time_scale = lc(timesteps[i])
+                    # get the material data
+                    mat_data = grid.cell_data[f"mat_parameters:{mat_id}"].copy()
+                    # apply the modification to the load in the grid
+                    current_data = mat_data[:, param_index]
+                    new_data = current_data * time_scale
+                    mat_data[:, param_index] = new_data
+                    # update the grid
+                    grid.cell_data[f"mat_parameters:{mat_id}"] = mat_data
+        
     return state_grids
 
 
