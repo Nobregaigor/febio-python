@@ -63,6 +63,7 @@ class Material:
     name: str   # Material name (will be used to attach a domain or element set to the material)
     parameters: Dict[str, Union[int, float, str]]   # Material parameters (e.g. {'E': 1e6, 'v': 0.3})
     attributes: Dict[str, Union[int, float, str]] = None    # Optional TAG attributes (e.g. {'density': 1e3})
+    load_curve: Dict[str, int] = None   # Load curve ID for each material parameter (e.g. {'E': 1, 'v': 2})
 
 
 @dataclass
@@ -203,7 +204,7 @@ class ElementData:
     ids: ndarray[int] = None    # Element IDs, refer to the elements in the element set (optional)
     data_type: str = None   # Data type (e.g. 'scalar', 'vector', 'tensor')
     var: str = None    # Data variable (e.g. 'shell thickness', 'fiber density') Used for spec <4.0
-
+    sub_element_tags: list[str] = None  # if data is multi-dimensional, e.g. mat-axis, we need to specify the sub-element tags (e.g. ['a', 'd'])
 
 # Mesh Domains
 # ------------------------------
