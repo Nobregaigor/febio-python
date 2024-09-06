@@ -22,7 +22,7 @@ from febio_python.core.element_types import FebioElementTypeToVTKElementType
 from collections import OrderedDict
 
 
-def febio_to_pyvista(data: Union[str, Path, FEBioContainer, Tuple, FebType, Xplt], apply_load_curves=True) -> List[pv.UnstructuredGrid]:
+def febio_to_pyvista(data: Union[str, Path, FEBioContainer, Tuple, FebType, Xplt], apply_load_curves=True, **kwargs) -> List[pv.UnstructuredGrid]:
     """
     Converts FEBio simulation data into a PyVista MultiBlock structure for advanced visualization and analysis.
     This function orchestrates a series of operations to transfer all pertinent data from FEBio into a structured
@@ -47,7 +47,7 @@ def febio_to_pyvista(data: Union[str, Path, FEBioContainer, Tuple, FebType, Xplt
     """
 
     # Make sure we have a FEBioContainer object
-    container: FEBioContainer = ensure_febio_container(data)
+    container: FEBioContainer = ensure_febio_container(data, **kwargs)
 
     # Create a multiblock object from the FEBioContainer (nodes, elements, etc.)
     grid: pv.UnstructuredGrid = create_unstructured_grid_from_febio_container(container)
@@ -92,7 +92,7 @@ def febio_to_pyvista(data: Union[str, Path, FEBioContainer, Tuple, FebType, Xplt
 # =============================================================================
 
 
-def ensure_febio_container(data: Union[FEBioContainer, FebType]) -> FEBioContainer:
+def ensure_febio_container(data: Union[FEBioContainer, FebType], **kwargs) -> FEBioContainer:
     """Ensure the input data is a FEBioContainer object."""
     if isinstance(data, (str, Path)):
         # ensure it is a path:
@@ -103,14 +103,14 @@ def ensure_febio_container(data: Union[FEBioContainer, FebType]) -> FEBioContain
         # try to get the file extension:
         extension = filepath.suffix
         if extension == ".feb":
-            return FEBioContainer(feb=filepath)
+            return FEBioContainer(feb=filepath, **kwargs)
         elif extension == ".xplt":
-            return FEBioContainer(xplt=filepath)
+            return FEBioContainer(xplt=filepath, **kwargs)
     elif isinstance(data, tuple):
         feb_data, xplt_data = data
-        return FEBioContainer(feb=feb_data, xplt=xplt_data)
+        return FEBioContainer(feb=feb_data, xplt=xplt_data, **kwargs)
     elif isinstance(data, (Feb25, Feb30, Feb40)):
-        return FEBioContainer(feb=data)
+        return FEBioContainer(feb=data, **kwargs)
     elif isinstance(data, FEBioContainer):
         return data
     else:
