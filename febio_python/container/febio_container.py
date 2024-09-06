@@ -28,7 +28,10 @@ from febio_python.xplt import Xplt
 class FEBioContainer():
     """Container class for FEBio files (FEB and XPLT files).
     """
-    def __init__(self, feb: Union[Feb30, Feb25, str, Path] = None, xplt: Union[Xplt, str, Path] = None, auto_find: bool = True) -> None:
+    def __init__(self, feb: Union[Feb30, Feb25, str, Path] = None, xplt: Union[Xplt, str, Path] = None, 
+                 auto_find: bool = True, 
+                 allow_node_count_mismatch=False,
+                 allow_elem_count_mismatch=False) -> None:
         self.feb: Optional[Union[Feb30, Feb25]] = self._load_feb(feb) if feb else None
         self.xplt: Optional[Xplt] = self._load_xplt(xplt) if xplt else None
 
@@ -54,10 +57,10 @@ class FEBioContainer():
             xplt_elem_count = sum([elem.ids.size for elem in self.xplt.elements])
             # xplt_surf_count = sum([surf.ids.size for surf in self.xplt.surfaces])
 
-            if feb_node_count != xplt_node_count:
+            if not allow_node_count_mismatch and feb_node_count != xplt_node_count:
                 raise ValueError("Number of nodes in FEB and XPLT files do not match."
                                  "Please, make sure that the FEB and XPLT files are compatible.")
-            if feb_elem_count != xplt_elem_count:
+            if not allow_elem_count_mismatch and feb_elem_count != xplt_elem_count:
                 raise ValueError("Number of elements in FEB and XPLT files do not match."
                                  "Please, make sure that the FEB and XPLT files are compatible.")
 
