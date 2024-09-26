@@ -462,6 +462,15 @@ class FebBaseObject():
         except KeyError:
             return self.add_lead_tag(self.LEAD_TAGS.MESHDATA)
 
+    @property
+    def rigid(self) -> ET.Element:
+        """Returns 'RIGID' tree element within 'febio_spec'.
+        This is only avaiable for spec >= 3.0."""
+        try:
+            return self.get_lead_tag(self.LEAD_TAGS.RIGID)
+        except KeyError:
+            return self.add_lead_tag(self.LEAD_TAGS.RIGID)
+
     # ====================================================================================================== #
     # Other utility methods
     # ====================================================================================================== #

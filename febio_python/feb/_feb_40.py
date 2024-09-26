@@ -32,7 +32,10 @@ from febio_python.core import (
     GenericDomain,
     ShellDomain,
     DiscreteSet,
-    DiscreteMaterial
+    DiscreteMaterial,
+    DiscreteNonlinearSpringMaterial,
+    RigidBodyConstraint,
+    RigidBodyFixedConstraint,
 )
 
 from ._caching import feb_instance_cache
@@ -648,16 +651,35 @@ class Feb40(AbstractFebObject):
         for data in self.meshdata.findall(self.MAJOR_TAGS.ELEMENTDATA.value):
             _this_data = deque()
             _these_ids = deque()
-            for x in data.findall("e"):
-                if ',' in x.text:
-                    # Split the string by commas and convert each to float
-                    _this_data.append([float(num) for num in x.text.split(',')])
-                elif x.text.isdigit():
-                    # Convert single digit strings to float
-                    _this_data.append(float(x.text))
+            sub_element_tags = []
+            for x in data.findall("elem"):
+                sub_elements = [child for child in x]
+                if sub_elements:
+                    # Case with multiple sub-elements (e.g., 'a' and 'b')
+                    stacked_data = []
+                    for sub_elem in sub_elements:
+                        if not sub_element_tags:
+                            sub_element_tags = [sub_elem.tag for sub_elem in sub_elements]
+                        if ',' in sub_elem.text:
+                            # Case with a vector
+                            stacked_data.append([float(num) for num in sub_elem.text.split(',')])
+                        elif sub_elem.text.isdigit():
+                            # Case with a scalar
+                            stacked_data.append(float(sub_elem.text))
+                        else:
+                            # Handle non-numeric strings as is
+                            stacked_data.append(sub_elem.text)
+                    _this_data.append(np.stack(stacked_data, axis=0))
                 else:
-                    # Add non-numeric strings as is
-                    _this_data.append(x.text)
+                    if ',' in x.text:
+                        # Simple case with a single vector
+                        _this_data.append([float(num) for num in x.text.split(',')])
+                    elif x.text.isdigit():
+                        # Simple case with a single scalar
+                        _this_data.append(float(x.text))
+                    else:
+                        # Handle non-numeric strings as is
+                        _this_data.append(x.text)
                 _these_ids.append(int(x.attrib["lid"]))
 
             ref = data.attrib["elem_set"]
@@ -673,6 +695,7 @@ class Feb40(AbstractFebObject):
                 name=name,
                 var=var,
                 data_type=data_type,
+                sub_element_tags=sub_element_tags
             )
 
             # Add the ElementData instance to the list
@@ -1045,11 +1068,12 @@ class Feb40(AbstractFebObject):
                 el_root.set("name", material.name)
                 self.material.append(el_root)
 
+            mat_load_curves = material.load_curve or dict()
+
             # Add parameters as sub-elements
             for key, value in material.parameters.items():
-
+                subel = ET.SubElement(el_root, key)
                 if isinstance(value, (str, int, float)):
-                    subel = ET.SubElement(el_root, key)
                     subel.text = str(value)
                 elif isinstance(value, (list, np.ndarray)):
                     # then we must add as mesh data
@@ -1061,7 +1085,8 @@ class Feb40(AbstractFebObject):
                                          "Cannot add material parameter as mesh data. Please, add the Elements first.")
                     # Make sure that data is the same length as the number of elements
                     if len(value) != related_elem.ids.size:
-                        raise ValueError(f"Material parameter '{key}' must have the same length as the number of elements.")
+                        raise ValueError(f"Material parameter '{key}' must have the same length as the number of elements."
+                                         f"Expected {related_elem.ids.size} values, got {len(value)} instead.")
 
                     # set the variable name
                     var = key if (key == "fiber") or (key == "mat_axis") else None
@@ -1080,6 +1105,7 @@ class Feb40(AbstractFebObject):
                         subel.attrib["type"] = "vector"  # NOTE: NEED TO CHECK THIS
                     else:
                         subel.text = f"{ref_data_name}"
+                        subel.attrib["type"] = "map"
                 elif isinstance(value, dict):
                     # then dict key -> sub-element, values -> sub-sub-elements
                     subel = ET.SubElement(el_root, key)
@@ -1090,6 +1116,15 @@ class Feb40(AbstractFebObject):
                             subsubel = ET.SubElement(subel, k)
                             subsubel.text = str(v)
 
+                # Add load curves as sub-elements
+                if key in mat_load_curves:
+                    lc = mat_load_curves[key]
+                    if isinstance(lc, int):
+                        subel.set("lc", str(lc))
+                    elif isinstance(lc, LoadCurve):
+                        subel.set("lc", str(lc.id))
+                        self.add_load_curves([lc])
+            
     def add_discrete_materials(self, materials: List[DiscreteMaterial]) -> None:
         """
         Adds discrete materials to Discrete.
@@ -1099,6 +1134,7 @@ class Feb40(AbstractFebObject):
         """
 
         for material in materials:
+            
             # Create a new Material element if no existing one matches the ID
             el_root = ET.Element("discrete_material")
             el_root.set("id", str(material.id))
@@ -1106,13 +1142,30 @@ class Feb40(AbstractFebObject):
             el_root.set("name", material.name)
 
             # Add parameters as sub-elements
-            mat_params: dict = material.parameters
-            if not isinstance(mat_params, dict):
-                raise ValueError(f"Material parameters should be a dictionary, not {type(mat_params)}")
+            mat_params: dict = material.parameters or dict()
             for key, value in mat_params.items():
                 subel = ET.SubElement(el_root, key)
                 subel.text = str(value)
-
+        
+            # special cases for discrete materials
+            if isinstance(material, DiscreteNonlinearSpringMaterial) and material.type == "nonlinear spring":
+                subel = ET.SubElement(el_root, "scale")
+                subel.text = str(material.scale)
+                subel = ET.SubElement(el_root, "measure")
+                subel.text = str(material.measure)
+                force_subel = ET.SubElement(el_root, "force")
+                force_subel.attrib["type"] = material.force_type
+                if material.force_type == "point":
+                    subel = ET.SubElement(force_subel, "interpolate")
+                    subel.text = str(material.interpolate)
+                    subel = ET.SubElement(force_subel, "extend")
+                    subel.text = str(material.extend)
+                    points_elem = ET.SubElement(force_subel, "points")
+                    for pt in material.points:
+                        subel = ET.SubElement(points_elem, "pt")
+                        subel.text = f"{pt[0]}, {pt[1]}"
+            
+            
             # discrete materials must be at the top,
             # and ordered by id
             # thus, we cannot simply append the new material
@@ -1255,7 +1308,15 @@ class Feb40(AbstractFebObject):
 
             # Add pressure tag, with load curve and scale data
             el_pressure = ET.SubElement(el_root, "pressure")
-            el_pressure.set("lc", str(load.load_curve))
+            if load.load_curve is None:
+                raise ValueError("If type='pressure', the 'load_curve' attribute must be provided.")
+            if isinstance(load.load_curve, (str, int)):
+                el_pressure.set("lc", str(load.load_curve))
+            elif isinstance(load.load_curve, LoadCurve):
+                el_pressure.set("lc", str(load.load_curve.id))
+                self.add_load_curves([load.load_curve])
+            else:
+                raise ValueError("Invalid 'load_curve' attribute. It must be a string or LoadCurve instance.")
             if load.scale is None:
                 el_pressure.text = "1.0"  # Default to 1.0 if no scale is provided
             elif isinstance(load.scale, (str, int, float, np.number)):
@@ -1451,6 +1512,75 @@ class Feb40(AbstractFebObject):
 
             self.boundary.append(el_root)
 
+    # Rigid Bodies
+    # ------------------------------
+    
+    def add_rigid_constraints(self, rigid_constraints: List[RigidBodyConstraint]) -> None:
+        for i, rc in enumerate(rigid_constraints):
+            if not issubclass(type(rc), RigidBodyConstraint):
+                raise TypeError(f"Rigid body constraint at index {i} is not a valid RigidBodyConstraint instance.")
+            # Make sure that rc has a type (e.g. type is not None)
+            if rc.type is None:
+                raise ValueError(f"Rigid body condition at index {i} must have a valid 'type' attribute.")
+            # Make sure that rc has a body material (e.g. body is not None)
+            if rc.body is None:
+                raise ValueError(f"Rigid body condition at index {i} must have a valid 'body' attribute.")
+
+            # Create a new BoundaryCondition element
+            el_root = ET.Element("rigid_bc")
+            
+            # add name and type as attributes
+            el_root.set("type", str(rc.type))
+            el_root.set("type", str(rc.name))
+            
+            # create sub-element for the body
+            body_elem = ET.SubElement(el_root, "rb")
+            body_elem.text = str(rc.body)
+            
+            # Now for specific types of rigid body constraints
+            if isinstance(rc, RigidBodyFixedConstraint) and rc.type == "rigid_fixed":
+                el_root.attrib["type"] = "rigid_fixed"
+                # We have possible constraints for the rigid body
+                # check for each of them individually:
+                dof = str(rc.dof).lower()
+                # x y z - translation
+                x_dof_elem = ET.SubElement(el_root, "Rx_dof")
+                if "x" in dof:
+                    x_dof_elem.text = "1"
+                else:
+                    x_dof_elem.text = "0"
+                y_dof_elem = ET.SubElement(el_root, "Ry_dof")
+                if "y" in dof:
+                    y_dof_elem.text = "1"
+                else:
+                    y_dof_elem.text = "0"
+                z_dof_elem = ET.SubElement(el_root, "Rz_dof")
+                if "z" in dof:
+                    z_dof_elem.text = "1"
+                else:
+                    z_dof_elem.text = "0"
+                # y v w - rotation
+                u_dof_elem = ET.SubElement(el_root, "Ru_dof")
+                if "u" in dof:
+                    u_dof_elem.text = "1"
+                else:
+                    u_dof_elem.text = "0"
+                v_dof_elem = ET.SubElement(el_root, "Rv_dof")
+                if "v" in dof:
+                    v_dof_elem.text = "1"
+                else:
+                    v_dof_elem.text = "0"
+                w_dof_elem = ET.SubElement(el_root, "Rw_dof")
+                if "w" in dof:
+                    w_dof_elem.text = "1"
+                else:
+                    w_dof_elem.text = "0"
+            else:
+                raise RuntimeError(f"Rigid body constraint of type {rc.type} is not yet implemented or not valid.")
+
+            # Append the new RigidBodyConstraint element to the list
+            self.rigid.append(el_root)
+
     # Mesh data
     # ------------------------------
 
@@ -1524,35 +1654,60 @@ class Feb40(AbstractFebObject):
         Args:
             element_data (list of ElementData): List of ElementData namedtuples, each containing an element set, name, and data.
         """
-        existing_element_data = {data.elem_set: data for data in self.get_element_data()}
+        # existing_element_data = {data.elem_set: data for data in self.get_element_data()}
 
         for data in element_data:
-            if data.elem_set in existing_element_data:
-                # Append to existing ElementData element
-                el_root = self.meshdata.find(f".//{self.MAJOR_TAGS.ELEMENTDATA.value}[@elem_set='{data.elem_set}']")
-            else:
-                # Create a new ElementData element if no existing one matches the element set
-                el_root = ET.Element(self.MAJOR_TAGS.ELEMENTDATA.value)
-                el_root.set("elem_set", data.elem_set)
-                if data.name is None and data.var is None:
-                    raise ValueError("ElementData must have either a name or var attribute.")
-                if data.name is not None:
-                    el_root.set("name", data.name)
-                if data.var is not None:
-                    el_root.set("type", data.var)  # IN SPEC 4.0, the type attribute is used for the var attribute
-                self.meshdata.append(el_root)
+            # if data.elem_set in existing_element_data:
+            #     # Append to existing ElementData element
+            #     el_root = self.meshdata.find(f".//{self.MAJOR_TAGS.ELEMENTDATA.value}[@elem_set='{data.elem_set}']")
+            # else:
+            
+            # Create a new ElementData element if no existing one matches the element set
+            el_root = ET.Element(self.MAJOR_TAGS.ELEMENTDATA.value)
+            el_root.set("elem_set", data.elem_set)
+            if data.name is None and data.var is None:
+                raise ValueError("ElementData must have either a name or var attribute.")
+            if data.name is not None:
+                el_root.set("name", data.name)
+            if data.var is not None:
+                el_root.set("type", data.var)  # IN SPEC 4.0, the type attribute is used for the var attribute
+            
+            self.meshdata.append(el_root)
 
-            for i, elem_data in enumerate(data.data):
-                subel = ET.SubElement(el_root, "e")
-                subel.set("lid", str(data.ids[i] + 1))  # Convert to one-based indexing
-                if isinstance(elem_data, (str, int, float, np.number)):
-                    subel.text = str(elem_data)
-                else:
-                    try:
-                        subel.text = ",".join(map(str, elem_data))
-                    except TypeError:
-                        raise ValueError(f"Node data for node set {data.elem_set} is not in the correct format.")
-
+            if data.data.ndim == 1 or data.data.ndim == 2:
+                for i, elem_data in enumerate(data.data):
+                    subel = ET.SubElement(el_root, "elem")
+                    subel.set("lid", str(data.ids[i] + 1))  # Convert to one-based indexing
+                    if isinstance(elem_data, (str, int, float, np.number)):
+                        subel.text = str(elem_data)
+                    else:
+                        try:
+                            subel.text = ",".join(map(str, elem_data))
+                        except TypeError:
+                            raise ValueError(f"Node data for node set {data.elem_set} is not in the correct format.")
+            elif data.data.ndim == 3:
+                if data.sub_element_tags is None:
+                    raise ValueError("ElementData with 3-dimensional data must have a 'sub_element_tags' attribute.")
+                if len(data.sub_element_tags) != data.data.shape[1]:
+                    raise ValueError(f"The number of sub-element tags ({len(data.sub_element_tags)}) must "
+                                     f"match second axis of the data ({data.data.shape[1]}).")
+                
+                for i, elem_data in enumerate(data.data):
+                    # Create a new element sub-element
+                    subel = ET.SubElement(el_root, "elem")
+                    subel.set("lid", str(data.ids[i] + 1))  # Convert to one-based indexing
+                    # Add the sub-element tags
+                    for j, sub_elem_data in enumerate(elem_data):
+                        subsubel = ET.SubElement(subel, data.sub_element_tags[j])
+                        if isinstance(elem_data, (str, int, float, np.number)):
+                            subsubel.text = str(sub_elem_data)
+                        else:
+                            try:
+                                subsubel.text = ",".join(map(str, sub_elem_data))
+                            except TypeError:
+                                raise ValueError(f"Element data for elment {data.elem_set} is not in the correct format.")
+                
+                
     # =========================================================================================================
     # Remove methods
     # =========================================================================================================
@@ -2309,6 +2464,14 @@ class Feb40(AbstractFebObject):
 
         # Add individual settings
         # Add individual settings
+        
+        dtmax_lc_id = None
+        if isinstance(plot_level, LoadCurve):
+            self.add_load_curves([plot_level])
+            dtmax_lc_id = plot_level.id
+            plot_level = "PLOT_MUST_POINTS"
+            
+            
         settings = {
             "analysis": analysis,
             "time_steps": time_steps,
@@ -2385,9 +2548,13 @@ class Feb40(AbstractFebObject):
                                 else:
                                     subsubsub_element = ET.SubElement(subsub_element, subsubkey)
                                     subsubsub_element.text = str(subsubvalue)
+                                    if dtmax_lc_id is not None and subsubkey == "dtmax":
+                                        subsubsub_element.set("lc", str(dtmax_lc_id))
                         else:
                             subsub_element = ET.SubElement(sub_element, subkey)
                             subsub_element.text = str(subvalue)
+                            if dtmax_lc_id is not None and subkey == "dtmax":
+                                subsub_element.set("lc", str(dtmax_lc_id))
             else:
                 element = ET.SubElement(self.control, key)
                 element.text = str(value)

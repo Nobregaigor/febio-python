@@ -1,7 +1,8 @@
 # from collections import namedtuple
 from dataclasses import dataclass
+import numpy as np
 from numpy import ndarray
-from typing import Dict, Union, List
+from typing import Dict, Union, List, Optional
 
 
 # Geometry
@@ -67,9 +68,43 @@ class Material:
 
 
 @dataclass
-class DiscreteMaterial(Material):
-    pass
+class DiscreteMaterial:
+    id: int     # Material ID
+    name: str   # Material name (will be used to attach a domain or element set to the material)
+    type: str = "linear spring"
+    parameters: Dict[str, Union[int, float, str]] = None  # Material parameters (e.g. {'E': 1e6, 'v': 0.3})
+    attributes: Dict[str, Union[int, float, str]] = None    # Optional TAG attributes (e.g. {'density': 1e3})
+    load_curve: Dict[str, int] = None   # Load curve ID for each material parameter (e.g. {'E': 1, 'v': 2})
+    
 
+@dataclass
+class DiscreteNonlinearSpringMaterial(DiscreteMaterial):
+    type: str = "nonlinear spring"
+    scale: float = 1.0
+    measure: str = "elongation"
+    force_type: str = "point"
+    points: ndarray[float] = None
+    compression: float = None
+    tension: float = None
+    interpolate: str = "linear"  # used when force_type is 'point'
+    extend: str = "constant"  # used when force_type is 'point'
+    
+    def __post_init__(self):
+        if self.points is None:
+            if self.compression is None or self.tension is None:
+                raise ValueError("Either points or compression and tension must be provided")
+            # Create points from compression and tension
+            # NOTE: This is a simple linear interpolation centered at 0.0
+            self.points = np.vstack([
+                [-1, -self.compression],
+                [0, 0],
+                [1, self.tension]
+            ])
+        else:
+            if self.compression is not None or self.tension is not None:
+                raise ValueError("Either points or compression and tension must be provided, not both. "
+                                 "Please, set 'points' to None if you want to use compression and tension, "
+                                 "or set 'compression' and 'tension' to None if you want to use 'points'.")
 
 # Loads
 # ------------------------------
@@ -84,7 +119,7 @@ class NodalLoad:
     shell_bottom: bool = False  # Only for spec >=4, when type=nodal_force
     relative: bool = False  # Only for spec >=4, when type=nodal_force
 
-    def __post__(self):
+    def __post_init__(self):
         if self.type != "nodal_load" or self.type != "nodal_force":
             raise ValueError(f"Invalid type {self.type} for {self.__class__.__name__}"
                              "Valid types are 'nodal_load' and 'nodal_force'")
@@ -122,8 +157,26 @@ class SurfaceTractionLoad(SurfaceLoad):
 class LoadCurve:
     id: int     # Load curve ID
     interpolate_type: str       # Interpolation type (e.g. 'linear', 'smooth', 'step')
-    data: ndarray      # Load curve data as a 2-d array (e.g. [[0, 0], [1, 1]])
     extend: str = "CONSTANT"    # Extend type (e.g. 'CONSTANT', 'EXTRAPOLATE')
+    data: ndarray = None      # Load curve data as a 2-d array (e.g. [[0, 0], [1, 1]])
+    x: ndarray = None   # Optional x values for the load curve data
+    y: ndarray = None   # Optional y values for the load curve data
+    
+    def __post_init__(self):
+        if self.data is None:
+            if self.x is None or self.y is None:
+                raise ValueError("Either 'data' or 'x' and 'y' must be provided")
+            if len(self.x) != len(self.y):
+                raise ValueError("Length of 'x' and 'y' must be the same"
+                                 f"Length of 'x': {len(self.x)}, Length of 'y': {len(self.y)}")
+            x = self.x.reshape(-1, 1) if len(self.x.shape) == 1 else self.x
+            y = self.y.reshape(-1, 1) if len(self.y.shape) == 1 else self.y
+            self.data = np.hstack([x, y])
+        else:
+            if self.x is not None or self.y is not None:
+                raise ValueError("Either 'data' or 'x' and 'y' must be provided, not both."
+                                 "Please, set 'data' to None if you want to use 'x' and 'y', "
+                                 "or set 'x' and 'y' to None if you want to use 'data'.")
 
 
 # Boundary conditions
@@ -168,12 +221,29 @@ class ZeroShellDisplacementCondition(FixCondition):
             raise ValueError(f"node_set cannot be None for {self.__class__.__name__}")
 
 
-@dataclass
+@dataclass  # NOTE: THIS IS ONLY USED FOR SPEC <4.0, switch to RigidBodyConstraint for spec >=4.0
 class RigidBodyCondition(BoundaryCondition):
     material: Union[int, str]   # Material ID or name
     dof: str        # Degree of freedom (e.g. 'x', 'y', 'z')
     name: str = None    # Optional name for the boundary condition
     type: str = "rigid body"    # Default type is 'rigid body'
+
+
+@dataclass
+class RigidBodyConstraint:
+    dof: str   # Degree of freedom (e.g. 'x', 'y', 'z')
+    body: str  # Material name of the rigid body
+    type: str  # Type of rigid body constraint (e.g. 'rigid_fixed')
+    name: Optional[str] = None  # Name of the rigid body constraint
+    
+    def __post_init__(self):
+        if self.name is None:
+            self.name = f"{self.body}_{self.type}"
+
+
+@dataclass
+class RigidBodyFixedConstraint(RigidBodyConstraint):
+    type: str = "rigid_fixed"
 
 
 # Mesh data

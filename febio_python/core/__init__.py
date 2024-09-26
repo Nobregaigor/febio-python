@@ -40,6 +40,10 @@ from .meta_data import (
     # Discrete
     DiscreteSet,
     DiscreteMaterial,
+    DiscreteNonlinearSpringMaterial,
+    # Rigids
+    RigidBodyConstraint,
+    RigidBodyFixedConstraint,
 )
 
 from .element_types import (
