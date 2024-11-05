@@ -996,6 +996,8 @@ class Feb25(AbstractFebObject):
                 el_root.set("name", material.name)
                 self.material.append(el_root)
 
+            mat_load_curves = material.load_curve or dict()
+
             # Add parameters as sub-elements
             mat_params: dict = material.parameters
             if not isinstance(mat_params, dict):
@@ -1027,6 +1029,15 @@ class Feb25(AbstractFebObject):
                 else:
                     # if it is not a number or an array, we just add it as text
                     subel.text = str(value)
+
+                # Add load curves as sub-elements
+                if key in mat_load_curves:
+                    lc = mat_load_curves[key]
+                    if isinstance(lc, int):
+                        subel.set("lc", str(lc))
+                    elif isinstance(lc, LoadCurve):
+                        subel.set("lc", str(lc.id))
+                        self.add_load_curves([lc])
 
     def add_discrete_materials(self, materials: List[DiscreteMaterial]) -> None:
         """
@@ -1224,7 +1235,7 @@ class Feb25(AbstractFebObject):
             if hasattr(bc, "name") and bc.name is not None:
                 el_root.set("name", str(bc.name))
             if hasattr(bc, "dof") and bc.dof is not None:
-                if not bc_type == "rigid body":
+                if not bc_type_tag == "rigid_body":
                     el_root.set("bc", bc.dof)
                 else:
                     for fixed in bc.dof.split(","):
@@ -1301,40 +1312,62 @@ class Feb25(AbstractFebObject):
         Args:
             element_data (list of ElementData): List of ElementData objects, each containing an element set, name, and data.
         """
-        # existing_element_data = {data.elem_set: data for data in self.get_element_data()}
-
         for data in element_data:
-            # if data.elem_set in existing_element_data:
-            #     # Append to existing ElementData element
-            #     el_root = self.meshdata.find(f".//{self.MAJOR_TAGS.ELEMENTDATA.value}[@elem_set='{data.elem_set}']")
-            # else:
             # Create a new ElementData element if no existing one matches the element set
             el_root = ET.Element(self.MAJOR_TAGS.ELEMENTDATA.value)
             el_root.set("elem_set", data.elem_set)
+            # Add name and var if they are not None
             if data.name is not None:
                 el_root.set("name", data.name)
             if data.var is not None:
                 el_root.set("var", data.var)
+            # Add data type if it is not None or try to assume based on the data
             if data.data_type is not None:
                 el_root.set("datatype", data.data_type)
-            else:  # try to assume based on
-                if isinstance(data.data, np.ndarray):
-                    if data.data.ndim == 1:
-                        el_root.set("datatype", "scalar")
-                    else:
-                        if data.data.shape[1] == 3:
-                            el_root.set("datatype", "vector")
-                        else:
-                            el_root.set("datatype", "matrix")
+            # else:  # try to assume based on
+            #     if isinstance(data.data, np.ndarray):
+            #         if data.data.ndim == 1:
+            #             el_root.set("datatype", "scalar")
+            #         else:
+            #             if data.data.shape[1] == 3:
+            #                 el_root.set("datatype", "vector")
+            #             else:
+            #                 el_root.set("datatype", "matrix")
+            # Append the new ElementData element to the list
             self.meshdata.append(el_root)
 
-            for i, elem_data in enumerate(data.data):
-                subel = ET.SubElement(el_root, "elem")
-                subel.set("lid", str(data.ids[i] + 1))  # Convert to one-based indexing
-                if isinstance(elem_data, (str, int, float, np.number)):
-                    subel.text = str(elem_data)
-                else:
-                    subel.text = ",".join(map(str, elem_data))
+            if data.data.ndim == 1 or data.data.ndim == 2:
+                for i, elem_data in enumerate(data.data):
+                    subel = ET.SubElement(el_root, "elem")
+                    subel.set("lid", str(data.ids[i] + 1))  # Convert to one-based indexing
+                    if isinstance(elem_data, (str, int, float, np.number)):
+                        subel.text = str(elem_data)
+                    else:
+                        try:
+                            subel.text = ",".join(map(str, elem_data))
+                        except TypeError:
+                            raise ValueError(f"Node data for node set {data.elem_set} is not in the correct format.")
+            elif data.data.ndim == 3:
+                if data.sub_element_tags is None:
+                    raise ValueError("ElementData with 3-dimensional data must have a 'sub_element_tags' attribute.")
+                if len(data.sub_element_tags) != data.data.shape[1]:
+                    raise ValueError(f"The number of sub-element tags ({len(data.sub_element_tags)}) must "
+                                     f"match second axis of the data ({data.data.shape[1]}).")
+                
+                for i, elem_data in enumerate(data.data):
+                    # Create a new element sub-element
+                    subel = ET.SubElement(el_root, "elem")
+                    subel.set("lid", str(data.ids[i] + 1))  # Convert to one-based indexing
+                    # Add the sub-element tags
+                    for j, sub_elem_data in enumerate(elem_data):
+                        subsubel = ET.SubElement(subel, data.sub_element_tags[j])
+                        if isinstance(elem_data, (str, int, float, np.number)):
+                            subsubel.text = str(sub_elem_data)
+                        else:
+                            try:
+                                subsubel.text = ",".join(map(str, sub_elem_data))
+                            except TypeError:
+                                raise ValueError(f"Element data for elment {data.elem_set} is not in the correct format.")
 
     # =========================================================================================================
     # Remove methods

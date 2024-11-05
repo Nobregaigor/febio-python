@@ -173,7 +173,7 @@ class FebBaseObject():
         """Remore all root children that are empty."
         """
         for child in list(self.root):
-            if child.tag != self.LEAD_TAGS.MODULE:
+            if str(child.tag).lower() != str(self.LEAD_TAGS.MODULE.name).lower():
                 if len(child) == 0:
                     self.root.remove(child)
 

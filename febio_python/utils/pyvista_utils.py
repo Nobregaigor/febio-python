@@ -1145,3 +1145,35 @@ def carefully_pass_cell_data_to_point_data(mesh: pv.UnstructuredGrid) -> pv.Unst
         new_mesh.point_data[key][point_map] = valid_cells.point_data[key]
 
     return new_mesh
+
+
+# =============================================================================
+from febio_python.core import FEBioElementType
+
+class PyvistaToFEBioElementType:
+    # Mapping between PyVista CellType and FEBioElementType
+    MAPPING = {
+        pv.CellType.HEXAHEDRON: FEBioElementType.HEXAHEDRON,
+        pv.CellType.TRIANGLE: FEBioElementType.TRIANGLE,
+        pv.CellType.QUAD: FEBioElementType.QUAD,
+        pv.CellType.TETRA: FEBioElementType.TETRA,
+        pv.CellType.WEDGE: FEBioElementType.WEDGE,
+        # Quadratic elements
+        pv.CellType.QUADRATIC_TRIANGLE: FEBioElementType.QUADRATIC_TRIANGLE,
+        pv.CellType.QUADRATIC_QUAD: FEBioElementType.QUADRATIC_QUAD,
+        pv.CellType.QUADRATIC_TETRA: FEBioElementType.QUADRATIC_TETRA,
+        pv.CellType.QUADRATIC_WEDGE: FEBioElementType.QUADRATIC_WEDGE,
+        pv.CellType.QUADRATIC_HEXAHEDRON: FEBioElementType.QUADRATIC_HEXAHEDRON,
+        # Higher-order elements
+        pv.CellType.BIQUADRATIC_QUAD: FEBioElementType.BIQUADRATIC_QUAD,
+        pv.CellType.TRIQUADRATIC_HEXAHEDRON: FEBioElementType.TRIQUADRATIC_HEXAHEDRON,
+        pv.CellType.HIGHER_ORDER_TETRAHEDRON: FEBioElementType.HIGHER_ORDER_TETRA
+    }
+
+    @staticmethod
+    def map(cell_type):
+        """Map PyVista CellType to FEBioElementType."""
+        return PyvistaToFEBioElementType.MAPPING.get(cell_type, None)
+
+    def __call__(self, cell_type):
+        return self.map(cell_type)

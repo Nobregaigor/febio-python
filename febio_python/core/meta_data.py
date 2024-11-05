@@ -120,8 +120,9 @@ class NodalLoad:
     relative: bool = False  # Only for spec >=4, when type=nodal_force
 
     def __post_init__(self):
-        if self.type != "nodal_load" or self.type != "nodal_force":
-            raise ValueError(f"Invalid type {self.type} for {self.__class__.__name__}"
+        self.type = str(self.type).lower()
+        if self.type != "nodal_load" and self.type != "nodal_force":
+            raise ValueError(f"Invalid type '{self.type}' for {self.__class__.__name__}"
                              "Valid types are 'nodal_load' and 'nodal_force'")
         if self.type == "nodal_force" and not isinstance(self.scale, (tuple, ndarray)):
             raise ValueError(f"Invalid scale {self.scale} for {self.__class__.__name__}"
@@ -276,6 +277,10 @@ class ElementData:
     var: str = None    # Data variable (e.g. 'shell thickness', 'fiber density') Used for spec <4.0
     sub_element_tags: list[str] = None  # if data is multi-dimensional, e.g. mat-axis, we need to specify the sub-element tags (e.g. ['a', 'd'])
 
+    def __post_init__(self):
+        if self.ids is None:
+            self.ids = np.arange(self.data.shape[0])
+        
 # Mesh Domains
 # ------------------------------
 @dataclass
