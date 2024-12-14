@@ -32,6 +32,7 @@ class FEBioElementValue(IntEnum):
     QUADRATIC_TETRA = 7  # TET10
     QUADRATIC_WEDGE = 13  # PENTA15
     TRIQUADRATIC_HEXAHEDRON = 9  # HEX27
+    QUADRATIC_TRIANGLE = 10  # TRI6
     QUADRATIC_QUAD = 11  # QUAD8
     HIGHER_ORDER_TETRA = 8  # TET15
 
@@ -47,6 +48,7 @@ class NumberOfNodesPerElement(IntEnum):
     QUADRATIC_TETRA = 10
     QUADRATIC_WEDGE = 15
     TRIQUADRATIC_HEXAHEDRON = 27
+    QUADRATIC_TRIANGLE = 6
     QUADRATIC_QUAD = 8
     HIGHER_ORDER_TETRA = 15
 
@@ -86,7 +88,7 @@ class SURFACE_ELEMENT_TYPES(IntEnum):
     # Higher order elements
     BIQUADRATIC_QUAD = FEBioElementValue.QUADRATIC_QUAD
     # VTK-supported surface types (unsupported by FEBio, value will be -1)
-    QUADRATIC_TRIANGLE = -1
+    QUADRATIC_TRIANGLE = FEBioElementValue.QUADRATIC_TRIANGLE
     BIQUADRATIC_TRIANGLE = -1
     POLYGON = -1
 
