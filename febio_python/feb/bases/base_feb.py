@@ -9,6 +9,7 @@ import numpy as np
 from typing import Union, Tuple, List
 from febio_python.utils import enum_utils as eu
 from collections import OrderedDict
+import os
 
 
 class FebBaseObject():
@@ -186,16 +187,72 @@ class FebBaseObject():
     # Writing methods
     # ====================================================================================================== #
 
-    def write(self, filepath, clean=False, encoding="ISO-8859-1") -> None:
-        if clean:
-            self.clean()
-        ET.indent(self.tree, space="\t", level=0)
-        import os
-        out_dir = os.path.dirname(os.path.abspath(filepath))
-        if not os.path.exists(out_dir):
-            os.makedirs(out_dir)
+    # def write(self, filepath, clean=False, encoding="ISO-8859-1") -> None:
+    #     if clean:
+    #         self.clean()
+    #     ET.indent(self.tree, space="\t", level=0)
+    #     import os
+    #     out_dir = os.path.dirname(os.path.abspath(filepath))
+    #     if not os.path.exists(out_dir):
+    #         os.makedirs(out_dir)
 
-        self.tree.write(filepath, encoding=encoding)
+    #     self.tree.write(filepath, encoding=encoding)
+    
+    def write(self, filepath, clean=False, encoding="ISO-8859-1") -> None:
+        try:
+            if clean:
+                self.clean()
+
+            # Indent the tree for readability.
+            ET.indent(self.tree, space="\t", level=0)
+
+            # Ensure 'filepath' is a Path-like object.
+            if isinstance(filepath, (str, Path)):
+                # Create output directory if it does not exist.
+                out_dir = os.path.dirname(os.path.abspath(str(filepath)))
+                os.makedirs(out_dir, exist_ok=True)
+            else:
+                raise TypeError(f"filepath must be str or Path, got {type(filepath).__name__}")
+
+            # Write out the XML file.
+            self.tree.write(filepath, encoding=encoding)
+        except Exception as err:
+            # Validate XML tree to catch None values that might break serialization.
+            root = self.tree.getroot() if hasattr(self.tree, "getroot") else self.tree
+            self._validate_tree(root)
+            
+            # Wrap the error with additional debug info.
+            raise type(err)(
+                f"Error writing XML to '{filepath}': {err}. "
+                f"Check that all element texts, tails, and attributes are not None. "
+            ) from err
+
+    def _validate_tree(self, element: ET.Element, path: str = "") -> None:
+        """
+        Recursively checks elements for None values in text, tail or attributes.
+        If found, logs a warning with context about the location in the tree.
+        """
+        current_path = f"{path}/{element.tag}" if path else element.tag
+
+        if current_path not in [
+            "febio_spec",
+            # "febio_spec/Module",
+            "febio_spec/Output/plotfile/var"
+        ]:
+            if element.text is None:
+                print(f"DEBUG WARNING: Text is None for element at '{current_path}'.")
+            if element.tail is None:
+                print(f"DEBUG WARNING: Tail is None for element at '{current_path}'.")
+            for attr_key, attr_value in element.attrib.items():
+                if attr_value is None:
+                    print(
+                        f"DEBUG WARNING: Attribute '{attr_key}' is None "
+                        f"for element at '{current_path}'."
+                    )
+    
+        # Recursively validate children.
+        for child in element:
+            self._validate_tree(child, current_path)
 
     # ====================================================================================================== #
     # Helper Methods to handle tags
