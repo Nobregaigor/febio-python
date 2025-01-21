@@ -4,6 +4,8 @@ import subprocess
 import shutil
 from tqdm import tqdm
 from .feb_version_handler import Feb
+import os
+import platform
 
 
 def run(files: Union[str, List[Union[str, Path]]],
@@ -37,10 +39,22 @@ def run(files: Union[str, List[Union[str, Path]]],
     if executable is None:
         sample_file = files_to_run[0]
         version = Feb(sample_file).version
+
+        # Determine the OS type
+        os_type = platform.system().lower()  # Returns 'windows', 'darwin' (for macOS), or 'linux'
+        
         if version < 4.0:
-            executable = "febio3.exe"
+            executable_base = "febio3"
         else:
-            executable = "febio4.exe"
+            executable_base = "febio4"
+
+        # Append the appropriate file extension based on the OS
+        if os_type == "windows":
+            executable = f"{executable_base}.exe"
+        elif os_type in {"darwin", "linux"}:
+            executable = executable_base  # No extension for macOS or Linux
+        else:
+            raise ValueError(f"Unsupported operating system: {os_type}")
 
     if isinstance(executable, Path):
         assert executable.exists(), f"Executable {executable} does not exist."
