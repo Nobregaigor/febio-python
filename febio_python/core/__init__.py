@@ -44,6 +44,8 @@ from .meta_data import (
     # Rigids
     RigidBodyConstraint,
     RigidBodyFixedConstraint,
+    # Prescribed
+    PrescribedDisplacementCondition
 )
 
 from .element_types import (
