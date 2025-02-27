@@ -313,14 +313,24 @@ def add_elementdata(container: FEBioContainer, grid: pv.UnstructuredGrid) -> pv.
         name = el_data.name
         var = el_data.var
         # Find the proper grid
-        full_data = np.full((grid.n_cells, data.shape[1]), np.nan)
-        full_data[elem_ids] = data
-        if name is not None:
-            grid.cell_data[name] = full_data
-        elif var is not None:
-            grid.cell_data[var] = full_data
-        else:
-            grid.cell_data[f"element_data_{elem_set}"] = full_data
+        try:
+            if len(data.shape) == 3:
+                for col in range(data.shape[1]):
+                    full_data = np.full((grid.n_cells, data.shape[2]), np.nan)
+                    full_data[elem_ids] = data[:, col, :]
+                    grid.cell_data[f"{name}_{col}"] = full_data
+            else:
+                full_data = np.full((grid.n_cells, data.shape[1]), np.nan)
+                full_data[elem_ids] = data
+                if name is not None:
+                    grid.cell_data[name] = full_data
+                elif var is not None:
+                    grid.cell_data[var] = full_data
+                else:
+                    grid.cell_data[f"element_data_{elem_set}"] = full_data
+        except ValueError as e:
+            print(f"Error adding element data {name} to grid: {e}")
+            continue
     return grid
 
 
