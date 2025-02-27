@@ -221,6 +221,21 @@ class ZeroShellDisplacementCondition(FixCondition):
         if self.node_set is None:
             raise ValueError(f"node_set cannot be None for {self.__class__.__name__}")
 
+@dataclass
+class PrescribedDisplacementCondition(BoundaryCondition):
+    type: str = "prescribed displacement"
+    relative: bool = False  # Used for prescribed displacement conditions
+    value: Union[float, str, tuple, ndarray] = None # Load scale factor
+    load_curve: int = None  # Load curve ID
+    
+    def __post_init__(self):
+        if self.node_set is None:
+            raise ValueError(f"node_set cannot be None for {self.__class__.__name__}")
+        if self.value is None:
+            raise ValueError(f"value cannot be None for {self.__class__.__name__}")
+        if not isinstance(self.value, np.ndarray) and self.load_curve is None:
+            raise ValueError(f"load_curve cannot be None for {self.__class__.__name__} "
+                             "when value is not an ndarray")
 
 @dataclass  # NOTE: THIS IS ONLY USED FOR SPEC <4.0, switch to RigidBodyConstraint for spec >=4.0
 class RigidBodyCondition(BoundaryCondition):
