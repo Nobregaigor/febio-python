@@ -36,6 +36,7 @@ from febio_python.core import (
     DiscreteNonlinearSpringMaterial,
     RigidBodyConstraint,
     RigidBodyFixedConstraint,
+    PrescribedDisplacementCondition
 )
 
 from ._caching import feb_instance_cache
@@ -1485,6 +1486,49 @@ class Feb40(AbstractFebObject):
                 for fixed in bc.dof.split(','):
                     subel = ET.SubElement(el_root, "fixed")
                     subel.set("bc", fixed)
+            elif bc.type == "prescribed displacement":
+                bc: PrescribedDisplacementCondition  # for type hinting
+                el_root.set("type", bc.type)
+                el_root.set("node_set", bc.node_set)
+                if bc.name is None:
+                    name = f"PrescribedDisplacement_{i}_{bc.node_set}"
+                else:
+                    name = bc.name
+                el_root.set("name", name)
+
+                dof_elem = ET.SubElement(el_root, "dof")
+                dof_elem.text = bc.dof.lower()
+                
+                relative_elem = ET.SubElement(el_root, "relative")
+                relative_elem.text = str(bc.relative)
+                
+                # Add pressure tag, with load curve and scale data
+                el_pressure = ET.SubElement(el_root, "value")
+                if bc.load_curve is None:
+                    raise ValueError("If type='pressure', the 'load_curve' attribute must be provided.")
+                if isinstance(bc.load_curve, (str, int)):
+                    el_pressure.set("lc", str(bc.load_curve))
+                elif isinstance(bc.load_curve, LoadCurve):
+                    el_pressure.set("lc", str(bc.load_curve.id))
+                    self.add_load_curves([bc.load_curve])
+                else:
+                    raise ValueError("Invalid 'load_curve' attribute. It must be a string or LoadCurve instance.")
+                if bc.value is None:
+                    el_pressure.text = "1.0"  # Default to 1.0 if no scale is provided
+                elif isinstance(bc.value, (str, int, float, np.number)):
+                    el_pressure.text = str(bc.value)
+                elif isinstance(bc.value, np.ndarray):
+                    # we need to add this as mesh data; and then reference it here
+                    ref_data_name = f"prescribed_displacement_{bc.node_set}_value"
+                    el_pressure.text = f"1*{ref_data_name}"
+                    # prepare the nodal data
+                    node_data = NodalData(node_set=bc.node_set,
+                                          name=ref_data_name,
+                                          data=bc.value,
+                                          ids=np.arange(0, len(bc.value) + 1))
+                    # add the surface data
+                    self.add_nodal_data([node_data])
+
             else:  # General BoundaryCondition
                 el_root.set("type", bc.type)
                 if bc.node_set is not None:
@@ -2470,7 +2514,15 @@ class Feb40(AbstractFebObject):
             self.add_load_curves([plot_level])
             dtmax_lc_id = plot_level.id
             plot_level = "PLOT_MUST_POINTS"
-            
+        elif isinstance(plot_level, int):
+            dtmax_lc_id = plot_level
+            plot_level = "PLOT_MUST_POINTS"
+        elif isinstance(plot_level, str) and plot_level.isdigit():
+            plot_level = "PLOT_MUST_POINTS"
+            dtmax_lc_id = int(plot_level)
+        elif isinstance(plot_level, str) and plot_level.startswith("lc="):
+            dtmax_lc_id = int(plot_level[3:])
+            plot_level = "PLOT_MUST_POINTS"
             
         settings = {
             "analysis": analysis,
@@ -2540,7 +2592,7 @@ class Feb40(AbstractFebObject):
                         sub_element.set(subkey[1:], str(subvalue))
                     else:
                         if isinstance(subvalue, dict):
-                            print(subkey, subvalue)
+                            # print(subkey, subvalue)
                             subsub_element = ET.SubElement(sub_element, subkey)
                             for subsubkey, subsubvalue in subvalue.items():
                                 if subsubkey.startswith("_"):
