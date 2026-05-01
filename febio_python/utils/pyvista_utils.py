@@ -2,7 +2,7 @@ import pyvista as pv
 import numpy as np
 from copy import deepcopy
 from pathlib import Path
-from febio_python import FEBioContainer
+from febio_python.container import FEBioContainer
 from febio_python.feb import FebType, Feb25, Feb30, Feb40
 from febio_python.xplt import Xplt
 
